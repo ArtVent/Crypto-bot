@@ -67,3 +67,16 @@ def test_daily_killswitch_resets():
     rm.reset_day()
     assert not rm.halted and rm.daily_realized_pnl_sol == 0.0
     assert rm.realized_pnl_sol < 0  # Gesamt-PnL bleibt erhalten
+
+
+def test_budget_frees_after_closed_positions():
+    """Regression: Verkaufserlöse müssen ins Budget zurückfließen (kein Umsatz-Deckel)."""
+    rm = RiskManager(RiskConfig(budget_sol=0.1, position_sol=0.05, max_concurrent=3,
+                                daily_loss_stop_sol=10.0))
+    for i in range(10):  # 10 Zyklen à 0.05 -> Umsatz 0.5 >> Budget 0.1
+        assert rm.can_enter()[0], f"Zyklus {i}: Budget fälschlich erschöpft"
+        pos = rm.open_position(f"M{i}", "X", 1000.0, 0.05)
+        rm.record_sell(pos, 1000.0, 0.049)  # kleiner Verlust, Erlös zurück ins Budget
+    assert rm.realized_pnl_sol < 0
+    ok, why = rm.can_enter()
+    assert ok, why

@@ -88,13 +88,13 @@ class RiskManager:
             return False, "Kill-Switch aktiv (Tagesverlust-Limit erreicht)"
         if len(self.positions) >= c.max_concurrent:
             return False, f"max. {c.max_concurrent} gleichzeitige Positionen"
+        # Cash-Rechnung: Startbudget + realisierte PnL - in offenen Positionen
+        # gebundenes Kapital. (Verkaufserlöse fließen ins Budget zurück.)
         committed = sum(p.cost_sol - p.realized_sol for p in self.positions.values())
-        if self.spent_sol - self.realized_gains() + committed + c.position_sol > c.budget_sol:
-            return False, "Budget erschöpft"
+        available = c.budget_sol + self.realized_pnl_sol - committed
+        if available < c.position_sol:
+            return False, f"Budget erschöpft (verfügbar {available:.3f} SOL)"
         return True, "ok"
-
-    def realized_gains(self) -> float:
-        return max(0.0, self.realized_pnl_sol)
 
     def open_position(self, mint: str, symbol: str, tokens: float, cost_sol: float, now: float | None = None) -> Position:
         now = time.time() if now is None else now

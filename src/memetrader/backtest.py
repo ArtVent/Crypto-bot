@@ -113,6 +113,8 @@ def run_backtest(
     claude: str = "stub",  # "stub" | "live" | "off"
     events: list | None = None,
     hardened_checks: bool = True,
+    strategy_overrides: dict | None = None,
+    risk_overrides: dict | None = None,
 ) -> BacktestResult:
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
@@ -120,6 +122,10 @@ def run_backtest(
     config = BotConfig()
     config.risk = RiskConfig(budget_sol=budget_sol)
     config.strategy = StrategyConfig()
+    for key, val in (strategy_overrides or {}).items():
+        setattr(config.strategy, key, val)
+    for key, val in (risk_overrides or {}).items():
+        setattr(config.risk, key, val)
     if not hardened_checks:  # Baseline: Mikrostruktur-Gates deaktiviert
         config.strategy.max_burst_buyer_share = 1.01
         config.strategy.min_buy_size_cv = 0.0
