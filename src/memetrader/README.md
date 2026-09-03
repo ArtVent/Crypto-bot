@@ -53,6 +53,43 @@ Forschung/persönliche Experimente. Für den kommerziellen Pfad (SaaS) mit
 `python -m memetrader.train_mlfilter` auf den eigenen Archiv-Daten
 (`memescan watch`/`label`) neu trainieren – die Pipeline ist identisch.
 
+## Lern-Schicht – der Bot lernt aus seinen Fehlern
+
+Drei Bausteine machen aus dem Regel-Bot ein selbst-korrigierendes System:
+
+**1. Trade-Journal mit Kontrafakt (`journal.py`):** Nach jedem geschlossenen
+Trade beobachtet der Bot den Coin noch 10 Minuten weiter – erst der Vergleich
+"was wäre passiert, hätte ich gehalten?" macht aus dem Ergebnis eine Lektion:
+`good_stop` / `shaken_out` (Stop zu eng), `impatient` (Zeit-Stop zu früh),
+`sold_too_early`, `bad_entry` (schneller Verlust = Filter-Lücke),
+`overreacted_creator_exit` u. a. Jede Lektion landet mit vollem
+Entry-Kontext (Curve-Füllung, Käuferzahl, ML-Score, …) in
+`memetrader.journal.jsonl`.
+
+**2. Selbst-Kalibrierung (`adaptive.py`):** Häufen sich Lektionen (>= 3 gleiche
+im 20-Trade-Fenster), passt der Bot seine Parameter an – Stop weiter/enger,
+Zeit-Stop länger, Entry-Filter strenger, ML-Schwelle nachgezogen. Alles mit
+harten Grenzen (Stop nie unter −50 %, ML-Schwelle nie unter 0,6 usw.),
+Mehrfach-Evidenz-Pflicht und geloggter Begründung. Dazu Drawdown-Bewusstsein:
+Nach 3 Verlusten in Folge handelt er mit 75 % Größe, nach 5 mit 50 % – und
+arbeitet sich mit Gewinnen zurück. Der Bot kann sich justieren, aber nie aus
+seinem Sicherheitsrahmen "herauslernen".
+
+**3. Claude-Berater (`advisor.py`, optional):** `memetrader advise` schickt die
+aggregierten Journal-Statistiken an Claude (Modell `claude-opus-5`) und holt
+eine Muster-Analyse mit Vorschlägen – angewendet wird nur mit `--apply` und
+ausschließlich innerhalb derselben Grenzen. Der Berater läuft nie im
+Trade-Pfad und hat keine Ausführungsrechte (Guardrails in Code, nicht im
+Prompt – die Freysa-Lektion aus docs/ai-und-memecoins.md). Benötigt
+`pip install anthropic` + `ANTHROPIC_API_KEY`.
+
+Einblick in den gelernten Zustand:
+
+```bash
+python -m memetrader brain     # Lektionen, wirksame Parameter, Tuning-Historie
+python -m memetrader advise    # Claude-Review (--apply übernimmt begrenzt)
+```
+
 ## Nutzung
 
 ```bash

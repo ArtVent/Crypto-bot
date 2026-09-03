@@ -32,6 +32,14 @@ def main(argv: list[str] | None = None) -> int:
     p_analyze = sub.add_parser("analyze", help="Entscheidungs-Log auswerten (PnL, Trefferquote, Exit-Gründe)")
     p_analyze.add_argument("log_file", nargs="?", default="memetrader.log.jsonl")
 
+    p_brain = sub.add_parser("brain", help="Gelernten Zustand zeigen: Lektionen, Selbst-Tuning-Historie")
+    p_brain.add_argument("--journal", default="memetrader.journal.jsonl")
+    p_brain.add_argument("--tuning", default="memetrader.tuning.json")
+
+    p_advise = sub.add_parser("advise", help="Claude-Review des Journals (Vorschläge; --apply wendet sie begrenzt an)")
+    p_advise.add_argument("--journal", default="memetrader.journal.jsonl")
+    p_advise.add_argument("--apply", action="store_true")
+
     args = parser.parse_args(argv)
 
     from .bot import Bot, BotConfig
@@ -72,6 +80,75 @@ def main(argv: list[str] | None = None) -> int:
         from .analyze import analyze_file
 
         print(analyze_file(args.log_file).report())
+        return 0
+
+    if args.cmd == "brain":
+        from collections import Counter
+        from pathlib import Path as _Path
+
+        from .journal import load_journal_records
+
+        records = load_journal_records(args.journal)
+        lessons = Counter(r.get("lesson") for r in records if r.get("lesson"))
+        pnl = sum(r.get("pnl_sol") or 0.0 for r in records)
+        print("=== memetrader Gehirn ===")
+        print(f"Abgeschlossene Trades im Journal: {len(records)}  |  PnL: {pnl:+.4f} SOL")
+        if lessons:
+            print("Gelernte Lektionen:")
+            for lesson, count in lessons.most_common():
+                print(f"  {lesson:<26} {count:>3}x")
+        tuning = _Path(args.tuning)
+        if tuning.exists():
+            state = json.loads(tuning.read_text())
+            print("Wirksame (selbst-kalibrierte) Parameter:")
+            for key, val in state.get("effective", {}).items():
+                print(f"  {key:<26} {val}")
+            print("Letzte Selbst-Anpassungen:")
+            for adj in state.get("history", [])[-5:]:
+                print(f"  {adj['param']}: {adj['old']} -> {adj['new']}  ({adj['reason']})")
+        else:
+            print("Noch keine Selbst-Anpassungen (memetrader.tuning.json fehlt).")
+        return 0
+
+    if args.cmd == "advise":
+        from .adaptive import AdaptiveTuner, Bounds
+        from .advisor import apply_proposals, ask_advisor, summarize_journal
+        from .journal import load_journal_records
+        from .risk import RiskConfig
+        from .strategy import StrategyConfig
+
+        records = load_journal_records(args.journal)
+        if not records:
+            print("Journal ist leer – erst Paper-Trading laufen lassen.")
+            return 1
+        strategy_cfg, risk_cfg = StrategyConfig(), RiskConfig()
+        tuner = AdaptiveTuner(strategy_cfg, risk_cfg)
+        effective = {"stop_loss_pct": risk_cfg.stop_loss_pct, "take_profit_pct": risk_cfg.take_profit_pct,
+                     "progress_deadline_seconds": risk_cfg.progress_deadline_seconds,
+                     "min_fill_pct": strategy_cfg.min_fill_pct, "min_unique_buyers": strategy_cfg.min_unique_buyers}
+        bounds = {k: getattr(Bounds(), k) for k in
+                  ("stop_loss_pct", "take_profit_pct", "progress_deadline_seconds", "min_fill_pct", "min_unique_buyers")}
+        try:
+            review = ask_advisor(summarize_journal(records, effective, bounds))
+        except (RuntimeError, ValueError) as exc:
+            print(f"Berater nicht verfügbar: {exc}", file=sys.stderr)
+            return 2
+        print("=== Claude-Review ===")
+        print(review.get("analysis", ""))
+        for warning in review.get("warnings", []):
+            print(f"⚠ {warning}")
+        proposals = review.get("proposals", [])
+        if not proposals:
+            print("Keine Änderungsvorschläge.")
+            return 0
+        for p in proposals:
+            print(f"Vorschlag: {p.get('param')} -> {p.get('value')}  ({p.get('reason')})")
+        if args.apply:
+            for line in apply_proposals(proposals, tuner):
+                print(f"  {line}")
+            print("Angewendet (innerhalb der Bounds) und in memetrader.tuning.json persistiert.")
+        else:
+            print("(--apply zum begrenzten Übernehmen)")
         return 0
 
     if args.cmd == "replay":
