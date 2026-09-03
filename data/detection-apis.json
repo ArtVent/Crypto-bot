@@ -1,0 +1,95 @@
+{
+  "_meta": {
+    "description": "Referenz der Detektions-APIs und Echtzeit-Datenquellen für die Filter-Engine – mit konkreten Feldnamen (aus offiziellen SDKs/Client-Code verifiziert, Sept 2026). Ergänzt data/filter-features.json (welche Features) um das Woher (welche API liefert was). Schemata ändern sich – vor Integration gegen die offiziellen Docs prüfen.",
+    "fields": {
+      "name": "API/Datenquelle",
+      "type": "security-api | risk-api | stream | analytics",
+      "chain": "Chain(s)",
+      "access": "Zugang/Kosten",
+      "key_fields": "Wichtigste Felder/Endpoints für die Filter-Engine",
+      "usage_notes": "Wie man sie im Bot einsetzt"
+    }
+  },
+  "apis": [
+    {
+      "name": "RugCheck API",
+      "type": "security-api",
+      "chain": "Solana",
+      "access": "api.rugcheck.xyz/v1, kostenlos (Auth nur für Write-Endpoints)",
+      "key_fields": "GET /tokens/{mint}/report: score & score_normalised (0–100, höher = schlechter; Konvention: <30 ok, 30–60 Vorsicht, >60 Gefahr), risks[] {name, level: warn|danger, score}, mintAuthority/freezeAuthority, transferFee{authority,maxAmount,pct} (Token-2022), tokenMeta.mutable + updateAuthority, creatorTokens[] (frühere Launches des Creators = Creator-Historie!), topHolders[] {address, pct, insider}, insiderNetworks[] {size, tokenAmount}, graphInsidersDetected, markets[].lp {lpLockedPct, lpLockedUSD, lpUnlocked}, lockers{unlockDate, usdcLocked}, rugged (bool), totalHolders, totalMarketLiquidity, verification.jup_verified. Zusätzlich: /report/summary (nur Risks+Score), /insiders/graph (Wallet-Graph), /stats/new_tokens, /stats/trending.",
+      "usage_notes": "Stufe-2-Standardcheck. Beobachtete Risk-Namen für harte Rejects: 'Mint Authority still enabled', 'Freeze Authority still enabled', 'Mutable metadata', 'Low Liquidity', 'Large Amount of LP Unlocked', 'Single holder ownership', 'Top 10 holders high ownership', 'High holder correlation', 'Creator history of rugged tokens', 'Copycat token', 'Fee config enabled'. creatorTokens[] ist die geschenkte Creator-Historie, insiders/graph die geschenkte Bundle-Vorprüfung."
+    },
+    {
+      "name": "GoPlus token_security API (EVM)",
+      "type": "security-api",
+      "chain": "Ethereum / Base / BNB u. a.",
+      "access": "api.gopluslabs.io/api/v1/token_security/{chain_id}, Free-Tier",
+      "key_fields": "Booleans als '1'/'0'-Strings, '' = unbekannt. Contract: is_open_source, is_proxy, is_mintable, hidden_owner, can_take_back_ownership, owner_change_balance (!), selfdestruct, gas_abuse. Trading: is_honeypot, honeypot_with_same_creator (Anzahl früherer Honeypots desselben Deployers!), buy_tax/sell_tax (0–1; '1' = 100 % = unverkäuflich), cannot_buy, cannot_sell_all, slippage_modifiable, personal_slippage_modifiable (per-Wallet-Tax!), transfer_pausable, trading_cooldown, is_blacklisted, is_anti_whale, anti_whale_modifiable, is_in_dex + dex[]. Holder: holder_count, holders[] (Top-10 mit is_locked/is_contract), lp_holders[] (LP-Lock/Burn-Erkennung), creator_percent, owner_percent. Reputation: fake_token, is_airdrop_scam, trust_list.",
+      "usage_notes": "EVM-Pflichtcheck vor jedem Trade; honeypot_with_same_creator ist die EVM-Version der Creator-Blacklist. Zusätzlich immer eigene Kauf+Verkaufs-Simulation (eth_call) – kein API-Flag ersetzt sie."
+    },
+    {
+      "name": "GoPlus Solana token_security",
+      "type": "security-api",
+      "chain": "Solana",
+      "access": "api.gopluslabs.io/api/v1/solana/token_security (seit Sept 2024)",
+      "key_fields": "mintable{authority,status}, freezable{...}, closable{...} (Mint-Account schließbar!), balance_mutable_authority, metadata_mutable{metadata_upgrade_authority}, transfer_fee + transfer_fee_upgradable, transfer_hook[] + transfer_hook_upgradable, default_account_state (2 = Frozen: Käufer erhalten eingefrorene Token!), none_transferable, trusted_token, holders[]/lp_holders[] (Top 10), dex[].",
+      "usage_notes": "Deckt exakt die Token-2022-Angriffsfläche ab – als Zweitmeinung neben dem eigenen RPC-Parse der Extensions."
+    },
+    {
+      "name": "SolanaTracker Risk-API",
+      "type": "risk-api",
+      "chain": "Solana",
+      "access": "Data-API mit Key (offizielles SDK)",
+      "key_fields": "risk.snipers{count,totalBalance,totalPercentage,wallets[]}, risk.insiders{...}, risk.bundlers{count,totalPercentage,totalInitialPercentage,wallets[]}, risk.top10, risk.dev{percentage}, risk.rugged, risk.score (1–10, höher = schlechter), risks[]{name,level:warning|danger,score}; pro Pool: lpBurn, mintAuthority, freezeAuthority, deployer, launchpad{name}. Beispiel-Gewichte aus den Docs: Freeze Authority = danger/7500, Mint Authority = danger/2500, Top-10 > 15 % = danger/5000.",
+      "usage_notes": "Liefert Sniper-/Bundler-/Insider-Quoten fertig berechnet inkl. Wallet-Listen – gute Abkürzung für Stufe 3, bevor die eigene Funding-Graph-Analyse steht. launchpad-Feld löst die Plattform-Zuordnung."
+    },
+    {
+      "name": "GMGN API-Felder",
+      "type": "risk-api",
+      "chain": "Solana / Multi",
+      "access": "Offizielles OpenAPI-Repo (gmgn-skills)",
+      "key_fields": "sniper_count, bundler_trader_amount_rate (Volumen-Anteil gebündelter Käufe), rat_trader_amount_rate (Insider-Wallets), suspected_insider_hold_rate, fresh_wallet_rate, smart_degen_count, renowned_wallets, rug ratio (0–1), Wash-Trade-Flag, is_on_curve, Launchpad-Tags (pump.fun/letsbonk/four.meme/clanker), Dev-Holdings & Dev-Reputation.",
+      "usage_notes": "bundler_/rat_/fresh_wallet_rate sind direkt als Modell-Features nutzbar; Wash-Flag als Zweitmeinung zur eigenen Wash-Schätzung."
+    },
+    {
+      "name": "SolSniffer API v2",
+      "type": "security-api",
+      "chain": "Solana",
+      "access": "solsniffer.com/api-v2, Key erforderlich",
+      "key_fields": "snifScore (0–100, höher = SICHERER; Konvention: <50 hohes Risiko, >=85 relativ sicher), indicatorData{high/moderate/low: count+details}, auditRisk{mint_disabled, freeze_disabled, lp_burned, top_10_holders_significant}, Deployer-Info, Top-50-Holder-Verteilung. 20+ Indikatoren, dynamisch neu bewertet bei On-Chain-Änderungen.",
+      "usage_notes": "Achtung Score-Richtung: SolSniffer hoch = gut, RugCheck hoch = schlecht – beim Feature-Engineering normalisieren."
+    },
+    {
+      "name": "PumpPortal Data-Websocket",
+      "type": "stream",
+      "chain": "Solana",
+      "access": "wss://pumpportal.fun/api/data, kostenlos (Trading-API separat, 0,5 % Fee)",
+      "key_fields": "Methoden: subscribeNewToken, subscribeMigration, subscribeTokenTrade, subscribeAccountTrade. Create-Event: signature, mint, traderPublicKey (Creator), txType, name, symbol, uri, initialBuy (Dev-Kauf bei Erstellung – Kern-Bundling-Signal!), solAmount, bondingCurveKey, vTokensInBondingCurve, vSolInBondingCurve, marketCapSol. Trade-Events zusätzlich: tokenAmount, newTokenBalance, pool ('pump'/'pump-amm').",
+      "usage_notes": "Einfachster Einstieg in Echtzeit-Launch-Monitoring: initialBuy/solAmount + Same-Slot-Folgekäufe ergeben die Dev-Buy-/Bundle-Ratio live. Migration-Events = Graduation-Trigger."
+    },
+    {
+      "name": "Helius (Webhooks / Enhanced WS / Yellowstone gRPC)",
+      "type": "stream",
+      "chain": "Solana",
+      "access": "Abo-Staffeln; gRPC in höheren Tiers",
+      "key_fields": "Webhooks: bis 100k accountAddresses, 70+ transactionTypes (TRANSFER, SWAP, TOKEN_MINT, CREATE_POOL, BURN …); Enhanced-Payload: type, source, slot, feePayer, nativeTransfers[], tokenTransfers[]{mint, from/toUserAccount, tokenAmount}, accountData[] (Balance-Diffs), events.swap. Yellowstone gRPC (niedrigste Latenz): SubscribeRequestFilterTransactions{account_include[Programm-ID], failed=false, account_required[]}, Commitment PROCESSED/CONFIRMED/FINALIZED; Standard-Pattern: pump.fun-Programm (6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P) abonnieren und create/buy/sell decodieren.",
+      "usage_notes": "Webhooks für Wallet-Überwachung (Creator-Sell-Alarm, Copy-Trading); gRPC für den Sniping-/Scoring-Pfad. Enhanced WebSockets (transactionSubscribe) als Mittelweg."
+    },
+    {
+      "name": "Bitquery (GraphQL/Kafka-Streams)",
+      "type": "stream",
+      "chain": "Solana / Multi",
+      "access": "GraphQL-Subscriptions, Kafka, gRPC; Abo",
+      "key_fields": "Instructions-Stream gefiltert auf pump.fun-Methoden create/create_v2 (liefert Block.Time/Slot, Transaction.Signer = Dev, Mint, Bonding-Curve-Adresse, Currency.Uri/UpdateAuthority), TokenSupplyUpdates, DEXTrades/DEXTradeByTokens (Buy/Sell.Amount, PriceInUSD, Dex.ProtocolName='pump', Side.Type), OHLC (Price.Ohlc), Pool.Base/Quote-Balances (Graduation-Fortschritt!), BalanceUpdates (Holder-Snapshots).",
+      "usage_notes": "Stärke: historisches Backfill + Streams aus einer Quelle – gut für den Aufbau des Launch-Archivs (Trainingsdaten) mit denselben Feldern wie live."
+    },
+    {
+      "name": "Bubblemaps (Bundles vs. Cluster)",
+      "type": "analytics",
+      "chain": "Multi",
+      "access": "App + API/Intel Desk",
+      "key_fields": "Konzept-Unterscheidung: BUNDLE = zeitliche Kopplung (Same-Slot-/Snipe-Fenster-Käufe), CLUSTER = strukturelle Kopplung (gemeinsame Funding-Quellen, recycelte Adressen, gemeinsame Gegenparteien); 'Magic Nodes' ergänzt Nicht-Holder-Zwischenadressen, die Top-Holder verbinden.",
+      "usage_notes": "Als Begriffsmodell für die eigene Graph-Analyse übernehmen: beide Kopplungsarten getrennt messen – Bundles fängt man im Stream, Cluster nur im Funding-Graph."
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "_meta": {
+    "description": "Detail-Katalog aller Fee-Quellen im Memecoin-Ökosystem: wer bei welcher Aktion welchen Prozentsatz verdient. Web-recherchiert und quellengeprüft im September 2026; Fee-Strukturen ändern sich häufig – 'history' dokumentiert die Entwicklung, 'verification_notes' bekannte Quellen-Konflikte. Vertiefung inkl. Tier-Tabellen und Rechenbeispielen: docs/fee-oekonomie.md.",
+    "fields": {
+      "name": "Fee-Quelle",
+      "category": "launchpad | dex | launch-infra | bot | terminal | api | aggregator",
+      "chain": "Chain(s)",
+      "fee_structure": "Aktuelle Gebührenstruktur (Stand Sept 2026)",
+      "earner_split": "Wer bekommt welchen Anteil",
+      "claim_mechanics": "Wie Berechtigte ihre Fees abholen",
+      "history": "Wichtige Änderungen im Zeitverlauf",
+      "aggregates": "Berichtete Gesamtzahlen (Größenordnungen)",
+      "verification_notes": "Quellen-Konflikte / Unsicherheiten"
+    }
+  },
+  "sources": [
+    {
+      "name": "pump.fun – Bonding Curve",
+      "category": "launchpad",
+      "chain": "Solana",
+      "fee_structure": "1,25 % pro Trade auf der Curve (seit 'Project Ascend', 2.9.2025): 0,95 % Protokoll + 0,30 % Creator. Token-Erstellung kostenlos (Deploy-Kosten trägt seit Aug 2024 der erste Käufer).",
+      "earner_split": "Protokoll 0,95 %, Creator 0,30 % – Creator-Fees in SOL, aufteilbar auf bis zu 10 Wallets.",
+      "claim_mechanics": "Fees akkumulieren in einem On-Chain-Creator-Vault; Claim jederzeit über UI (Profil/Rewards) oder programmatisch (collect-creator-fee-Instruktion, Dritt-APIs). Unclaimed Fees verfallen nicht. Verwaiste Coins: CTO-Teams können Creator-Fee-Rechte per Formular beantragen.",
+      "history": "2024–Aug 2025: flat 1 % nur ans Protokoll. 12.5.2025: Creator Revenue Sharing eingeführt (0,05 % des Volumens, 'PumpSwap-Revenue-50/50'-Framing). 2.9.2025 'Project Ascend': dynamische Fees, Creator-Anteil massiv erhöht (2+ Mio. USD Creator-Auszahlung in den ersten 24 h vs. ~200k am Vortag). 2026 'Cashback Coins': Deployer kann bei Launch unwiderruflich wählen, die Creator-Fee zu 100 % an Trader umzuleiten; Fee-Umleitung auf 1 nachträgliche Änderung begrenzt.",
+      "aggregates": "Kumulierte Plattform-Einnahmen ~1,1 Mrd. USD; 2025-Umsatz ~971 Mio. USD; >350 Mio. USD an Creator ausgezahlt im Jahr bis Mitte 2026; Top-Einzeltage: Top-25-Creator je 24k–123k USD/Tag.",
+      "verification_notes": "Graduations-Schwelle SOL-denominiert speichern (~85 SOL in der Curve), nicht als USD-Wert ('69k' floatet mit dem SOL-Kurs). Einzelquelle (unbestätigt): 0,015 SOL Graduations-Fee aus der Liquidität."
+    },
+    {
+      "name": "PumpSwap – Post-Graduation-DEX",
+      "category": "dex",
+      "chain": "Solana",
+      "fee_structure": "Dynamisch nach Market Cap (SOL-denominiert), Gesamt-Fee 0,30 %–1,25 % pro Swap. LP-Anteil konstant 0,20 %, Protokoll 0,05 %, Creator gleitend 0,05 %–0,95 % (hoch bei kleinen Caps, minimal ab ~20 Mio. USD).",
+      "earner_split": "Beispiel-Tiers: 420–1.470 SOL Mcap → 1,20 % (0,95 % Creator / 0,20 % LP / 0,05 % Protokoll); ab ~98.240 SOL Mcap → 0,30 % (0,05 % Creator / 0,20 % LP / 0,05 % Protokoll). Vollständige Tier-Tabelle: docs/fee-oekonomie.md.",
+      "claim_mechanics": "Creator-Anteil läuft in denselben Vault wie Curve-Fees; LP-Anteil an Pool-LPs.",
+      "history": "Launch 20.3.2025 mit 0,25 % (0,20 LP / 0,05 Protokoll); +0,05 % Creator ab 12.5.2025 (→0,30 % total); dynamische Tiers seit 2.9.2025. Migration von der Curve seit März 2025 kostenlos (vorher Raydium mit 6 SOL Gebühr).",
+      "aggregates": "Kumulierte Fees ~800 Mio. USD (Sept 2026); Rekord-Tagesvolumen 1,2 Mrd. USD (6.1.2026).",
+      "verification_notes": "Tier-1-Split (0,93/0,30/0,02) nur über Spiegel der offiziellen Fee-Tabelle belegt – vor Verwendung gegen pump.fun/docs/fees prüfen. Mai–Sept-2025-Phase: '0,05 % Creator on top' vs. '50 % des Protokoll-Revenues' sind zwei Framings desselben Streams."
+    },
+    {
+      "name": "LetsBonk.fun / Raydium LaunchLab",
+      "category": "launchpad",
+      "chain": "Solana",
+      "fee_structure": "1 % pro Trade auf der Curve (LaunchLab-Standard); Split pro Partner-Plattform konfigurierbar (Curve-LP / Protokoll / optionaler Creator-Anteil). Creator historisch bis 0,1 % des Volumens (10 % der Fee). Raydium-weit fließen 12 % aller Trading-Fees in RAY-Buybacks.",
+      "earner_split": "LetsBonk-Revenue-Verwendung (offizielle Historie): Start 50 % → BONK-Buy/Burn; ab 11.8.2025: 40 % Burn + 10 % Bonk Inc.; ab 10.9.2025: 35 % Burn + 10 % BONKsol-Staking + 10 % Community-Marketing; ab 3.12.2025: Burn gestrichen, 51 % → BNKK-Käufe. Zusätzlich seit Juli 2025: 1 % des Revenues für Buybacks von Top-Ökosystem-Token (u. a. USELESS).",
+      "claim_mechanics": "Creator-Anteile über Plattform-UI; Splits sind im LaunchLab-Pool-Setup festgelegt.",
+      "history": "Launch April 2025; Juli 2025 zeitweise Marktführer (1,04 Mio. USD Tagesrevenue vs. pump.fun 533k; >30 Mio. USD Fees im Monat). Mitte 2026: 'Bonk Classic'-Launches mit 0 % Creator-Fee und reduzierter 0,30 %-Swap-Fee (überwiegend in Liquidität), parallel 'BONKERS'-Launches mit erhöhbaren Creator-Fees.",
+      "aggregates": "Kumuliert ~61 Mio. USD Fees / ~36 Mio. USD Revenue (Sept 2026).",
+      "verification_notes": "Sekundärquellen nennen abweichend '40 % Plattform / 30 % Validatoren / 30 % Buyback' – die offizielle Revenue-Seiten-Historie (oben) ist maßgeblich."
+    },
+    {
+      "name": "Bags (bags.fm)",
+      "category": "launchpad",
+      "chain": "Solana",
+      "fee_structure": "2 % pro Trade: 1 % Creator-Royalty + 1 % Protokoll. Royalties in SOL, dauerhaft.",
+      "earner_split": "Launcher behält >=10 % des Royalty-Stroms und kann bis 90 % an Dritte teilen – bis zu 100 Fee-Empfänger pro Token; Empfänger per Social-Identität benennbar (X-, Kick-, GitHub-Username) und claimen nach Wallet-Verknüpfung. Der Mechanismus, mit dem Meme-Urheber am Coin 'ihres' Memes mitverdienen.",
+      "claim_mechanics": "In-App-Dashboard + öffentliche Claim-API.",
+      "history": "Auf Meteora-DBC-Infrastruktur (seit Mai 2025); KOL-Sommer-Hype 2025.",
+      "aggregates": ">5 Mrd. USD Volumen, >40 Mio. USD Creator-Auszahlungen (März 2026).",
+      "verification_notes": "—"
+    },
+    {
+      "name": "Zora Content-/Creator-Coins",
+      "category": "launchpad",
+      "chain": "Base",
+      "fee_structure": "1 % pro Trade (alle Coin-Typen außer Trend Coins mit 0,01 %).",
+      "earner_split": "Coins ab 15.9.2025: 0,5 % Creator / 0,2 % Market Contribution (vertieft automatisch die Liquidität) / 0,2 % Plattform-Referral / 0,04 % Trade-Referral / 0,05 % Protokoll / 0,01 % Doppler. Ältere Coins: 0,5 % Creator / 0,15 % Trade-Referrer / 0,15 % Create-Referrer / 0,2 % Protokoll. Creator Coins vesten zusätzlich 50 % des Supplys über 5 Jahre an den Creator.",
+      "claim_mechanics": "Automatische On-Chain-Verteilung; Referral-Anteile machen Frontends/Integratoren zu Mitverdienern.",
+      "history": "Coins-Feature 2024/2025; Split-Reform Sept 2025.",
+      "aggregates": ">27 Mio. USD Creator-Rewards bis Q2 2025 (bei ~353 Mio. USD Quartalsvolumen).",
+      "verification_notes": "—"
+    },
+    {
+      "name": "Clanker (Deploy-Agent)",
+      "category": "launch-infra",
+      "chain": "Base",
+      "fee_structure": "v4 (Uniswap-v4-Hooks, seit H2 2025): Pool-Fees konfigurierbar (statisch oder MEV-Decay-Modul: Start-LP-Fee bis 80 %, parabolisch fallend – Anti-Sniper-Design). Clanker-Protokoll nimmt 20 % der LP-Fees.",
+      "earner_split": "Verbleibende Rewards default 80 % Creator / 20 % Interface, konfigurierbar auf bis zu 7 Empfänger. v3.1 (bis Mitte 2025): 1 % Pool-Fee, 40 % Deployer / 60 % Protokoll.",
+      "claim_mechanics": "On-Chain-Reward-Claims der konfigurierten Empfänger.",
+      "history": "Start Nov 2024; 13 Mio. USD Team-Revenue in den ersten 5 Monaten (200k+ Token); Rekordwoche 8 Mio. USD Protokoll-Fees (Feb 2026).",
+      "aggregates": "Kumuliert ~90 Mio. USD Fees / ~15 Mio. USD Protokoll-Revenue (Sept 2026).",
+      "verification_notes": "—"
+    },
+    {
+      "name": "Virtuals Protocol (Agenten-Token)",
+      "category": "launchpad",
+      "chain": "Base / Solana",
+      "fee_structure": "1 % pro Buy/Sell auf Agent-Token (Curve und post-Graduation).",
+      "earner_split": "Seit 28.3.2025: 70 % an die Creator-Wallet des Agenten / 30 % an das Agent Commerce Protocol (ACP). Vorher: 30 % Creator / 50 % Agent-SubDAO / 20 % Affiliates.",
+      "claim_mechanics": "Automatische Zuweisung an Agent-/Creator-Wallets; Alt-Guthaben der SubDAOs teilweise via 1,35x-Fee-Boost an Creator redistribuiert.",
+      "history": "Jan 2025: ~13 Mio. VIRTUAL aus Post-Bonding-Revenue für Agent-Token-Buyback-Burns verwendet.",
+      "aggregates": "—",
+      "verification_notes": "Manche Erklärquellen framen das 70/30-Modell als 'Creator-Anteil in Reserve-Asset + 30 % Buy&Burn des Agent-Tokens' – gleiche Zahlen, anderes Framing."
+    },
+    {
+      "name": "Meteora DBC (Dynamic Bonding Curve – Infrastruktur hinter Believe, Bags u. a.)",
+      "category": "launch-infra",
+      "chain": "Solana",
+      "fee_structure": "Protokoll nimmt fix 20 % der Trading-Fee; Swap-Host-Referral erhält 20 % dieses Protokoll-Anteils; die restlichen 80 % der Fee sind LP-Fee, per 'creator_trading_fee_percentage' zwischen Launchpad-Partner und Coin-Creator aufgeteilt (Beispiel: 20 %-Setting → 64 % Partner / 16 % Creator der Gesamt-Fee).",
+      "earner_split": "Nach Migration (zu DAMM v1/v2) claimen Partner und Creator aus gelockter LP weiter. Migrations-Fee-Konfigurationen: 0,25/0,3/1/2/4/6 %.",
+      "claim_mechanics": "On-Chain-Claims aus Pool-/LP-Positionen.",
+      "history": "Seit Mai 2025 die Standard-Infrastruktur der 'Creator-Fee'-Launchpad-Welle.",
+      "aggregates": "Believe (DBC-Partner): 2 % Trade-Fee, anfangs ~50/50 Plattform/Creator (itemisiert 1 % Creator / 0,9 % Plattform / 0,1 % Scouts), später 70 % an Creator; Peak 6,3 Mio. USD Tagesrevenue (Mai 2025).",
+      "verification_notes": "—"
+    },
+    {
+      "name": "Meteora DLMM / DAMM v2 (LP-Fees)",
+      "category": "dex",
+      "chain": "Solana",
+      "fee_structure": "DLMM: Swap-Fee = Basis-Fee (Bin-Step/Base-Factor) + variable Fee (skaliert mit Echtzeit-Volatilität: überquerte Bins, Swap-Frequenz). DAMM v2: Fee-Scheduler als Anti-Sniper-Werkzeug – Default-Konfiguration startet bei 50 % Fee zum Handelsstart und fällt exponentiell auf 0,25 % über 120 Minuten; optionale dynamische Fee bis +20 % der Basis-Fee.",
+      "earner_split": "LP-Fees an Liquiditätsgeber abzüglich Protokoll-Anteil (5–20 % je Pool-Typ/Ära – siehe verification_notes).",
+      "claim_mechanics": "LP-Positionen claimen Fees direkt; bei Memecoin-Pools ist die variable Fee in Hype-Phasen der Haupt-Ertrag.",
+      "history": "TRUMP-Launch machte Meteora im Jan 2025 zum Venue für ~40 Mrd. USD Monatsvolumen (~40x Dezember); Trump-nahe Entitäten verdienten ~11,4 Mio. USD Fees in ~10 Tagen, ~100 Mio. USD bis Anfang Feb 2025 (Reuters).",
+      "aggregates": "—",
+      "verification_notes": "Protokoll-Anteil an LP-Fees widersprüchlich dokumentiert: 5 % (DLMM-Trial Dez 2024) vs. 10 % Standard / 20 % Launch-Pools vs. 20 % volatile Dynamic Pools – als Spanne 5–20 % führen."
+    },
+    {
+      "name": "PumpPortal (Trading-API)",
+      "category": "api",
+      "chain": "Solana",
+      "fee_structure": "0,5 % pro Trade über die Trading-API (Lightning und Local; berechnet vor Slippage, zzgl. Netzwerk- und pump.fun-Fees). Daten-API (Websocket-Streams) kostenlos.",
+      "earner_split": "100 % Betreiber – das Referenzmodell 'API-Schicht verdient am Volumen der Bot-Bauer'.",
+      "claim_mechanics": "n/a (Fee wird im Trade einbehalten)",
+      "history": "—",
+      "aggregates": "—",
+      "verification_notes": "—"
+    },
+    {
+      "name": "Telegram-Bots (Trojan, BonkBot, Maestro, Photon)",
+      "category": "bot",
+      "chain": "Solana / Multi",
+      "fee_structure": "Standard 1 % pro Trade. Trojan: 0,9 % mit Referral. Photon: 1 % flat. Maestro: 1 % + Premium-Abo 200 USD/Monat. BonkBot: 1 % flat.",
+      "earner_split": "Referral-Bäume sind das Wachstumsmodell: Trojan zahlt 25 % der Referee-Fees (35 % ab 10k USD Wochenvolumen) + Multi-Level 3,5/2,5/2/1 % über 4 weitere Ebenen; BonkBot 30/20/10 % (Monat 1/2/danach); Maestro 25 % lifetime. BonkBot leitet einen Teil der Fees in BONK-Buybacks/-Burns.",
+      "claim_mechanics": "Referral-Auszahlungen in SOL über die Bots selbst.",
+      "history": "Trojan: ~23 Mrd. USD Lifetime-Volumen, 1,7 Mio. Nutzer. BonkBot ~6 Mio. USD annualisierte Fees (Mitte 2026).",
+      "aggregates": "Referral-Ökonomie ist ein eigenes legales Einkommens-Modell: Wer Trader wirbt, verdient dauerhaft an deren Volumen mit.",
+      "verification_notes": "BonkBot-BONK-Burn-Anteil widersprüchlich (10 % sofort-Burn + 10 % DAO vs. '51 % der Q1-2025-Fees für Buybacks') – als Spanne führen."
+    },
+    {
+      "name": "Pro-Terminals (Axiom, GMGN)",
+      "category": "terminal",
+      "chain": "Solana / Multi",
+      "fee_structure": "Axiom: 1 % brutto, über 7 Cashback-Stufen (SOL-Rückvergütung) effektiv bis ~0,75 %; 10 % Referral-Rabatt. GMGN: 0,75–1,0 % je Quelle/Tier, mit Referral teils ~0,5 %.",
+      "earner_split": "Betreiber + Referral-Geber; Cashback-Programme sind Kundenbindungs-Fees.",
+      "claim_mechanics": "Cashback/Referral in-app.",
+      "history": "Axiom verdrängte 2025 Photon/BullX bei vielen Aktiv-Tradern.",
+      "aggregates": "—",
+      "verification_notes": "GMGN-/Axiom-Sätze variieren je Quelle und Tier (0,5–1 %) – offizielle Docs vor Integration prüfen."
+    },
+    {
+      "name": "Jupiter (Aggregator-/Integrator-Ökonomie)",
+      "category": "aggregator",
+      "chain": "Solana",
+      "fee_structure": "Ultra Swap: 5–10 bps Endnutzer-Fee. Integratoren können eigene Fees aufschlagen: bei Ultra gehen 20 % der Integrator-Fee an Jupiter; Legacy-Swap-API-Referral: bis 1 % Plattform-Fee möglich, Jupiter behält 2,5 % der verdienten Referral-Fees.",
+      "earner_split": "Das legale Modell 'eigenes Frontend/eigener Bot verdient am Routing': Wer Nutzern eine Swap-Oberfläche baut, monetarisiert regelkonform über die Integrator-Fee.",
+      "claim_mechanics": "Referral-Accounts on-chain (offenes Referral-Programm).",
+      "history": "—",
+      "aggregates": "—",
+      "verification_notes": "—"
+    }
+  ]
+}

@@ -136,6 +136,36 @@ Ereignisgetriebene Überwachung jeder offenen Position: Creator-Cluster-Verkäuf
 
 RugCheck, GoPlus, SolSniffer & Co. sind wertvolle Stufe-2-Inputs: schnell, breit, gepflegt. Aber sie sind öffentlich (Scammer testen dagegen), generisch (kennen die eigene Strategie nicht) und gelegentlich falsch. Regel: **Externe Scores sind Features im eigenen Modell, niemals die Entscheidung.** Zusätzlich jeden externen Feed auf Plausibilität überwachen (Anomalie-Erkennung, Kreuzvergleich) – ein manipulierter oder ausgefallener Feed darf den Bot höchstens vorsichtiger machen, nie mutiger.
 
+Die konkreten Feldnamen, Endpoints und Score-Konventionen aller relevanten APIs (RugCheck-Report-Schema, GoPlus EVM+Solana, SolanaTracker-Risk-Objekt, GMGN-Raten, SolSniffer, PumpPortal-/Helius-/Bitquery-Streams) stehen verifiziert in [`../data/detection-apis.json`](../data/detection-apis.json). Achtung bei der Normalisierung: RugCheck-Score hoch = schlecht, SolSniffer-Score hoch = gut.
+
+## 6b. Verifizierte Statistiken & Forschung (Kalibrierungs-Anker)
+
+Web-recherchiert und quellengeprüft im September 2026 – als Basisraten für Labels, Erwartungswerte und Sanity-Checks:
+
+**Basisraten (pump.fun):**
+- Graduation-Rate: historisch ~1,4 % (Dune), 2025 fallend auf ~0,6–0,9 %, Mitte 2026 im 24-h-Fenster nur noch ~0,2 % (Kaplan-Meier-Studie über 832.941 Launches, arXiv 2607.02823). → Die Basisrate ist selbst ein Regime-Signal und gehört überwacht.
+- Lebensdauer: 68,7 % aller Token haben ihren letzten Trade am Launch-Tag; 80,4 % sind nach Launch-Tag+1 tot; nur ~4,6 % überleben >90 Tage (CoinGecko-Studie über 18,67 Mio. Launches, Dez 2025).
+- Betrugsquote: 98,6 % von >7 Mio. untersuchten pump.fun-Token (Jan 2024–März 2025) zeigten Rug-/Pump-&-Dump-Muster; Median-Rug erbeutet nur ~2.800 USD (Solidus Labs 2025). 93 % untersuchter Raydium-Pools zeigten Soft-Rug-Merkmale.
+- Rug-Timing: Die große Mehrheit der Kollaps-Ereignisse passiert **innerhalb 1 Stunde nach Launch** – deshalb funktioniert 5-Minuten-Früherkennung (arXiv 2608.20271).
+
+**Sniper/Bundler:**
+- >50 % der pump.fun-Token werden im Erstellungs-Block gesnipet; in einem Monat: 15.000+ Launches mit deployer-finanzierten Snipern, 4.600+ Sniper-Wallets, 87 % der Snipes profitabel (Pine Analytics, Apr 2025).
+- Persistente Sniper-Kohorten sind messbar: 1.012 Kohorten (2–12 Wallets) über 166k Launches via Union-Find auf Co-Occurrence-Graphen (arXiv 2607.02795) – exakt der Funding-Graph-Ansatz aus Abschnitt 5.1.
+- Publizierte Filter-Schwellen (Mobula): Bundler > 15 % Supply, Sniper > 10 %, Dev > 20 %, Liquidität < 20k USD = Block. SolanaTracker-Gewichte: Freeze Authority = danger/7500, Mint = danger/2500, Top-10 > 15 % = danger/5000.
+
+**Wash-Trading:**
+- Chainalysis-Heuristik: gleiche Wallet kauft+verkauft dasselbe Asset innerhalb 25 Blöcken mit <1 % Mengendifferenz, ≥3-mal = Flag (2,57 Mrd. USD verdächtiges Volumen 2025).
+- Akademischer Ansatz: Tage flaggen, an denen ≥99 % des Volumens von Same-Day-Roundtrippern stammt; Solana führt die Manipulations-Stichprobe an (181 Token vs. BSC 52, ETH 28; arXiv 2507.01963).
+- Schätzungen: ~30 % des gemeldeten Solana-DEX-Volumens Wash; Bot-Anteil am Solana-DEX-Trading ~95 %, ~90 % der pump.fun-Top-Trader als Bots geflaggt. → Volumen-Signale IMMER wash-bereinigen (Feature `wash_adjusted_volume`).
+
+**Prädiktive Features aus der Forschung** (bestätigen den Katalog in [`filter-features.json`](../data/filter-features.json)):
+- Telegram-Link vorhanden: 8,9-fache Graduation-Rate (1,49 % vs. 0,17 %; Cox-HR 5,40) – Metadaten-Features sind stark.
+- Initial-Mcap > 30 SOL (Dev-Selbstkauf-Proxy): HR 4,51 – moderater Dev-Buy ist positiv, exzessiver negativ (nichtlinear modellieren!).
+- MELT-Datensatz (41.470 graduierte Coins, 200M+ Transaktionen inkl. Bundle-Traces, 122 Features in 5 Gruppen, CC BY-NC): öffentlicher Trainings-Startpunkt; Modelle darauf reduzierten simulierte Verluste um 56 %.
+- Konsens der Paper: XGBoost/Gradient Boosting auf tabellarischen Liquiditäts-/Verhaltens-Features schlägt alles andere; auf Solana sind Rugs Liquiditäts-/Verhaltens-getrieben (nicht Contract-Code wie auf Ethereum) – Verhaltens-Features > Code-Analyse.
+
+**Token-2022-Angriffsfläche** (Detail zu K.-o.-Regeln 2–3): `permanentDelegate` wurde 2026 industriell für "Burn-after-Buy"-Scams missbraucht (Berichten zufolge trug zeitweise >40 % neuer Token-2022-Launches das Flag); `transferFeeConfig` mit Fee bis 100 % oder späterer Erhöhbarkeit = programmierbarer Honeypot; `defaultAccountState=Frozen` lässt Käufer eingefrorene Token erhalten; dazu `mintCloseAuthority` (Mint schließbar/neu erstellbar) und `confidentialTransfer` (blendet Beträge fürs Monitoring aus).
+
 ## 7. Minimal-Ausbau für den Einstieg
 
 Wer nicht alles auf einmal baut, nimmt diese Reihenfolge – jede Stufe ist allein schon PnL-relevant:
