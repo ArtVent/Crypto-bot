@@ -64,6 +64,32 @@ also präzise: **"Metadaten-Auswahl allein hat keinen Edge" ist auf echten
 Daten belegt; ob die Timing-/Mikrostruktur-Schicht einen liefert, ist offen
 und nur mit Trade-Level-Daten prüfbar.**
 
+## Nachtrag: erweiterte Policy-Suche (ebenfalls negativ)
+
+Auf die Frage "geht es mit anderem Entscheidungsraum positiv?" wurde eine
+Grid-Suche mit sauberem 60/20/20-Protokoll durchgeführt (Modelle nur auf den
+ersten 60 % trainiert, Suche nur auf der Validierung, Hold-out unberührt):
+
+- **Zweites Modell mit anderem Ziel:** statt Risiko-Vermeidung (P(high)) ein
+  Gewinner-Sucher (P(Endrendite > +50 %), Basisrate 12,9 %).
+- **Exit-Grid:** Stop ∈ {−20 %, −35 %, −50 %} × Gewinn-Cap ∈ {+100 %, +250 %,
+  +500 %}, konservative Ordnung, 4 % Kosten.
+- **Auswahl-Grid:** Risiko-Schwellen, Gewinner-Quantile (q90/q95/q98), Kombis.
+
+**Ergebnis: keine der Konfigurationen erreicht ein positives Mittel.**
+Bestwert −10,1 % pro Trade (Stop −20 %, Cap +500 %, Gewinner-q90; Winrate
+7,7 %); strenge Risiko-Auswahlen selektieren spät im Zeitraum kaum noch Coins
+(Drift). Muster: engerer Stop > weiter Stop, hoher Cap > niedriger Cap – aber
+die Decke bleibt klar unter null.
+
+**Präzisierte Schlussfolgerung:** Der Edge liegt – falls er existiert – NICHT
+in der Frage "welchen graduierten Coin wähle ich anhand von Launch-Metadaten".
+Endpunkt-Daten können zudem strukturell nicht testen, was der Bot eigentlich
+tut (Minuten-Timing, Zeit-Stops, Mikrostruktur-Gates): Diese Hypothese bleibt
+offen und braucht Trade-Streams. Konsistent mit der Fee-Ökonomie-Analyse
+([`fee-oekonomie.md`](fee-oekonomie.md)): Verlässlich positiv sind in diesem
+Markt die Fee-/Tooling-Seiten, nicht die Richtungswette.
+
 ## Konsequenzen
 
 1. **Kein Live-Trading mit diesem Stand.** Die Beweislast liegt jetzt bei der
