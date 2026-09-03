@@ -81,6 +81,15 @@ class MomentumStrategy:
         if state.last_trade_at and now - state.last_trade_at > c.max_seconds_since_trade:
             reasons.append("Momentum abgerissen (kein Trade zuletzt)")
 
+        # Symbol-Dedupe ist billig (O(1)) und gehört VOR den Short-Circuit
+        symbol = (state.symbol or "").upper()
+        if symbol:
+            seen = self._symbol_seen.get(symbol)
+            # Duplikat nur, wenn ein ANDERER Mint das Symbol belegt (Re-Evaluation
+            # desselben Kandidaten, z. B. nach Claude-Vet, bleibt erlaubt)
+            if seen is not None and seen[1] != state.mint and now - seen[0] < c.symbol_dedupe_seconds:
+                reasons.append(f"Symbol-Duplikat '{symbol}' im Fenster (Ticker-Krieg)")
+
         # Mikrostruktur-Gates (nur mit ausreichender Statistik) – und nur,
         # wenn nicht schon billige Checks abgelehnt haben (Performance:
         # burst_buyer_share ist O(n) und darf nicht pro Event für tote
@@ -101,14 +110,6 @@ class MomentumStrategy:
         cv = state.buy_size_cv()
         if cv is not None and state.buys >= c.min_buys and cv < c.min_buy_size_cv:
             reasons.append(f"uniforme Kaufgrößen (CV {cv:.2f} – Bot-Muster)")
-
-        symbol = (state.symbol or "").upper()
-        if symbol:
-            seen = self._symbol_seen.get(symbol)
-            # Duplikat nur, wenn ein ANDERER Mint das Symbol belegt (Re-Evaluation
-            # desselben Kandidaten, z. B. nach Claude-Vet, bleibt erlaubt)
-            if seen is not None and seen[1] != state.mint and now - seen[0] < c.symbol_dedupe_seconds:
-                reasons.append(f"Symbol-Duplikat '{symbol}' im Fenster (Ticker-Krieg)")
 
         if reasons:
             return Decision(enter=False, reasons=reasons)
