@@ -43,9 +43,12 @@ class RiskConfig:
     max_hold_seconds: float = 20 * 60.0
     progress_deadline_seconds: float = 8 * 60.0  # Zeit-Stop: bis dahin > +20 %
     progress_min_pct: float = 20.0
-    # Graduierte Positionen durch die Migration halten (Real-Day-Befund:
-    # migration_exits waren die Top-Gewinner – abgeschnitten beim Übergang)
-    hold_through_migration: bool = True
+    # Graduierte durch die Migration halten? A/B auf dem realen Tag klar
+    # NEGATIV (-15,3 % vs. +17,8 % mit Sofort-Exit): Verkauf in die
+    # Graduation-Stärke schlägt Halten+Trailing, und gehaltene Positionen
+    # blockieren stundenlang Slots. Default daher AUS; Mechanik bleibt
+    # als Option erhalten. (docs/realtest-echte-daten.md, Teil 2)
+    hold_through_migration: bool = False
     trailing_stop_pct: float = 30.0        # Exit, wenn PnL X Punkte unter Peak fällt
     migrated_max_hold_seconds: float = 4 * 3600.0
 

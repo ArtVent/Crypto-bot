@@ -132,6 +132,29 @@ des PnL bei ähnlich großen Einzelbeiträgen.
 aufzeichnen (`memetrader record`) und denselben Replay über Wochen fahren;
 erst eine positive Wochen-Serie auf frischen Daten trägt Beweislast.
 
+### Nachtrag Teil 2: A/B-Test "Halten durch die Migration" – verworfen
+
+Die aus den Journal-Kontrafakten abgeleitete Hypothese (Migration-Exits
+schneiden Gewinner ab -> halten + 30 % Trailing auf dem echten PumpSwap-AMM,
+17,5 Mio. AMM-Events desselben Tages gemerged) wurde als kontrollierter
+A/B-Test auf identischen Daten geprüft – und klar verworfen:
+
+| Lauf (identische Daten, Curve+AMM) | Ergebnis |
+|---|---|
+| E: Halten + Trailing | **0,847 SOL (−15,3 %)**, 23 Trades |
+| F: Sofort-Exit bei Migration (alt) | **1,178 SOL (+17,8 %)**, 58 Trades |
+
+Gründe: Verkauf in die Graduation-Stärke ist der bessere Fill (nach der
+Migration folgt oft der Dump, Trailing gibt 30 % her); gehaltene Positionen
+blockieren bis zu 4 h die Concurrency-Slots (23 statt 58 Trades –
+Opportunitätskosten). Lehre für die Lern-Schicht: Der Post-Exit-Peak im
+Journal ist NICHT gleich abschöpfbarem Wert. Default zurück auf Sofort-Exit;
+Mechanik bleibt als Option. Attribution der übrigen Differenz zum
++26,6-%-Lauf: neue Tuner-Bounds/Lockerung ≈ −4,5 Punkte (Tages-Rauschen,
+mehr Entries inkl. mehr bad_entry), realistischere AMM-Preisung des
+Graduation-Exits ≈ −4,3 Punkte – **+17,8 % ist damit die ehrlichste Zahl für
+diesen Tag mit aktuellem Code.**
+
 ## Teil 3: Eine echte Handelswoche (Fingerprinter, 03.–09.06.2026)
 
 Auf der Suche nach Wochen-Daten wurde ein dritter Real-Datensatz erschlossen:
