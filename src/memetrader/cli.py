@@ -34,6 +34,15 @@ def main(argv: list[str] | None = None) -> int:
     p_analyze = sub.add_parser("analyze", help="Entscheidungs-Log auswerten (PnL, Trefferquote, Exit-Gründe)")
     p_analyze.add_argument("log_file", nargs="?", default="memetrader.log.jsonl")
 
+    p_bt = sub.add_parser("backtest", help="Lookahead-freier Backtest (simulierter Markt oder Aufzeichnung)")
+    p_bt.add_argument("--days", type=float, default=60.0)
+    p_bt.add_argument("--launches-per-day", type=int, default=400)
+    p_bt.add_argument("--budget-sol", type=float, default=1.0)
+    p_bt.add_argument("--seeds", type=int, nargs="+", default=[1, 2, 3, 4, 5])
+    p_bt.add_argument("--claude", choices=["stub", "live", "off"], default="stub")
+    p_bt.add_argument("--events", help="JSONL echter aufgezeichneter Events statt Simulation")
+    p_bt.add_argument("--workdir", default="backtest-runs")
+
     p_brain = sub.add_parser("brain", help="Gelernten Zustand zeigen: Lektionen, Selbst-Tuning-Historie")
     p_brain.add_argument("--journal", default="memetrader.journal.jsonl")
     p_brain.add_argument("--tuning", default="memetrader.tuning.json")
@@ -92,6 +101,33 @@ def main(argv: list[str] | None = None) -> int:
         from .analyze import analyze_file
 
         print(analyze_file(args.log_file).report())
+        return 0
+
+    if args.cmd == "backtest":
+        from statistics import mean, median
+
+        from .backtest import run_backtest
+
+        events = None
+        if args.events:
+            events = []
+            with open(args.events) as fh:
+                for line in fh:
+                    if line.strip():
+                        record = json.loads(line)
+                        events.append((record.pop("_t"), record))
+            events.sort(key=lambda e: e[0])
+        results = []
+        for seed in args.seeds:
+            result = run_backtest(days=args.days, launches_per_day=args.launches_per_day,
+                                  seed=seed, budget_sol=args.budget_sol,
+                                  workdir=args.workdir, claude=args.claude, events=events)
+            print(result.summary())
+            results.append(result)
+        finals = [r.final_equity_sol for r in results]
+        print("\n=== Aggregat über Seeds ===")
+        print(f"Endkapital: min {min(finals):.4f} / median {median(finals):.4f} / "
+              f"mean {mean(finals):.4f} / max {max(finals):.4f} SOL (Start {args.budget_sol})")
         return 0
 
     if args.cmd == "brain":

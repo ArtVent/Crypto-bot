@@ -72,8 +72,14 @@ class RiskManager:
     config: RiskConfig = field(default_factory=RiskConfig)
     positions: dict[str, Position] = field(default_factory=dict)
     realized_pnl_sol: float = 0.0
+    daily_realized_pnl_sol: float = 0.0
     spent_sol: float = 0.0
     halted: bool = False
+
+    def reset_day(self) -> None:
+        """Neuer Handelstag: Tages-PnL und Kill-Switch zurücksetzen."""
+        self.daily_realized_pnl_sol = 0.0
+        self.halted = False
 
     # --- Entry-Seite ---------------------------------------------------------
     def can_enter(self, now: float | None = None) -> tuple[bool, str]:
@@ -131,8 +137,9 @@ class RiskManager:
             pos.state = PositionState.CLOSED
             pnl = pos.realized_sol - pos.cost_sol
             self.realized_pnl_sol += pnl
+            self.daily_realized_pnl_sol += pnl
             del self.positions[pos.mint]
-            if self.realized_pnl_sol <= -self.config.daily_loss_stop_sol:
+            if self.daily_realized_pnl_sol <= -self.config.daily_loss_stop_sol:
                 self.halted = True
         elif pos.state == PositionState.ENTERED and pos.realized_sol >= pos.cost_sol:
             pos.state = PositionState.DERISKED

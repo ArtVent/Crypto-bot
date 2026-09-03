@@ -81,8 +81,18 @@ def extract_features(
 def fetch_token_metadata(uri: str, timeout: float = 5.0) -> dict:
     """Holt das Metadaten-JSON eines Tokens (IPFS-URI aus dem Create-Event).
 
+    Data-URIs (data:application/json,{...}) werden lokal geparst – so können
+    Simulation und Aufzeichnungen Metadaten ohne Netzwerkzugriff mitführen.
     Tolerant: jeder Fehler liefert {} – das Gate rechnet dann ohne Socials.
     """
+    if uri and uri.startswith("data:application/json,"):
+        try:
+            import json as _json
+
+            data = _json.loads(uri.split(",", 1)[1])
+            return data if isinstance(data, dict) else {}
+        except Exception:
+            return {}
     if not uri or not uri.startswith("http"):
         return {}
     try:
@@ -124,7 +134,11 @@ class MLGate:
     ) -> float:
         meta = self._meta_cache.get(state.mint)
         if meta is None:
-            meta = fetch_token_metadata(getattr(state, "uri", "")) if self.fetch_metadata else {}
+            uri = getattr(state, "uri", "")
+            if uri.startswith("data:"):
+                meta = fetch_token_metadata(uri)  # lokal, kein Netzwerk
+            else:
+                meta = fetch_token_metadata(uri) if self.fetch_metadata else {}
             self._meta_cache[state.mint] = meta
         features = extract_features(
             name=state.name,

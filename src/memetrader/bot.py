@@ -81,6 +81,11 @@ class Bot:
     # --- Event-Verarbeitung (synchron, damit ohne Netz testbar) --------------
     def on_event(self, event: dict, now: float | None = None) -> list[Fill]:
         now = time.time() if now is None else now
+        day = int(now // 86400)
+        if getattr(self, "_current_day", None) != day:
+            if getattr(self, "_current_day", None) is not None:
+                self.risk.reset_day()
+            self._current_day = day
         fills = self._process_claude_results(now)
         tx = event.get("txType")
         mint = event.get("mint")
@@ -364,9 +369,11 @@ class Bot:
                         if now - last_prune > 300:
                             self.prune(now)
                             last_prune = now
-                        if self.risk.halted and not self.risk.positions:
-                            print("Kill-Switch aktiv und alle Positionen geschlossen – Bot stoppt.")
-                            return
+                        if self.risk.halted and not self.risk.positions and not getattr(self, "_halt_notified", False):
+                            print("Kill-Switch aktiv – keine neuen Entries bis zum nächsten Handelstag.")
+                            self._halt_notified = True
+                        elif not self.risk.halted:
+                            self._halt_notified = False
             except (websockets.WebSocketException, OSError) as exc:
                 print(f"[bot] Verbindung verloren ({exc}); Reconnect in {backoff:.0f}s")
                 await asyncio.sleep(backoff)
