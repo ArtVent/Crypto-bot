@@ -90,6 +90,48 @@ offen und braucht Trade-Streams. Konsistent mit der Fee-Ökonomie-Analyse
 ([`fee-oekonomie.md`](fee-oekonomie.md)): Verlässlich positiv sind in diesem
 Markt die Fee-/Tooling-Seiten, nicht die Richtungswette.
 
+## Teil 2: Voll-Replay auf echten Trade-Streams (ein realer Handelstag)
+
+Über eine Dataset-Recherche wurde ein GitHub-Repo mit **einem kompletten Tag
+roher pump.fun-Bonding-Curve-Events** gefunden (31.07.2026, 3,34 Mio. Events
+inkl. virtueller Reserven je Trade – `pumpfun-market-lab`, keine Lizenz
+angegeben, nur lokal verwendet). Damit war erstmals der **komplette Bot**
+lookahead-frei auf echten Trades replaybar: Curve-Timing, Mikrostruktur-Gates,
+Exits, Lern-Schicht (`realdata.py`-Konverter, ML-Gate offline deaktiviert,
+Claude-Kanal als Stub).
+
+**Der Replay fand zuerst einen echten Bug:** Die Budget-Prüfung behandelte
+Verkaufserlöse als verbraucht (Umsatz- statt Kapital-Deckel) – der Bot fror
+nach ~29 Entries ein. Nach dem Fix (korrekte Cash-Rechnung, Regressionstest):
+
+| Lauf | Ergebnis (Start 1,0 SOL) |
+|---|---|
+| **Voller Tag, Lernen an** | **1,2661 SOL (+26,6 %)**, 51 Trades, Winrate 37 %, Max-DD 20,5 % |
+| Stunden 0–11 (Lernphase) | +11,0 % |
+| Walk-Forward: Stunden 12–23 mit H1-Lernstand | +15,6 % (DD nur 4,2 %) |
+| Kontrolle: Stunden 12–23 mit Defaults | +22,4 % |
+
+**Gewinn-Struktur (glaubwürdig asymmetrisch, kein Einzeltreffer):** 32 kleine
+Verluste (Ø −0,011 SOL) gegen 19 größere Gewinne (Ø +0,035 SOL), Payoff-Ratio
+3,1; Haupttreiber sind Graduation-Runner (migration_exit), Top-3-Trades ≈ 69 %
+des PnL bei ähnlich großen Einzelbeiträgen.
+
+**Ehrliche Einordnung:**
+1. **n = 1 Tag.** Ein profitabler Realtag belegt, dass die Timing-Schicht
+   funktionieren KANN – nicht, dass der Edge über Wochen trägt. Teil 1 dieses
+   Dokuments zeigt, wie brutal Monats-Basisraten sein können.
+2. **Fill-Modell bleibt freundlich** (Post-Trade-Kurs + 1 % Malus): reale
+   Fills kämpfen mit MEV, Fehlversuchen, Priority-Fees.
+3. **Lern-Befund:** Die H1-Selbstverschärfung (Käufer ≥ 30, Füllung ≥ 35 %)
+   unterlag den Defaults auf H2 (+15,6 % vs. +22,4 %) – der Tuner optimiert
+   Verlust-Vermeidung ohne Opportunitätskosten. Konkreter Verbesserungspunkt.
+4. Der Befund aus Teil 1 bleibt gültig: Der Edge liegt im **Timing**, nicht
+   in der Metadaten-Auswahl.
+
+**Nächster Schritt vor jedem Live-Gedanken:** mehr echte Tage – lokal Streams
+aufzeichnen (`memetrader record`) und denselben Replay über Wochen fahren;
+erst eine positive Wochen-Serie auf frischen Daten trägt Beweislast.
+
 ## Konsequenzen
 
 1. **Kein Live-Trading mit diesem Stand.** Die Beweislast liegt jetzt bei der
