@@ -156,12 +156,18 @@ def make_bot(tmp_path, **risk_overrides) -> Bot:
     return Bot(config)
 
 
+HEALTHY_SIZES = [0.2, 0.4, 0.65, 0.9, 1.3]  # variiert -> kein Bot-Uniformitäts-Muster
+
+
 def feed_healthy_curve(bot: Bot, sim: SimCurve):
+    """Organisch aussehender Kandidat: 14 Käufe (1 unter min_buys), verteilte
+    Zeiten (kein Burst), variierte Größen (CV ok), breite Wallets (keine
+    Top-3-Dominanz). Der nächste Kauf-Event löst den Entry aus."""
     bot.on_event(sim.create_event(dev_buy_sol=1.0), now=0.0)
     t = 5.0
-    for i in range(20):  # 20 Käufe von 20 Wallets über ~40s, ~13 SOL netto
-        bot.on_event(sim.buy_event(0.65, f"wallet{i}"), now=t)
-        t += 2.0
+    for i in range(14):
+        bot.on_event(sim.buy_event(HEALTHY_SIZES[i % 5], f"wallet{i}"), now=t)
+        t += 18.0
     return t
 
 

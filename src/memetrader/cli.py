@@ -42,6 +42,8 @@ def main(argv: list[str] | None = None) -> int:
     p_bt.add_argument("--claude", choices=["stub", "live", "off"], default="stub")
     p_bt.add_argument("--events", help="JSONL echter aufgezeichneter Events statt Simulation")
     p_bt.add_argument("--workdir", default="backtest-runs")
+    p_bt.add_argument("--baseline", action="store_true",
+                      help="Mikrostruktur-Gates (Bundle/Wash) deaktivieren – für Vorher/Nachher-Vergleiche")
 
     p_brain = sub.add_parser("brain", help="Gelernten Zustand zeigen: Lektionen, Selbst-Tuning-Historie")
     p_brain.add_argument("--journal", default="memetrader.journal.jsonl")
@@ -121,7 +123,8 @@ def main(argv: list[str] | None = None) -> int:
         for seed in args.seeds:
             result = run_backtest(days=args.days, launches_per_day=args.launches_per_day,
                                   seed=seed, budget_sol=args.budget_sol,
-                                  workdir=args.workdir, claude=args.claude, events=events)
+                                  workdir=args.workdir, claude=args.claude, events=events,
+                                  hardened_checks=not args.baseline)
             print(result.summary())
             results.append(result)
         finals = [r.final_equity_sol for r in results]

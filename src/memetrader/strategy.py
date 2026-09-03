@@ -33,6 +33,14 @@ class StrategyConfig:
     max_seconds_since_trade: float = 20.0
     # Dedupe: gleiches Symbol nur einmal pro Fenster handeln (Ticker-Kriege)
     symbol_dedupe_seconds: float = 3600.0
+    # Mikrostruktur-Gates (Bundle-/Wash-Signaturen, filter-features.json);
+    # greifen erst ab ausreichender Statistik. Baseline-Modus: Werte auf
+    # 1.01 / 0.0 / 1.01 / 1.01 setzen = deaktiviert.
+    max_burst_buyer_share: float = 0.60   # >60 % der Käufer in einem 60s-Fenster
+    burst_window_seconds: float = 60.0
+    min_buy_size_cv: float = 0.25         # Kaufgrößen zu uniform = Bot-Muster
+    max_top3_buyer_share: float = 0.45    # Top-3-Käufer dominieren das Kauf-SOL
+    max_roundtrip_share: float = 0.35     # Käufer, die auch verkaufen (Wash)
 
 
 @dataclass
@@ -72,6 +80,22 @@ class MomentumStrategy:
             reasons.append(f"Curve-Füllung außerhalb Band ({state.fill_pct:.0f}%)")
         if state.last_trade_at and now - state.last_trade_at > c.max_seconds_since_trade:
             reasons.append("Momentum abgerissen (kein Trade zuletzt)")
+
+        # Mikrostruktur-Gates (nur mit ausreichender Statistik)
+        if len(state.unique_buyers) >= c.min_unique_buyers:
+            burst = state.burst_buyer_share(c.burst_window_seconds)
+            if burst > c.max_burst_buyer_share:
+                reasons.append(f"Bundle-Signatur: {burst:.0%} der Käufer in einem "
+                               f"{c.burst_window_seconds:.0f}s-Fenster")
+            top3 = state.top_buyer_share(3)
+            if top3 > c.max_top3_buyer_share:
+                reasons.append(f"Käufer-Konzentration: Top-3 halten {top3:.0%} des Kauf-SOL")
+            roundtrip = state.roundtrip_share()
+            if roundtrip > c.max_roundtrip_share:
+                reasons.append(f"Wash-Signatur: {roundtrip:.0%} der Käufer verkaufen auch")
+        cv = state.buy_size_cv()
+        if cv is not None and state.buys >= c.min_buys and cv < c.min_buy_size_cv:
+            reasons.append(f"uniforme Kaufgrößen (CV {cv:.2f} – Bot-Muster)")
 
         symbol = (state.symbol or "").upper()
         if symbol:

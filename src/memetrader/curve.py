@@ -39,6 +39,13 @@ class CurveState:
     # Kausale Kontext-Zähler (gesetzt vom Bot beim Create-Event)
     symbol_dupes_before: int = 0
     creator_prior_launches: int = 0
+    # Mikrostruktur-Statistiken für Bundle-/Wash-Erkennung (filter-features.json)
+    first_buy_times: list[float] = field(default_factory=list)
+    buy_sol_by_wallet: dict[str, float] = field(default_factory=dict)
+    sellers: set[str] = field(default_factory=set)
+    _buy_n: int = 0
+    _buy_sum: float = 0.0
+    _buy_sumsq: float = 0.0
 
     @property
     def price_sol(self) -> float:
@@ -62,12 +69,56 @@ class CurveState:
         if tx == "buy":
             self.buys += 1
             self.real_sol_in_curve += sol
+            if trader not in self.unique_buyers:
+                self.first_buy_times.append(now)
             self.unique_buyers.add(trader)
+            self.buy_sol_by_wallet[trader] = self.buy_sol_by_wallet.get(trader, 0.0) + sol
+            self._buy_n += 1
+            self._buy_sum += sol
+            self._buy_sumsq += sol * sol
         elif tx == "sell":
             self.sells += 1
             self.real_sol_in_curve -= sol
+            if trader:
+                self.sellers.add(trader)
             if trader and trader == self.creator:
                 self.creator_sold = True
+
+    # --- Mikrostruktur-Metriken (Bundle-/Wash-Signaturen) ---------------------
+    def burst_buyer_share(self, window_seconds: float = 60.0) -> float:
+        """Max. Anteil der Unique-Buyer, deren Erstkauf in EIN Zeitfenster fällt."""
+        times = self.first_buy_times
+        n = len(times)
+        if n == 0:
+            return 0.0
+        best, left = 1, 0
+        for right in range(n):
+            while times[right] - times[left] > window_seconds:
+                left += 1
+            best = max(best, right - left + 1)
+        return best / n
+
+    def buy_size_cv(self) -> float | None:
+        """Variationskoeffizient der Kaufgrößen; Bots kaufen unnatürlich uniform."""
+        if self._buy_n < 5 or self._buy_sum <= 0:
+            return None
+        mean = self._buy_sum / self._buy_n
+        var = max(0.0, self._buy_sumsq / self._buy_n - mean * mean)
+        return (var ** 0.5) / mean
+
+    def top_buyer_share(self, k: int = 3) -> float:
+        """Anteil des Kauf-SOL der k größten Käufer-Wallets."""
+        if not self.buy_sol_by_wallet:
+            return 0.0
+        volumes = sorted(self.buy_sol_by_wallet.values(), reverse=True)
+        total = sum(volumes)
+        return sum(volumes[:k]) / total if total > 0 else 0.0
+
+    def roundtrip_share(self) -> float:
+        """Anteil der Käufer, die auch verkauft haben (Wash-/Churn-Signatur)."""
+        if not self.unique_buyers:
+            return 0.0
+        return len(self.unique_buyers & self.sellers) / len(self.unique_buyers)
 
 
 def simulate_buy(state: CurveState, sol_in: float, fee: float = CURVE_FEE) -> tuple[float, float]:

@@ -24,9 +24,11 @@ V_TOK0 = 1_073_000_000.0
 GRADUATION_SOL = 85.0
 
 ARCHETYPES = [
-    ("instant_dead", 0.62),
-    ("slow_bleed", 0.20),
-    ("bundled_pump_dump", 0.09),
+    ("instant_dead", 0.58),
+    ("slow_bleed", 0.18),
+    ("bundled_pump_dump", 0.05),
+    ("stealth_bundle", 0.06),   # Bundle-Dump OHNE Creator-Verkaufssignal
+    ("wash_trap", 0.04),        # gefälschte Käufer/Volumen, dann Dump
     ("creator_rug", 0.045),
     ("organic_runner", 0.035),
     ("graduation_runner", 0.01),
@@ -89,6 +91,10 @@ SOCIAL_PROBS = {
     "instant_dead": (0.08, 0.05, 0.10, 0.2),   # (twitter, website, telegram, desc_rich)
     "slow_bleed": (0.25, 0.15, 0.25, 0.4),
     "bundled_pump_dump": (0.35, 0.20, 0.30, 0.5),
+    # Härtung: professionelle Fallen FÄLSCHEN gute Metadaten – gleiche
+    # Socials-Qualität wie organische Läufer, das ML-Gate hilft hier nicht
+    "stealth_bundle": (0.65, 0.45, 0.65, 0.8),
+    "wash_trap": (0.65, 0.45, 0.65, 0.8),
     "creator_rug": (0.55, 0.35, 0.50, 0.7),
     "organic_runner": (0.65, 0.45, 0.65, 0.8),
     "graduation_runner": (0.80, 0.60, 0.85, 0.9),
@@ -160,6 +166,35 @@ def _launch_events(mint: str, t0: float, archetype: str, rng: random.Random) -> 
             act(t_dump + rng.uniform(0, 90), f"b{i}", "sell", 1.0)
         if dev_buy > 0:
             act(t_dump + rng.uniform(0, 60), creator, "sell", 1.0)
+
+    elif archetype == "stealth_bundle":
+        # Bundle kauft schnell mit ähnlichen Größen; Creator verkauft NIE
+        # (kein creator_sold-Rettungssignal); Dump über die Bundle-Wallets
+        n = rng.randint(16, 35)
+        burst = rng.uniform(30, 90)
+        base_size = rng.uniform(0.35, 0.6)
+        for i in range(n):
+            act(rng.uniform(2, burst), f"sb{i}", "buy", base_size * rng.uniform(0.85, 1.15))
+        for i in range(rng.randint(3, 9)):  # echte Nachläufer als Opfer
+            act(rng.uniform(burst, burst + 300), f"victim{i}", "buy", rng.uniform(0.05, 0.4))
+        t_dump = rng.uniform(180, 900)
+        for i in range(n):
+            act(t_dump + rng.uniform(0, 120), f"sb{i}", "sell", 1.0)
+
+    elif archetype == "wash_trap":
+        # Viele 'Käufer' sind Roundtrip-Wallets: kaufen und verkaufen zyklisch,
+        # täuschen Aktivität/Unique-Buyer vor; am Ende koordinierter Dump
+        n = rng.randint(14, 30)
+        for i in range(n):
+            t_in = rng.uniform(10, 900)
+            act(t_in, f"ww{i}", "buy", rng.uniform(0.2, 0.7))
+            act(t_in + rng.uniform(20, 180), f"ww{i}", "sell", rng.uniform(0.5, 0.9))
+            act(t_in + rng.uniform(200, 500), f"ww{i}", "buy", rng.uniform(0.2, 0.7))
+        for i in range(rng.randint(2, 6)):
+            act(rng.uniform(300, 1200), f"victim{i}", "buy", rng.uniform(0.05, 0.4))
+        t_dump = rng.uniform(900, 1800)
+        for i in range(n):
+            act(t_dump + rng.uniform(0, 150), f"ww{i}", "sell", 1.0)
 
     elif archetype == "creator_rug":
         n = rng.randint(15, 40)

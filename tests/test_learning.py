@@ -156,16 +156,16 @@ def test_bot_full_learning_loop_shaken_out(tmp_path):
     assert sim.mint in bot.risk.positions
     # Crash weit unter Stop (langsam genug, dass es kein bad_entry ist)
     for i in range(6):
-        bot.on_event(sim.sell_event(2.0, f"dumper{i}"), now=200.0 + i)
+        bot.on_event(sim.sell_event(2.0, f"dumper{i}"), now=400.0 + i)
         if sim.mint not in bot.risk.positions:
             break
     assert sim.mint in bot.journal.watching
     # Erholung im Post-Exit-Fenster -> shaken_out
     for i in range(10):
-        bot.on_event(sim.buy_event(3.0, f"rebuyer{i}"), now=210.0 + i)
+        bot.on_event(sim.buy_event(3.0, f"rebuyer{i}"), now=410.0 + i)
     # Fenster ablaufen lassen (Event auf anderem Mint triggert finalize)
     other = SimCurve(mint="OTHER", symbol="OTH")
-    bot.on_event(other.create_event(), now=400.0)
+    bot.on_event(other.create_event(), now=700.0)
     records = bot.journal.finalized
     assert len(records) == 1
     assert records[0].lesson == "shaken_out"

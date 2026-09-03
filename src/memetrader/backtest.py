@@ -112,6 +112,7 @@ def run_backtest(
     ml_model: str | None = "models/mlfilter-melt.joblib",
     claude: str = "stub",  # "stub" | "live" | "off"
     events: list | None = None,
+    hardened_checks: bool = True,
 ) -> BacktestResult:
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
@@ -119,6 +120,11 @@ def run_backtest(
     config = BotConfig()
     config.risk = RiskConfig(budget_sol=budget_sol)
     config.strategy = StrategyConfig()
+    if not hardened_checks:  # Baseline: Mikrostruktur-Gates deaktiviert
+        config.strategy.max_burst_buyer_share = 1.01
+        config.strategy.min_buy_size_cv = 0.0
+        config.strategy.max_top3_buyer_share = 1.01
+        config.strategy.max_roundtrip_share = 1.01
     config.log_path = str(workdir / f"bt_{seed}.log.jsonl")
     config.journal_path = str(workdir / f"bt_{seed}.journal.jsonl")
     config.tuning_path = str(workdir / f"bt_{seed}.tuning.json")
