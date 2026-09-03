@@ -44,7 +44,7 @@ class Decision:
 class MomentumStrategy:
     def __init__(self, config: StrategyConfig | None = None):
         self.config = config or StrategyConfig()
-        self._symbol_seen: dict[str, float] = {}
+        self._symbol_seen: dict[str, tuple[float, str]] = {}  # SYMBOL -> (zeit, mint)
 
     def evaluate(self, state: CurveState, now: float | None = None) -> Decision:
         c = self.config
@@ -75,13 +75,15 @@ class MomentumStrategy:
 
         symbol = (state.symbol or "").upper()
         if symbol:
-            seen_at = self._symbol_seen.get(symbol)
-            if seen_at is not None and now - seen_at < c.symbol_dedupe_seconds:
+            seen = self._symbol_seen.get(symbol)
+            # Duplikat nur, wenn ein ANDERER Mint das Symbol belegt (Re-Evaluation
+            # desselben Kandidaten, z. B. nach Claude-Vet, bleibt erlaubt)
+            if seen is not None and seen[1] != state.mint and now - seen[0] < c.symbol_dedupe_seconds:
                 reasons.append(f"Symbol-Duplikat '{symbol}' im Fenster (Ticker-Krieg)")
 
         if reasons:
             return Decision(enter=False, reasons=reasons)
 
         if symbol:
-            self._symbol_seen[symbol] = now
+            self._symbol_seen[symbol] = (now, state.mint)
         return Decision(enter=True, reasons=["alle Entry-Kriterien erfüllt"])

@@ -44,10 +44,14 @@ class BotConfig:
     tuning_path: str = "memetrader.tuning.json"
     post_exit_watch_seconds: float = 600.0
     adaptive_enabled: bool = True
+    # Live-Claude-Verbindung (claude_link.py): Entry-Vet, Post-Mortems, Reviews
+    claude_enabled: bool = False
+    claude_review_every_n_trades: int = 10
+    memory_path: str = "memetrader.memory.md"
 
 
 class Bot:
-    def __init__(self, config: BotConfig | None = None, broker=None, ml_gate=None):
+    def __init__(self, config: BotConfig | None = None, broker=None, ml_gate=None, claude_worker=None):
         self.config = config or BotConfig()
         self.broker = broker or PaperBroker()
         self.strategy = MomentumStrategy(self.config.strategy)
@@ -66,14 +70,22 @@ class Bot:
         self.journal = Journal(self.config.journal_path, self.config.post_exit_watch_seconds)
         self.tuner = AdaptiveTuner(self.strategy.config, self.risk.config, self.config.tuning_path)
         self.tuner.bot_config = self.config  # erlaubt begrenzte ml_threshold-Anpassung
+        # Live-Claude-Verbindung (optional; für Tests injizierbar)
+        self.claude = claude_worker
+        if self.claude is None and self.config.claude_enabled:
+            from .claude_link import ClaudeLink, ClaudeWorker, Memory
+
+            self.claude = ClaudeWorker(ClaudeLink(Memory(self.config.memory_path)))
+        self._vet_waiting: dict[str, float | None] = {}  # mint -> ml_risk zum Vet-Zeitpunkt
 
     # --- Event-Verarbeitung (synchron, damit ohne Netz testbar) --------------
     def on_event(self, event: dict, now: float | None = None) -> list[Fill]:
         now = time.time() if now is None else now
+        fills = self._process_claude_results(now)
         tx = event.get("txType")
         mint = event.get("mint")
         if not mint:
-            return []
+            return fills
 
         if tx == "create":
             self._finalize_lessons(now)
@@ -99,11 +111,11 @@ class Bot:
             if creator:
                 self.creator_counts[creator] = self.creator_counts.get(creator, 0) + 1
             self.curves[mint] = state
-            return []
+            return fills
 
         state = self.curves.get(mint)
         if state is None:
-            return []
+            return fills
 
         if tx in ("buy", "sell"):
             state.apply_trade(event, now)
@@ -115,9 +127,54 @@ class Bot:
         if watched is not None:
             self.journal.on_post_exit_value(mint, self.broker.position_value(state, watched.tokens))
 
-        fills = self._manage_position(state, now)
+        fills += self._manage_position(state, now)
         fills += self._maybe_enter(state, now)
         self._finalize_lessons(now)
+        return fills
+
+    def _process_claude_results(self, now: float) -> list[Fill]:
+        """Verarbeitet asynchron eingetroffene Claude-Ergebnisse (Vets, Reviews, Notizen)."""
+        if self.claude is None:
+            return []
+        fills: list[Fill] = []
+        for kind, payload in self.claude.drain():
+            if kind == "vet":
+                risk_score = self._vet_waiting.pop(payload.mint, None)
+                if payload.verdict == "veto":
+                    self._write_log({"t": now, "event": "entry_blocked", "mint": payload.mint,
+                                     "why": f"claude_veto: {payload.reason}"})
+                    print(f"CLAUDE-VETO {payload.mint[:8]}: {payload.reason}")
+                    continue
+                if payload.verdict == "error":
+                    self._write_log({"t": now, "event": "claude_vet_error", "mint": payload.mint,
+                                     "why": payload.reason})
+                state = self.curves.get(payload.mint)
+                if state is None or payload.mint in self.risk.positions:
+                    continue
+                # Freigabe ist nur gültig, wenn die Lage JETZT noch stimmt
+                decision = self.strategy.evaluate(state, now)
+                ok, why = self.risk.can_enter(now)
+                if decision.enter and ok:
+                    fills += self._execute_entry(state, now, risk_score,
+                                                 vet_note=payload.reason if payload.verdict == "ok" else None)
+                else:
+                    self._write_log({"t": now, "event": "entry_blocked", "mint": payload.mint,
+                                     "why": "nach Claude-Vet nicht mehr gültig: "
+                                            + (why if not ok else "; ".join(decision.reasons))})
+            elif kind == "post_mortem":
+                mint, note = payload
+                if note:
+                    self._write_log({"t": now, "event": "claude_memory", "mint": mint, "note": note})
+                    print(f"CLAUDE-NOTIZ ({str(mint)[:8]}): {note}")
+            elif kind == "review" and payload:
+                from .advisor import apply_proposals
+
+                applied = apply_proposals(payload.get("proposals", []), self.tuner)
+                self._write_log({"t": now, "event": "claude_review",
+                                 "analysis": payload.get("analysis", ""), "applied": applied})
+                print(f"CLAUDE-REVIEW: {payload.get('analysis', '')}")
+                for line in applied:
+                    print(f"  {line}")
         return fills
 
     def _finalize_lessons(self, now: float) -> None:
@@ -138,9 +195,36 @@ class Bot:
                      "old": adj.old, "new": adj.new, "reason": adj.reason}
                 )
                 print(f"SELBST-TUNING {adj.param}: {adj.old} -> {adj.new}  ({adj.reason})")
+        if self.claude is not None:
+            from dataclasses import asdict as _asdict
+
+            GOOD_LESSONS = {"good_stop", "good_take_profit", "good_time_stop", "migration_exit"}
+            for record in finalized:
+                if record.lesson not in GOOD_LESSONS:
+                    self.claude.submit_post_mortem(_asdict(record))
+            n = len(self.journal.finalized)
+            if n and n % self.config.claude_review_every_n_trades == 0:
+                from collections import Counter as _Counter
+
+                window = self.journal.finalized[-40:]
+                summary = {
+                    "n_closed_trades": len(window),
+                    "total_pnl_sol": round(sum(r.pnl_sol or 0.0 for r in window), 4),
+                    "lessons": dict(_Counter(r.lesson for r in window if r.lesson)),
+                    "loser_contexts": [_asdict(r.context) for r in window if (r.pnl_sol or 0) < 0][:15],
+                }
+                effective = {
+                    "stop_loss_pct": self.risk.config.stop_loss_pct,
+                    "take_profit_pct": self.risk.config.take_profit_pct,
+                    "progress_deadline_seconds": self.risk.config.progress_deadline_seconds,
+                    "min_fill_pct": self.strategy.config.min_fill_pct,
+                    "min_unique_buyers": self.strategy.config.min_unique_buyers,
+                }
+                bounds = {key: getattr(self.tuner.bounds, key) for key in effective}
+                self.claude.submit_review(summary, effective, bounds)
 
     def _maybe_enter(self, state: CurveState, now: float) -> list[Fill]:
-        if state.mint in self.risk.positions:
+        if state.mint in self.risk.positions or state.mint in self._vet_waiting:
             return []
         decision = self.strategy.evaluate(state, now)
         if not decision.enter:
@@ -163,6 +247,28 @@ class Bot:
         if not ok:
             self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint, "why": why})
             return []
+        # Live-Claude-Vet: zweite Meinung einholen, Entry kommt asynchron zurück
+        if self.claude is not None:
+            submitted = self.claude.submit_vet(
+                state.mint,
+                {"name": state.name, "symbol": state.symbol, "uri": state.uri},
+                {"age_seconds": round(now - state.created_at, 1),
+                 "fill_pct": round(state.fill_pct, 1),
+                 "unique_buyers": len(state.unique_buyers),
+                 "dev_buy_sol": state.dev_buy_sol,
+                 "symbol_dupes_before": state.symbol_dupes_before,
+                 "creator_prior_launches": state.creator_prior_launches,
+                 "ml_risk": risk_score},
+            )
+            if submitted:
+                self._vet_waiting[state.mint] = risk_score
+                self._write_log({"t": now, "event": "vet_requested", "mint": state.mint,
+                                 "symbol": state.symbol})
+            return []
+        return self._execute_entry(state, now, risk_score)
+
+    def _execute_entry(self, state: CurveState, now: float, risk_score: float | None,
+                       vet_note: str | None = None) -> list[Fill]:
         fill = self.broker.buy(state, self.risk.config.position_sol)
         if fill.tokens <= 0:
             return []
@@ -181,11 +287,12 @@ class Bot:
             ),
             now,
         )
-        self._write_log(
-            {"t": now, "event": "entry", "mint": state.mint, "symbol": state.symbol,
-             "sol": fill.sol, "tokens": fill.tokens, "fill_pct": round(state.fill_pct, 1),
-             "unique_buyers": len(state.unique_buyers)}
-        )
+        entry_log = {"t": now, "event": "entry", "mint": state.mint, "symbol": state.symbol,
+                     "sol": fill.sol, "tokens": fill.tokens, "fill_pct": round(state.fill_pct, 1),
+                     "unique_buyers": len(state.unique_buyers)}
+        if vet_note:
+            entry_log["claude_vet"] = vet_note
+        self._write_log(entry_log)
         return [fill]
 
     def _manage_position(self, state: CurveState, now: float) -> list[Fill]:

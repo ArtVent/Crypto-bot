@@ -1,0 +1,13 @@
+{
+  "position_scale": 1.0,
+  "consecutive_losses": 0,
+  "effective": {
+    "stop_loss_pct": -50.0,
+    "take_profit_pct": 250.0,
+    "progress_deadline_seconds": 480.0,
+    "position_sol": 0.05,
+    "min_fill_pct": 10.0,
+    "min_unique_buyers": 10
+  },
+  "history": []
+}

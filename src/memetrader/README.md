@@ -75,13 +75,30 @@ Nach 3 Verlusten in Folge handelt er mit 75 % Größe, nach 5 mit 50 % – und
 arbeitet sich mit Gewinnen zurück. Der Bot kann sich justieren, aber nie aus
 seinem Sicherheitsrahmen "herauslernen".
 
-**3. Claude-Berater (`advisor.py`, optional):** `memetrader advise` schickt die
-aggregierten Journal-Statistiken an Claude (Modell `claude-opus-5`) und holt
-eine Muster-Analyse mit Vorschlägen – angewendet wird nur mit `--apply` und
-ausschließlich innerhalb derselben Grenzen. Der Berater läuft nie im
-Trade-Pfad und hat keine Ausführungsrechte (Guardrails in Code, nicht im
-Prompt – die Freysa-Lektion aus docs/ai-und-memecoins.md). Benötigt
-`pip install anthropic` + `ANTHROPIC_API_KEY`.
+**3. Live-Claude-Verbindung (`claude_link.py`):** Mit `--claude` läuft Claude
+(Modell `claude-opus-5`) als echter Co-Pilot IM Bot-Betrieb, über drei Kanäle,
+alle asynchron in Worker-Threads (der Trade-Loop blockiert nie):
+
+- **Entry-Vet:** Kandidaten, die alle Regel-/ML-Gates bestanden haben, gehen
+  mit Metadaten und Kontext an Claude; bei klaren Scam-/Impersonations-Mustern
+  (Confidence >= 0,7 – im Code erzwungen, nicht im Prompt) wird der Entry
+  vetot. Die Freigabe wird beim Eintreffen re-validiert (hat der Creator
+  inzwischen verkauft, gilt sie nicht mehr). Advisory-Prinzip: API-Timeout
+  oder -Fehler bedeutet KEIN Veto – der Bot hängt nie an der API-Verfügbarkeit.
+- **Post-Mortems:** Jede lehrreiche Lektion destilliert Claude in eine kurze
+  Erkenntnis, die in `memetrader.memory.md` landet – ein von Claude kuratiertes
+  Langzeit-Gedächtnis, das künftige Vets und Reviews als Kontext erhalten.
+- **Reviews:** Alle N Trades (Default 10) analysiert Claude Journal +
+  Gedächtnis und schlägt Anpassungen vor, die automatisch, aber NUR innerhalb
+  der AdaptiveTuner-Bounds angewendet werden.
+
+Sicherheits-Invarianten: Claude signiert nie Transaktionen; Token-Metadaten
+werden in den Prompts explizit als angreifer-kontrollierte Daten behandelt
+(Prompt-Injection-Muster aus data/scams.json); alle Anwendungen laufen durch
+Code-Grenzen (Guardrails in Code, nicht im Prompt – die Freysa-Lektion).
+Benötigt `pip install anthropic` + `ANTHROPIC_API_KEY`; Kosten grob:
+ein Vet ~1–2k Tokens, bei Dutzenden Vets/Tag einstellige USD-Beträge.
+`memetrader advise` bleibt als Offline-Variante ohne laufenden Bot.
 
 Einblick in den gelernten Zustand:
 
@@ -98,6 +115,7 @@ python -m memetrader advise    # Claude-Review (--apply übernimmt begrenzt)
 python -m memetrader run --budget-sol 1.0
 python -m memetrader run --ml-threshold 0.75   # strengeres Gate
 python -m memetrader run --ml-model ""         # ohne ML-Gate
+python -m memetrader run --claude              # + Live-Claude: Vets, Post-Mortems, Reviews
 
 # ML-Modell neu trainieren (MELT oder eigene Archiv-Daten):
 python -m memetrader.train_mlfilter --melt-dir /pfad/zu/MELT --out models/mlfilter-melt.joblib
