@@ -8,6 +8,14 @@ Lauffähiger Code auf Basis der Datenbank: Token-Checks (RugCheck/GoPlus/eigene 
 pip install -e . && memescan check <MINT>
 ```
 
+## memetrader – gefilterter Momentum-Bot (1-SOL-Experiment)
+
+Autonomer pump.fun-Bot nach den Regeln der Datenbank: Beobachtungsfenster statt Block-0-Sniping, Entry nur bei Nachfrage-Beweis, asymmetrische Exits, Kill-Switch. **Default: Paper-Trading**; Live nur als doppelter Opt-in mit lokalem Key. Details und ehrliche Erwartung: [`src/memetrader/README.md`](src/memetrader/README.md)
+
+```bash
+memetrader run --budget-sol 1.0        # Paper-Modus gegen Live-Daten
+```
+
 ## Memecoin-Datenbank
 
 Dieses Repo enthält eine umfangreiche, strukturierte Wissensdatenbank zu Memecoins und ihrem Ökosystem:

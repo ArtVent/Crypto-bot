@@ -1,0 +1,146 @@
+"""Risk-Engine: Positionsgrößen, Limits, Kill-Switch, Exit-Zustandsmaschine.
+
+Setzt docs/strategien.md Abschnitt 4 um: Totalverlust-Prämisse pro Position,
+Korrelations-Deckel über max. gleichzeitige Positionen, Tages-Kill-Switch,
+asymmetrische Exits (Derisk bei 2x, Rest laufen lassen, harter Stop, Zeit-Stop,
+These-Stop bei Creator-Verkauf). Zustandsmaschine aus docs/bot-architektur.md 5:
+entered -> derisked -> closed.
+"""
+
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class PositionState(str, Enum):
+    ENTERED = "entered"
+    DERISKED = "derisked"  # Einsatz zurückgeholt, Rest ist "House Money"
+    CLOSED = "closed"
+
+
+class ExitReason(str, Enum):
+    STOP_LOSS = "stop_loss"
+    TAKE_PROFIT = "take_profit"
+    TIME_STOP = "time_stop"
+    CREATOR_SOLD = "creator_sold"
+    MIGRATION = "migration"
+    KILL_SWITCH = "kill_switch"
+
+
+@dataclass
+class RiskConfig:
+    budget_sol: float = 1.0
+    position_sol: float = 0.05          # pro Trade; bei 1 SOL sind kleinere
+    max_concurrent: int = 3             # Positionen fee-dominiert (fee-oekonomie.md)
+    daily_loss_stop_sol: float = 0.15   # Kill-Switch: keine neuen Entries
+    stop_loss_pct: float = -35.0
+    derisk_at_pct: float = 100.0        # bei 2x: Einsatz raus
+    derisk_sell_fraction: float = 0.5
+    take_profit_pct: float = 250.0      # Rest-Exit-Ziel
+    max_hold_seconds: float = 20 * 60.0
+    progress_deadline_seconds: float = 8 * 60.0  # Zeit-Stop: bis dahin > +20 %
+    progress_min_pct: float = 20.0
+
+
+@dataclass
+class Position:
+    mint: str
+    symbol: str
+    tokens: float
+    cost_sol: float
+    entered_at: float
+    state: PositionState = PositionState.ENTERED
+    realized_sol: float = 0.0
+    peak_pnl_pct: float = -100.0
+
+    def pnl_pct(self, value_sol: float) -> float:
+        if self.cost_sol <= 0:
+            return 0.0
+        return (self.realized_sol + value_sol - self.cost_sol) / self.cost_sol * 100.0
+
+
+@dataclass
+class ExitAction:
+    reason: ExitReason
+    sell_fraction: float  # Anteil der aktuellen Token-Position
+
+
+@dataclass
+class RiskManager:
+    config: RiskConfig = field(default_factory=RiskConfig)
+    positions: dict[str, Position] = field(default_factory=dict)
+    realized_pnl_sol: float = 0.0
+    spent_sol: float = 0.0
+    halted: bool = False
+
+    # --- Entry-Seite ---------------------------------------------------------
+    def can_enter(self, now: float | None = None) -> tuple[bool, str]:
+        c = self.config
+        if self.halted:
+            return False, "Kill-Switch aktiv (Tagesverlust-Limit erreicht)"
+        if len(self.positions) >= c.max_concurrent:
+            return False, f"max. {c.max_concurrent} gleichzeitige Positionen"
+        committed = sum(p.cost_sol - p.realized_sol for p in self.positions.values())
+        if self.spent_sol - self.realized_gains() + committed + c.position_sol > c.budget_sol:
+            return False, "Budget erschöpft"
+        return True, "ok"
+
+    def realized_gains(self) -> float:
+        return max(0.0, self.realized_pnl_sol)
+
+    def open_position(self, mint: str, symbol: str, tokens: float, cost_sol: float, now: float | None = None) -> Position:
+        now = time.time() if now is None else now
+        pos = Position(mint=mint, symbol=symbol, tokens=tokens, cost_sol=cost_sol, entered_at=now)
+        self.positions[mint] = pos
+        self.spent_sol += cost_sol
+        return pos
+
+    # --- Exit-Seite ----------------------------------------------------------
+    def check_exit(self, pos: Position, value_sol: float, creator_sold: bool, migrated: bool, now: float | None = None) -> ExitAction | None:
+        c = self.config
+        now = time.time() if now is None else now
+        pnl = pos.pnl_pct(value_sol)
+        pos.peak_pnl_pct = max(pos.peak_pnl_pct, pnl)
+        held = now - pos.entered_at
+
+        if self.halted:
+            return ExitAction(ExitReason.KILL_SWITCH, 1.0)
+        if creator_sold:
+            return ExitAction(ExitReason.CREATOR_SOLD, 1.0)
+        if migrated:
+            # Graduation: Curve-These beendet; Paper-Bot realisiert hier.
+            return ExitAction(ExitReason.MIGRATION, 1.0)
+        if pnl <= c.stop_loss_pct:
+            return ExitAction(ExitReason.STOP_LOSS, 1.0)
+        if pos.state == PositionState.ENTERED and pnl >= c.derisk_at_pct:
+            return ExitAction(ExitReason.TAKE_PROFIT, c.derisk_sell_fraction)
+        if pos.state == PositionState.DERISKED and pnl >= c.take_profit_pct:
+            return ExitAction(ExitReason.TAKE_PROFIT, 1.0)
+        if held > c.max_hold_seconds:
+            return ExitAction(ExitReason.TIME_STOP, 1.0)
+        if held > c.progress_deadline_seconds and pos.peak_pnl_pct < c.progress_min_pct:
+            return ExitAction(ExitReason.TIME_STOP, 1.0)
+        return None
+
+    def record_sell(self, pos: Position, tokens_sold: float, sol_received: float) -> None:
+        pos.tokens -= tokens_sold
+        pos.realized_sol += sol_received
+        if pos.tokens <= 1e-9:
+            pos.state = PositionState.CLOSED
+            pnl = pos.realized_sol - pos.cost_sol
+            self.realized_pnl_sol += pnl
+            del self.positions[pos.mint]
+            if self.realized_pnl_sol <= -self.config.daily_loss_stop_sol:
+                self.halted = True
+        elif pos.state == PositionState.ENTERED and pos.realized_sol >= pos.cost_sol:
+            pos.state = PositionState.DERISKED
+
+    def summary(self) -> dict:
+        return {
+            "open_positions": len(self.positions),
+            "spent_sol": round(self.spent_sol, 4),
+            "realized_pnl_sol": round(self.realized_pnl_sol, 4),
+            "halted": self.halted,
+        }
