@@ -178,6 +178,37 @@ class AdaptiveTuner:
         }
         self.state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False))
 
+    def load_state(self) -> bool:
+        """Lädt persistierten Lernstand (Parameter innerhalb der Bounds,
+        Positions-Skalierung) – damit Lernen Neustarts überlebt."""
+        if not self.state_path.exists():
+            return False
+        try:
+            state = json.loads(self.state_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            return False
+
+        def clamp(value, key):
+            lo, hi = getattr(self.bounds, key)
+            return max(lo, min(hi, float(value)))
+
+        eff = state.get("effective", {})
+        if "stop_loss_pct" in eff:
+            self.risk.stop_loss_pct = clamp(eff["stop_loss_pct"], "stop_loss_pct")
+        if "take_profit_pct" in eff:
+            self.risk.take_profit_pct = clamp(eff["take_profit_pct"], "take_profit_pct")
+        if "progress_deadline_seconds" in eff:
+            self.risk.progress_deadline_seconds = clamp(eff["progress_deadline_seconds"], "progress_deadline_seconds")
+        if "min_fill_pct" in eff:
+            self.strategy.min_fill_pct = clamp(eff["min_fill_pct"], "min_fill_pct")
+        if "min_unique_buyers" in eff:
+            self.strategy.min_unique_buyers = int(clamp(eff["min_unique_buyers"], "min_unique_buyers"))
+        lo, hi = self.bounds.position_scale
+        self.position_scale = max(lo, min(hi, float(state.get("position_scale", 1.0))))
+        self.consecutive_losses = int(state.get("consecutive_losses", 0))
+        self.risk.position_sol = round(self.base_position_sol * self.position_scale, 6)
+        return True
+
     def state_summary(self) -> dict:
         return {
             "position_scale": self.position_scale,

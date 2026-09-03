@@ -48,6 +48,14 @@ def main(argv: list[str] | None = None) -> int:
     p_bt.add_argument("--baseline", action="store_true",
                       help="Mikrostruktur-Gates (Bundle/Wash) deaktivieren – für Vorher/Nachher-Vergleiche")
 
+    p_auto = sub.add_parser("autopilot",
+                            help="Dauerbetrieb: Paper-Training IMMER, wenn kein Live-Betrieb läuft; Tagesberichte")
+    p_auto.add_argument("--budget-sol", type=float, default=1.0)
+    p_auto.add_argument("--ml-model", default="models/mlfilter-melt.joblib")
+
+    p_notify = sub.add_parser("notify-test", help="Benachrichtigungs-Kanäle testen (Telegram/Webhook)")
+    p_notify.add_argument("--message", default="memetrader Testnachricht – Kanal funktioniert.")
+
     p_brain = sub.add_parser("brain", help="Gelernten Zustand zeigen: Lektionen, Selbst-Tuning-Historie")
     p_brain.add_argument("--journal", default="memetrader.journal.jsonl")
     p_brain.add_argument("--tuning", default="memetrader.tuning.json")
@@ -96,10 +104,19 @@ def main(argv: list[str] | None = None) -> int:
 
             broker = LiveBroker(max_position_sol=args.position_sol)
             print("LIVE-Modus. Positionsgröße", args.position_sol, "SOL. Kill-Switch:", config.risk.daily_loss_stop_sol, "SOL")
+        lock = None
+        if args.live:
+            from .autopilot import LIVE_LOCK
+
+            lock = LIVE_LOCK
+            lock.write_text(str(__import__("os").getpid()))  # Autopilot pausiert Paper-Training
         try:
             asyncio.run(Bot(config, broker=broker).run())
         except KeyboardInterrupt:
             print("\nbeendet")
+        finally:
+            if lock is not None:
+                lock.unlink(missing_ok=True)
         return 0
 
     if args.cmd == "analyze":
@@ -107,6 +124,26 @@ def main(argv: list[str] | None = None) -> int:
 
         print(analyze_file(args.log_file).report())
         return 0
+
+    if args.cmd == "autopilot":
+        from pathlib import Path as _Path
+
+        from .autopilot import run_autopilot
+
+        ml = args.ml_model if args.ml_model and _Path(args.ml_model).exists() else None
+        run_autopilot(budget_sol=args.budget_sol, ml_model_path=ml)
+        return 0
+
+    if args.cmd == "notify-test":
+        from .notify import Notifier
+
+        notifier = Notifier.from_env()
+        if not notifier.channels:
+            print("Keine Kanäle konfiguriert. Setze TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID "
+                  "(oder NOTIFY_WEBHOOK_URL) als Umgebungsvariablen.")
+        delivered = notifier.send(args.message)
+        print(f"Zugestellt an: {delivered or 'keinen externen Kanal (nur Konsole)'}")
+        return 0 if delivered or not notifier.channels else 1
 
     if args.cmd == "backtest":
         from statistics import mean, median
