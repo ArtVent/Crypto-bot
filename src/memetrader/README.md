@@ -126,6 +126,10 @@ python -m memetrader replay events.jsonl
 # Entscheidungs-Log auswerten (PnL, Trefferquote, Exit-Gründe, Filter-Wirkung):
 python -m memetrader analyze memetrader.log.jsonl
 
+# Lookahead-freier Backtest: 60 Tage simulierter, basisraten-kalibrierter Markt
+# (oder --events <aufzeichnung.jsonl> für echte aufgezeichnete Streams):
+python -m memetrader backtest --days 60 --budget-sol 1.0 --seeds 1 2 3 4 5
+
 # Live (erst nach überzeugenden Paper-Wochen!):
 #   1. pip install solders
 #   2. export SOLANA_PRIVATE_KEY=...   # NUR lokal – nie in Chat/Repo/Cloud!
