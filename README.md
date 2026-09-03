@@ -1,5 +1,13 @@
 # Crypto-bot
 
+## memescan – Sicherheits-Scanner & Launch-Archiver
+
+Lauffähiger Code auf Basis der Datenbank: Token-Checks (RugCheck/GoPlus/eigene Regeln → ALLOW/WARN/DENY), pump.fun-Launch-Archiv und Outcome-Labeling. Setup und Nutzung: [`src/README.md`](src/README.md)
+
+```bash
+pip install -e . && memescan check <MINT>
+```
+
 ## Memecoin-Datenbank
 
 Dieses Repo enthält eine umfangreiche, strukturierte Wissensdatenbank zu Memecoins und ihrem Ökosystem:
