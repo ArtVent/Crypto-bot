@@ -309,6 +309,132 @@
       "category": "culture",
       "launchpad": null,
       "notes": "Selbstironischer Anti-Utility-Coin ('völlig nutzlos'), einer der bekannteren Solana-Runner 2025 – Symbol der 'Ehrlichkeits-Meta'."
+    },
+    {
+      "name": "Wen",
+      "symbol": "WEN",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Von Jupiter initiiert: fraktionalisiertes Gedicht-NFT ('A poem about wen'), per Riesen-Airdrop an über eine Million Wallets verteilt – Testlauf für den JUP-Airdrop."
+    },
+    {
+      "name": "Myro",
+      "symbol": "MYRO",
+      "chain": "Solana",
+      "launched": 2023,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Benannt nach dem Hund von Solana-Mitgründer Raj Gokal; einer der frühen Solana-Dog-Coins des 2023er-Zyklus."
+    },
+    {
+      "name": "Ponke",
+      "symbol": "PONKE",
+      "chain": "Solana",
+      "launched": 2023,
+      "category": "animal",
+      "launchpad": null,
+      "notes": "Wütender Trading-Affe als Maskottchen der Degen-Kultur; solide Community über den ganzen 2024er-Zyklus."
+    },
+    {
+      "name": "michi",
+      "symbol": "MICHI",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "cat",
+      "launchpad": "pump.fun",
+      "notes": "Eine der ersten großen pump.fun-Erfolgsgeschichten der Cat-Meta 2024 ('sitting cat'-Meme)."
+    },
+    {
+      "name": "Billy",
+      "symbol": "BILLY",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "dog",
+      "launchpad": "pump.fun",
+      "notes": "Hund aus dem Umfeld der Solana-Community (Sommer 2024); Beispiel für die 'Ökosystem-Maskottchen'-Welle."
+    },
+    {
+      "name": "Jeo Boden",
+      "symbol": "BODEN",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "political",
+      "launchpad": null,
+      "notes": "Absichtlich falsch geschriebene Biden-Parodie; führte die PolitiFi-Meta im Frühjahr 2024 an und kollabierte mit Bidens Rückzug aus dem Wahlkampf – Lehrstück für Event-gebundene Coins."
+    },
+    {
+      "name": "Doland Tremp",
+      "symbol": "TREMP",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "political",
+      "launchpad": null,
+      "notes": "Trump-Parodie-Gegenstück zu BODEN in der PolitiFi-Meta 2024 (nicht zu verwechseln mit dem offiziellen TRUMP-Coin von 2025)."
+    },
+    {
+      "name": "Mother Iggy",
+      "symbol": "MOTHER",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "celebrity",
+      "launchpad": null,
+      "notes": "Coin der Rapperin Iggy Azalea – der 'Celebrity-Coin-Sommer' 2024. Eine der wenigen Promi-Coins, deren Ersteller danach aktiv blieb (Telecom-/Casino-Anbindung)."
+    },
+    {
+      "name": "Daddy Tate",
+      "symbol": "DADDY",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "celebrity",
+      "launchpad": null,
+      "notes": "Coin im Umfeld von Andrew Tate (Juni 2024); Paradebeispiel für die Kontroversen der Celebrity-Meta inkl. Vorwürfen von Insider-Käufen vor Ankündigung."
+    },
+    {
+      "name": "Milady Meme Coin",
+      "symbol": "LADYS",
+      "chain": "Ethereum",
+      "launched": 2023,
+      "category": "nft-brand",
+      "launchpad": null,
+      "notes": "Memecoin zur Milady-NFT-Subkultur; pumpte 2023 u. a. nach einem Elon-Musk-Post mit Milady-Bild."
+    },
+    {
+      "name": "Non-Playable Coin",
+      "symbol": "NPC",
+      "chain": "Ethereum / Solana",
+      "launched": 2023,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Basierend auf dem NPC-Wojak-Meme; Hybrid aus Token und NFT-Konzept, langlebiger als die meisten 2023er-Memes."
+    },
+    {
+      "name": "Apu Apustaja",
+      "symbol": "APU",
+      "chain": "Ethereum",
+      "launched": 2023,
+      "category": "frog",
+      "launchpad": null,
+      "notes": "'Peamon'/Helper-Frog-Ableger der Pepe-Familie; wurde nach CTO (Community Takeover) einer der größeren Frog-Coins."
+    },
+    {
+      "name": "Coq Inu",
+      "symbol": "COQ",
+      "chain": "Avalanche",
+      "launched": 2023,
+      "category": "animal",
+      "launchpad": null,
+      "notes": "Größter Memecoin des Avalanche-Ökosystems (Hahn-Maskottchen), Teil der AVAX-Meme-Welle Ende 2023."
+    },
+    {
+      "name": "Broccoli",
+      "symbol": "BROCCOLI",
+      "chain": "BNB Chain",
+      "launched": 2025,
+      "category": "dog",
+      "launchpad": "four.meme",
+      "notes": "Entstand, nachdem CZ im Februar 2025 den Namen seines Hundes ('Broccoli') veröffentlichte – hunderte konkurrierende Broccoli-Token in Stunden; Musterbeispiel für Ticker-Kriege und CZ-getriebene BNB-Meme-Wellen."
     }
   ]
 }

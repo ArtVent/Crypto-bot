@@ -1,0 +1,79 @@
+{
+  "_meta": {
+    "description": "Wege, auf denen Memecoins technisch erstellt werden – als Wissensbasis, um Launches zu VERSTEHEN und zu BEWERTEN (welcher Deploy-Weg impliziert welche Risiken/Eigenschaften?). Vertiefung inkl. Ablauf und Seriositäts-Checkliste: docs/token-erstellung.md. Kein Aufruf zum Launchen; rechtliche Hinweise siehe Doku.",
+    "fields": {
+      "method": "Erstellungsweg",
+      "chain": "Chain(s)",
+      "cost_approx": "Ungefähre Kosten (Größenordnung, ohne Gewähr)",
+      "time": "Aufwand bis handelbarer Token",
+      "control": "Was der Ersteller kontrolliert (=Risikofläche für Käufer)",
+      "buyer_implications": "Was der Deploy-Weg für Käufer/Bots bedeutet"
+    }
+  },
+  "methods": [
+    {
+      "method": "pump.fun-Create (und Klone: LetsBonk, Four.meme, SunPump)",
+      "chain": "Solana / BNB / Tron",
+      "cost_approx": "< 1 USD (+ optionaler Dev-Buy)",
+      "time": "Sekunden",
+      "control": "Nur Metadaten (Name, Ticker, Bild, Socials) und eigener Erstkauf. Supply fix 1 Mrd., Mint-/Freeze-Authority revoked, Kurve und Migration vom Programm erzwungen.",
+      "buyer_implications": "Technisch sauberste Ausgangslage (kein Honeypot/Mint-Risiko auf der Curve); Risiko liegt fast vollständig in der VERTEILUNG (Dev-Buy, Bundles) und im Verhalten des Erstellers. Creator verdient ggf. laufend an Fees (Anreiz, den Coin zu pflegen)."
+    },
+    {
+      "method": "Launch per Social-Post (Believe auf X, Clanker auf Farcaster, Zora-Posts)",
+      "chain": "Solana / Base",
+      "cost_approx": "nahe 0 (Plattform trägt Deploy)",
+      "time": "Sekunden bis Minuten",
+      "control": "Identität des postenden Accounts + Metadaten; Fee-Split je Plattform. Pool-Setup automatisiert.",
+      "buyer_implications": "Der Social-Account IST der Trust-Anker: Account-Hacks und Impersonation sind hier der Hauptangriffsvektor. Für Bots: Account-Alter/-Historie als Filter-Feature."
+    },
+    {
+      "method": "Manueller SPL-Token (Solana, ohne Launchpad)",
+      "chain": "Solana",
+      "cost_approx": "wenige USD (Rent + Tx) + Liquiditätskapital",
+      "time": "Minuten bis Stunden (CLI/Tools: spl-token, Metaplex-Metadaten, dann Raydium-/Meteora-Pool)",
+      "control": "Alles: Supply, Decimals, Mint-/Freeze-Authority (kann behalten werden!), Metadaten, Pool-Konstruktion, LP-Verbleib.",
+      "buyer_implications": "Maximale Freiheit = maximale Risikofläche. Pflichtchecks: Authorities revoked? LP geburnt/gelockt? Wer hält den Supply? Seriöse manuelle Launches dokumentieren genau das proaktiv."
+    },
+    {
+      "method": "Manueller ERC-20 (EVM, ohne Launchpad)",
+      "chain": "Ethereum / Base / BNB u. a.",
+      "cost_approx": "Gas (Base/BNB: Cents–USD; Ethereum: zweistellig+) + Liquiditätskapital",
+      "time": "Minuten (Standard-Contract, z. B. OpenZeppelin-basiert) bis Tage (Custom-Logik)",
+      "control": "Contract-Code komplett: Supply, Taxes, Blacklists, Mint, Upgradebarkeit, Owner-Rechte; Pool + LP-Verbleib.",
+      "buyer_implications": "Der gesamte EVM-Scam-Werkzeugkasten (Honeypot, Tax-Switch, Hidden Mint) lebt hier. Pflichtchecks: Code verifiziert, Owner renounced, Taxes fix, kein Proxy, LP gelockt/geburnt, Kauf+Verkauf simuliert."
+    },
+    {
+      "method": "Token-Factories & No-Code-Deployer",
+      "chain": "EVM / Solana",
+      "cost_approx": "Deploy-Gebühr der Factory (einstellig bis zweistellig USD)",
+      "time": "Minuten",
+      "control": "Vorgefertigte Templates mit wählbaren Features (Tax an/aus, Burn, Reflections …).",
+      "buyer_implications": "Template erkennbar am Bytecode → gute Bots klassifizieren Factory-Herkunft; manche Factories sind für Scam-Features bekannt (Herkunft als Risiko-Feature nutzen)."
+    },
+    {
+      "method": "Airdrop-/Points-Launch (TON-Modell, große Communities)",
+      "chain": "TON / alle",
+      "cost_approx": "hoch (Infrastruktur, Marketing, CEX-Koordination)",
+      "time": "Wochen bis Monate",
+      "control": "Zuteilungslogik, Claim-Prozess, Listing-Partnerschaften.",
+      "buyer_implications": "Riesige Holderzahl ab Tag 1, aber struktureller Dauerverkaufsdruck (Airdrop-Empfänger = Verkäufer). Claim-Phasen sind Phishing-Hochsaison (Fake-Claim-Seiten)."
+    },
+    {
+      "method": "Fonds-/DAO-Modell (daos.fun-Stil)",
+      "chain": "Solana",
+      "cost_approx": "Plattformabhängig",
+      "time": "Stunden",
+      "control": "Manager kontrolliert Fonds-Treasury innerhalb der Plattform-Regeln.",
+      "buyer_implications": "Kein klassischer Memecoin: Man kauft Manager-Vertrauen. Regulatorisch am heikelsten (fondsähnlich); NAV vs. Token-Preis als Sonder-Metrik."
+    },
+    {
+      "method": "Ticker-Auktion (Hyperliquid HIP-1)",
+      "chain": "Hyperliquid",
+      "cost_approx": "Auktionspreis (stark schwankend, teils fünf-/sechsstellig)",
+      "time": "Auktionszyklus",
+      "control": "Ticker + Token-Parameter im Orderbuch-Spot-Modell.",
+      "buyer_implications": "Hohe Deploy-Kosten wirken als Spam-Filter – anderes Grundrauschen als auf Launchpads; kleine, aber kapitalisiertere Launch-Population."
+    }
+  ]
+}

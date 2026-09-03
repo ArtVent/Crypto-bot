@@ -1,0 +1,223 @@
+{
+  "_meta": {
+    "description": "Umfassende Scam-/Manipulations-Taxonomie im Memecoin-Umfeld – dokumentiert zur ERKENNUNG und VERTEIDIGUNG (Bot-Filter, Due Diligence), nicht als Anleitung. Viele dieser Praktiken sind Betrug bzw. Marktmanipulation und strafbar. Öffentlich bekannte Beispielfälle: docs/beruehmte-faelle.md; automatisierbare Checks: docs/risiko-und-scam-checks.md",
+    "fields": {
+      "name": "Bezeichnung",
+      "category": "contract | liquidity | distribution | market | social | infrastructure | wallet",
+      "severity": "1 (ärgerlich) bis 5 (Totalverlust)",
+      "mechanics": "Wie der Scam funktioniert (Opfer-Perspektive)",
+      "red_flags": "Warnsignale",
+      "detection": "Automatisierbare Erkennung für den Bot",
+      "public_cases": "Öffentlich bekannte Beispiele (falls vorhanden)"
+    }
+  },
+  "scams": [
+    {
+      "name": "Hard Rug (LP-Abzug)",
+      "category": "liquidity",
+      "severity": 5,
+      "mechanics": "Der Ersteller hält die LP-Token des Pools und zieht die gesamte Liquidität ab, sobald genug Käufer drin sind – der Token wird unverkäuflich, Preis ≈ 0.",
+      "red_flags": "LP-Token weder geburnt noch nachweisbar gelockt; frische Dev-Wallet; anonymes Team mit Zeitdruck-Marketing.",
+      "detection": "LP-Ownership on-chain prüfen: Burn-Adresse oder Locker-Contract (Unicrypt, Team.Finance u. ä.)? Launchpad-Graduations (pump.fun & Co.) burnen automatisch – manuelle Pools sind der Risikofall.",
+      "public_cases": "BALD (Base, 2023), AnubisDAO (2021), unzählige Kleinstfälle täglich"
+    },
+    {
+      "name": "Soft Rug / Slow Rug (Dev dumpt Bestände)",
+      "category": "distribution",
+      "severity": 4,
+      "mechanics": "Kein LP-Abzug, sondern kontinuierlicher Abverkauf der Dev-/Insider-Bestände in jede Nachfrage – der Coin stirbt über Tage/Wochen statt in Sekunden.",
+      "red_flags": "Große Team-/Dev-Allokation; 'Marketing-Wallets'; Preis macht niedrigere Hochs bei konstant hohem Verkaufsdruck aus denselben Wallet-Clustern.",
+      "detection": "Dev- und verbundene Wallets (gleiche Funding-Quelle) live tracken; Alarm bei Transfers auf CEX-Deposits oder frische Wallets; kumulierte Insider-Outflows vs. Netto-Nachfrage.",
+      "public_cases": "Standard-Todesart der meisten Launchpad-Coins; viele Celebrity-Coins 2024"
+    },
+    {
+      "name": "Honeypot (Kauf ja, Verkauf nein)",
+      "category": "contract",
+      "severity": 5,
+      "mechanics": "EVM-Contract mit Logik, die Verkäufe für normale Nutzer blockiert (Whitelist, Transfer-Sperren, absurde Sell-Tax) – der Chart steigt scheinbar sauber, weil niemand verkaufen kann.",
+      "red_flags": "Nur Käufe im Chart, kaum Verkäufe; Contract nicht verifiziert; komplexer Transfer-Code.",
+      "detection": "Vor jedem Einstieg Kauf+Verkauf simulieren (eth_call/Tenderly, Honeypot.is, GoPlus 'is_honeypot', 'cannot_sell_all'). Auf reinen Bonding-Curves (pump.fun) strukturell kein Thema – bei EVM-Launches Pflichtcheck.",
+      "public_cases": "Squid-Game-Token SQUID (2021) als berühmtester Fall"
+    },
+    {
+      "name": "Hidden Mint / Supply-Exploit",
+      "category": "contract",
+      "severity": 5,
+      "mechanics": "Der Ersteller behält die Möglichkeit, neue Token zu erzeugen (Mint-Authority auf Solana, mint()-Funktion oder Proxy-Upgrade auf EVM) und dumpt frisch geminteten Supply in den Markt.",
+      "red_flags": "Mint-Authority nicht revoked; upgradebarer Proxy-Contract; Owner nicht renounced.",
+      "detection": "Solana: getAccountInfo auf den Mint → mintAuthority muss null sein. EVM: Contract-Scan auf mint-/Upgrade-Funktionen (GoPlus 'is_mintable', 'is_proxy').",
+      "public_cases": "Wiederkehrend bei EVM-Kleinst-Token"
+    },
+    {
+      "name": "Freeze / Blacklist / Pause",
+      "category": "contract",
+      "severity": 4,
+      "mechanics": "Einzelne Wallets werden am Verkaufen gehindert (Solana-Freeze-Authority, EVM-Blacklists) oder der ganze Handel wird pausiert, während Insider über Ausnahmen verkaufen.",
+      "red_flags": "Freeze-Authority aktiv; Blacklist-/Pause-Funktionen im Code; Berichte einzelner Nutzer, nicht verkaufen zu können.",
+      "detection": "Solana: freezeAuthority muss null sein. EVM: GoPlus-Flags 'transfer_pausable', 'is_blacklisted', 'trading_cooldown'.",
+      "public_cases": "Verbreitetes Muster bei BNB-/ETH-Scam-Token"
+    },
+    {
+      "name": "Tax-Switch (nachträgliche Steuer-Erhöhung)",
+      "category": "contract",
+      "severity": 4,
+      "mechanics": "Buy/Sell-Tax ist beim Launch niedrig und wird später per Owner-Funktion auf z. B. 90–99 % gesetzt – faktisch ein verzögerter Honeypot.",
+      "red_flags": "Veränderbare Tax-Parameter; Owner nicht renounced; Tax-Empfänger ist eine EOA statt Contract.",
+      "detection": "GoPlus 'slippage_modifiable', 'buy_tax'/'sell_tax'; Owner-Status; periodischer Re-Check der Tax bei gehaltenen Positionen.",
+      "public_cases": "Standard-Trick bei EVM-Meme-Klonen"
+    },
+    {
+      "name": "Launch-Bundling (vorgetäuschte Verteilung)",
+      "category": "distribution",
+      "severity": 4,
+      "mechanics": "Insider kaufen im Launch-Block über viele frische Wallets ein und halten so unauffällig 30–80 % des Supplys. Der Chart wirkt organisch, bis alle Cluster koordiniert verkaufen.",
+      "red_flags": "Viele Wallets mit Käufen in denselben ersten Blöcken; Wallets ohne Historie; identische Funding-Quelle (gleiche CEX-Withdraw-Adresse oder Verteiler-Wallet).",
+      "detection": "Bundle-Analyse: Käufe der ersten N Blöcke clustern, Funding-Herkunft der Käufer-Wallets rückverfolgen (GMGN-Bundle-Check, RugCheck-Insider-Graph, Bubblemaps-Cluster). Schwelle als K.-o.-Kriterium in den Bot-Filter.",
+      "public_cases": "Bei einem erheblichen Teil aller pump.fun-Launches nachweisbar; HAWK-Vorwürfe (2024)"
+    },
+    {
+      "name": "Insider-Launch mit Vorwissen (LIBRA-Muster)",
+      "category": "distribution",
+      "severity": 5,
+      "mechanics": "Ein Launch wird mit prominenter Unterstützung geplant; eingeweihte Wallets positionieren sich Minuten vor der öffentlichen Ankündigung und verkaufen in den Promo-Pump. Extremform: Single-Sided-Liquidity, die Insidern das Abschöpfen des Pools erlaubt.",
+      "red_flags": "Große Käufe unmittelbar VOR der Ankündigung; Team kontrolliert Pool-Setup; keine Lock-ups trotz 'offiziellem' Anstrich.",
+      "detection": "Zeitstempel-Analyse: Wallets, die vor dem öffentlichen Announcement kauften, flaggen; Pool-Konstruktion prüfen (einseitige Liquidität, Team-Kontrolle).",
+      "public_cases": "LIBRA (Februar 2025, Argentinien – Insider-Extraktion von >100 Mio. USD mutmaßlich, Ermittlungen liefen); Vorwürfe auch bei diversen Celebrity-Coins"
+    },
+    {
+      "name": "Wash Trading / Fake-Volumen",
+      "category": "market",
+      "severity": 3,
+      "mechanics": "Bots handeln den Coin mit sich selbst, um Volumen, Trades und Trending-Platzierungen zu erzeugen – echte Käufer folgen den gefälschten Aktivitätsmetriken.",
+      "red_flags": "Hohes Volumen bei wenigen einzigartigen Wallets; repetitive Trade-Größen/Intervalle; Volumen ohne Preisbewegung und ohne Social-Echo.",
+      "detection": "Unique-Trader-Quote (Volumen ÷ aktive Wallets), Verteilung der Trade-Größen (zu uniform = Bot), Wallet-Wiederverwendungsrate; Trending-Einträge ohne organische Metriken abwerten.",
+      "public_cases": "Systematisch auf allen Chains; Studien schätzen erhebliche Anteile des DEX-Meme-Volumens als Wash"
+    },
+    {
+      "name": "Pump & Dump / KOL-Schema",
+      "category": "social",
+      "severity": 4,
+      "mechanics": "Gruppe oder Influencer akkumuliert vorab, pusht den Coin koordiniert (Calls, 'Gem'-Posts, bezahlte Promos ohne Kennzeichnung) und verkauft in die ausgelöste Nachfrage.",
+      "red_flags": "Chart lief schon vor dem Call; Promo ohne Werbekennzeichnung; dieselben Accounts pushen seriell Coins, die danach kollabieren; 'nur heute'-Dringlichkeit.",
+      "detection": "Wallet-Abgleich: kauften mit dem Promoter verbundene Wallets vor dem Post? Historie des Accounts (Anteil kollabierter Calls); Zeitreihen Call vs. Insider-Exits.",
+      "public_cases": "Save the Kids (2021); FTC-/SEC-Verfahren gegen diverse Promoter; Dutzende dokumentierte Telegram-'Pump-Groups'"
+    },
+    {
+      "name": "Impersonation / Fake-Token",
+      "category": "market",
+      "severity": 5,
+      "mechanics": "Kopie eines bekannten Coins/Projekts mit identischem Namen, Ticker und Logo, aber anderer Contract-Adresse – Käufer erwischen die Fälschung. Beliebt in den Minuten um große Launches/Listings und bei erwarteten Token (z. B. 'offizieller' Coin eines Promis vor dem echten Launch).",
+      "red_flags": "Mehrere gleichnamige Token; Adresse stammt nicht aus offiziellen Kanälen; minimale Liquidität.",
+      "detection": "Nur per Contract-/Mint-Adresse handeln, nie per Ticker-Suche; Abgleich gegen verifizierte Listen (Jupiter Strict List, CoinGecko); Alter+Liquidität als Plausibilitätscheck.",
+      "public_cases": "Hunderte Fake-TRUMPs im Januar 2025; Fake-Broccolis Februar 2025; Standard bei jedem viralen Event"
+    },
+    {
+      "name": "Ticker-Hijack / Re-Launch-Farming",
+      "category": "market",
+      "severity": 3,
+      "mechanics": "Nach dem Tod eines gehypten Coins (oder parallel zu einem Streit um die 'echte' Version) werden Dutzende Re-Launches desselben Memes deployed, um Rest-Aufmerksamkeit abzuernten.",
+      "red_flags": "Gleicher Name/Ticker, junges Token-Alter; 'V2'-/'CTO'-Claims ohne nachweisbare Community.",
+      "detection": "Token-Alter + Namensduplikate über Launchpad-Daten erkennen; nur die Adresse mit dominanter Liquidität/Holderbasis als 'kanonisch' behandeln.",
+      "public_cases": "NEIRO-Ticker-Krieg (2024); Broccoli (2025)"
+    },
+    {
+      "name": "Fake-Listing- & Fake-Partnership-News",
+      "category": "social",
+      "severity": 3,
+      "mechanics": "Gefälschte Screenshots/Posts über Börsen-Listings, Promi-Unterstützung oder Partnerschaften erzeugen einen Kaufimpuls, in den verkauft wird.",
+      "red_flags": "News nur aus Community-Kanälen; kein Eintrag in offiziellen Announcement-Feeds; gefälschte 'blaue Haken'-Screenshots.",
+      "detection": "News-Whitelist: Nur offizielle Börsen-/Projekt-Feeds als Signalquelle akzeptieren; alles andere ignorieren oder negativ gewichten.",
+      "public_cases": "Laufend; auch gehackte Promi-/Firmen-Accounts, die Coins posten (kompromittierte X-Accounts)"
+    },
+    {
+      "name": "Account-Kompromittierung (gehackte Promi-/Projekt-Accounts)",
+      "category": "social",
+      "severity": 4,
+      "mechanics": "Angreifer übernehmen X-/Instagram-Accounts von Prominenten, Firmen oder Behörden und posten eine Contract-Adresse ('offizieller Coin') – der Coin ist ein Insider-Setup der Hacker.",
+      "red_flags": "Untypischer Post-Stil; brandneuer Token; Löschung des Posts nach Minuten; keine Bestätigung über Zweitkanäle.",
+      "detection": "Promi-Launch-Signale nur mit Mehr-Kanal-Bestätigung handeln; Token-Alter < Minuten + Promi-Post = Standard-Hack-Muster, eher meiden.",
+      "public_cases": "Serie gehackter Celebrity-Accounts 2024/2025 (u. a. Fälle mit gefälschten 'offiziellen' Coins von Stars und Marken)"
+    },
+    {
+      "name": "Presale-/Fair-Launch-Betrug",
+      "category": "distribution",
+      "severity": 5,
+      "mechanics": "SOL/ETH an eine Adresse senden gegen spätere Token-Zuteilung – Ersteller verschwindet, liefert nicht oder teilt willkürlich zu. Auch 'Whitelist-Spots' gegen Vorkasse.",
+      "red_flags": "Zuteilung reine Vertrauenssache; anonymes Team; FOMO-Countdown; keine Escrow-Mechanik.",
+      "detection": "Kategorisch meiden bzw. im Bot als nicht handelbar klassifizieren; Presale-Muster (Massen-Transfers an eine Wallet vor Launch) on-chain erkennbar.",
+      "public_cases": "Presale-Meta März 2024 auf Solana: Analysen zufolge lieferte ein Großteil der Presales nie einen Token"
+    },
+    {
+      "name": "Airdrop-Köder & Dusting",
+      "category": "wallet",
+      "severity": 4,
+      "mechanics": "Unbekannte Token/NFTs landen in der Wallet; die Interaktion damit (Claim-Seite, 'Swap zum Freischalten') führt zu Drainer-Signaturen oder Approval-Abgriffen.",
+      "red_flags": "Token mit URL im Namen; 'Du hast X gewonnen'-NFTs; Claim-Seiten, die unbegrenzte Approvals oder setOwner-Signaturen verlangen.",
+      "detection": "Unbekannte Assets im Bot/Portfolio-Tracker ausblenden und nie automatisiert anfassen; Signatur-Simulation vor jeder Interaktion; Approval-Monitoring (revoke.cash).",
+      "public_cases": "Massenphänomen auf Solana/EVM seit 2021"
+    },
+    {
+      "name": "Wallet-Drainer & Phishing-Sites",
+      "category": "wallet",
+      "severity": 5,
+      "mechanics": "Gefälschte Versionen bekannter Frontends (pump.fun, Jupiter, Photon …), Typosquatting-Domains, gekaufte Suchanzeigen oder Discord-/Telegram-'Support' führen zu Transaktions-Signaturen, die die Wallet leeren (Drainer-Kits wie seinerzeit Inferno/Angel als Service-Industrie).",
+      "red_flags": "Domain-Abweichungen; 'Verifiziere deine Wallet'; Support-DMs; Signatur-Requests mit unerwarteten Programmen/Approvals.",
+      "detection": "Domain-Whitelist im Bot/Workflow hart codieren; Transaktions-Simulation mit Balance-Diff vor jeder Signatur; getrennte Hot-Wallet mit Minimalbestand.",
+      "public_cases": "Drainer-as-a-Service-Ökosystem, hunderte Mio. USD Schaden pro Jahr (Chainalysis/ScamSniffer-Reports)"
+    },
+    {
+      "name": "Fake-Bots & Fake-Tools",
+      "category": "infrastructure",
+      "severity": 5,
+      "mechanics": "Gefälschte Telegram-Trading-Bots, 'Volume-Bots', Sniper-Tools oder GitHub-Repos ('pump.fun sniper source code'), die eingezahlte Funds stehlen oder Private Keys exfiltrieren – teils mit Malware im Build-Schritt.",
+      "red_flags": "Bot verlangt Seed-Phrase; Tool nur über DM/Ad auffindbar; Repo mit obfuskiertem Code und 'npm install && private key eintragen'.",
+      "detection": "Nur etablierte, unabhängig referenzierte Tools nutzen; fremden Code sandboxen und Key-Zugriff auditieren; Seeds niemals in Dritt-Software.",
+      "public_cases": "Laufende Kampagnen mit trojanisierten 'Trading-Bot'-Repos (dokumentiert von Security-Firmen)"
+    },
+    {
+      "name": "Copy-Trade-Baiting",
+      "category": "market",
+      "severity": 3,
+      "mechanics": "Bekannte 'Smart-Money'-Wallets werden gezielt aufgebaut oder gekauft; die Wallet kauft klein und sichtbar, das Umfeld verkauft groß über nicht verlinkte Wallets in die ausgelösten Kopier-Käufe.",
+      "red_flags": "Wallet kauft untypisch kleine Größen in frische Coins; Coins, die kurz nach dem Smart-Money-Einstieg von Clustern abverkauft werden.",
+      "detection": "Copy-Signale mit Bundle-/Cluster-Analyse des Ziel-Coins kombinieren; Wallet-Performance rollierend neu bewerten statt statischer Whitelist.",
+      "public_cases": "Bekanntes Muster im GMGN-/Copytrading-Umfeld seit 2024"
+    },
+    {
+      "name": "Address Poisoning & Clipboard-Malware",
+      "category": "wallet",
+      "severity": 4,
+      "mechanics": "Angreifer erzeugen Adressen mit gleichen Anfangs-/Endzeichen wie häufige Gegenparteien und 'vergiften' die Transaktionshistorie; oder Malware tauscht kopierte Adressen in der Zwischenablage aus.",
+      "red_flags": "Null-Betrag-Transfers unbekannter Adressen in der Historie; Adresse 'stimmt fast'.",
+      "detection": "Adressen im Bot nie aus Historie/Clipboard übernehmen, sondern aus konfigurierter Whitelist; vollständigen Adress-Hash vergleichen.",
+      "public_cases": "Mehrere spektakuläre Einzelverluste (achtstellig) dokumentiert"
+    },
+    {
+      "name": "Romance-/'Pig-Butchering'-Anbahnung mit Coin-Bezug",
+      "category": "social",
+      "severity": 5,
+      "mechanics": "Langfristiger Vertrauensaufbau (Dating/Networking), dann 'exklusive' Trading-Plattform oder Coin-Tipp; Einzahlungen landen auf Fake-Plattformen mit gefälschten Gewinnen, Auszahlung unmöglich.",
+      "red_flags": "Unaufgeforderte Kontakte mit Trading-Erfolgen; eigene 'Plattform' statt bekannter Venues; Auszahlungs-'Gebühren'.",
+      "detection": "Für Bots irrelevant, für Nutzer zentral: nur selbstverwahrte Wallets und etablierte Venues; niemals auf zugewiesene Plattformen einzahlen.",
+      "public_cases": "Milliardenschäden jährlich laut Chainalysis/FBI-IC3"
+    },
+    {
+      "name": "Trending-/Ranking-Manipulation",
+      "category": "market",
+      "severity": 3,
+      "mechanics": "Bezahlte Upvotes, Bot-Reactions, gekaufte 'Community-Takeover'-Signale und gezielte Wash-Trades, um in Screener-Rankings, Telegram-Trending-Channels und 'New Pairs'-Filter zu kommen.",
+      "red_flags": "Trending-Platzierung ohne Social-Echo; Reactions/Kommentare von Bot-Accounts; Volumen-Spike exakt zur Ranking-Schwelle.",
+      "detection": "Ranking-Signale nur als Kandidaten-Generator nutzen, nie als Kaufgrund; organische Metriken (Unique Holder, echte Social-Accounts) gegenprüfen.",
+      "public_cases": "Offen beworbene 'Trending-Services' im Telegram-Ökosystem"
+    },
+    {
+      "name": "Celebrity-Cash-Grab (legal grau, ökonomisch Extraktion)",
+      "category": "distribution",
+      "severity": 3,
+      "mechanics": "Kein technischer Betrug: Promi launcht Coin, Insider/Team halten große Anteile, Vermarktung erzeugt Retail-Nachfrage, Insider monetarisieren über Fees und Verkäufe. Struktur ist öffentlich, wird aber von Käufern ignoriert.",
+      "red_flags": "Hohe Team-/Insider-Allokation (auch mit Vesting); Fee-Konstruktionen zugunsten des Erstellers; Launch exakt am Aufmerksamkeits-Peak des Promis.",
+      "detection": "Supply-Verteilung und Vesting aus offiziellen Angaben + On-Chain-Daten parsen; FDV statt MC bewerten; Insider-Fee-Flüsse beobachten.",
+      "public_cases": "TRUMP/MELANIA (Januar 2025, 80 % Insider-Supply mit Vesting, hunderte Mio. USD Fee-Einnahmen); HAWK (Dezember 2024); diverse 2024er-Promi-Coins"
+    }
+  ]
+}

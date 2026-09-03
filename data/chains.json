@@ -1,0 +1,95 @@
+{
+  "_meta": {
+    "description": "Chain-Profile aus Memecoin-Perspektive: Wo wird gelauncht, mit welcher Infrastruktur, zu welchen Kosten. Stand des Wissens: Anfang 2026.",
+    "fields": {
+      "name": "Chain",
+      "meme_relevance": "1 (Nische) bis 5 (Epizentrum)",
+      "tx_cost": "Typische Transaktionskosten (Größenordnung)",
+      "launch_infra": "Wichtigste Launchpads/Deploy-Wege",
+      "trade_infra": "Wichtigste DEXe/Terminals/Bots",
+      "notes": "Charakter des Meme-Ökosystems"
+    }
+  },
+  "chains": [
+    {
+      "name": "Solana",
+      "meme_relevance": 5,
+      "tx_cost": "Bruchteile eines Cents (+ Priority Fees/Jito-Tips in Hype-Phasen)",
+      "launch_infra": "pump.fun, LetsBonk.fun, Raydium LaunchLab, Believe, Bags, daos.fun",
+      "trade_infra": "Jupiter, PumpSwap, Raydium, Meteora, Orca; Terminals: Axiom, Photon, GMGN, BullX; TG-Bots: Trojan, BonkBot",
+      "notes": "Das Epizentrum seit 2023: schnellste Launch-Frequenz, dichteste Bot-/Tooling-Landschaft, SPL-Standard mit revokebaren Authorities macht Basis-Checks einfach. Kehrseite: härtester Sniper-/Bundler-Wettbewerb."
+    },
+    {
+      "name": "Ethereum",
+      "meme_relevance": 4,
+      "tx_cost": "Einige USD bis zweistellig in Hype-Phasen (Gas)",
+      "launch_infra": "Direkte ERC-20-Deploys + Uniswap-Pool (kein dominantes Launchpad)",
+      "trade_infra": "Uniswap v2/v3, Maestro/Banana Gun (TG-Bots), DEXTools",
+      "notes": "Heimat der 'schweren' Memes (PEPE, MOG, SPX): weniger Launches, mehr Liquidität pro Coin. Gas filtert Micro-Caps raus; Contract-Risiken (Honeypot/Tax) sind hier das Hauptthema."
+    },
+    {
+      "name": "Base",
+      "meme_relevance": 4,
+      "tx_cost": "Cent-Bereich",
+      "launch_infra": "Clanker (Farcaster-KI-Deploys), Zora (Content Coins), Virtuals (AI-Agenten), direkte Uniswap-Deploys",
+      "trade_infra": "Uniswap, Aerodrome; Basescan-/Farcaster-Tooling",
+      "notes": "Coinbase-L2 mit SocialFi-Prägung: Launches entstehen aus Farcaster/Zora-Kultur; AI-Agent- und Creator-Coins verschwimmen mit Memes. Coinbase-Listings als Sonder-Katalysator für Base-Memes."
+    },
+    {
+      "name": "BNB Chain",
+      "meme_relevance": 4,
+      "tx_cost": "Cent-Bereich",
+      "launch_infra": "Four.meme, direkte Deploys",
+      "trade_infra": "PancakeSwap, Maestro; Binance-Alpha/Wallet-Anbindung",
+      "notes": "Stark von Binance-/CZ-Signalen getrieben (Broccoli-Welle, Meme-Saison Herbst 2025). Binance-Alpha-Listings schaffen einen direkten CEX-Retail-Kanal, den andere Chains nicht haben. Historisch hohe Scam-Token-Dichte bei EVM-Klonen."
+    },
+    {
+      "name": "TON",
+      "meme_relevance": 3,
+      "tx_cost": "Cent-Bereich",
+      "launch_infra": "Miniapp-/Airdrop-Modelle (Notcoin-Blaupause), diverse kleine Launchpads",
+      "trade_infra": "STON.fi, DeDust; Telegram-Wallet-Integration",
+      "notes": "Einzigartige Distribution über Telegram (hunderte Mio. Nutzer): Massen-Airdrops statt Bonding Curves (DOGS, NOT, HMSTR). Muster: riesige Holderzahlen, dauerhafter Verkaufsdruck."
+    },
+    {
+      "name": "Tron",
+      "meme_relevance": 2,
+      "tx_cost": "Cent-Bereich",
+      "launch_infra": "SunPump",
+      "trade_infra": "SunSwap",
+      "notes": "Kurze, von Justin Sun orchestrierte Meme-Saison im Sommer 2024; seitdem Nische. Lehrbeispiel für Top-down-erzeugte Metas mit kurzer Halbwertszeit."
+    },
+    {
+      "name": "Hyperliquid (L1)",
+      "meme_relevance": 3,
+      "tx_cost": "Gasfrei fürs Trading (Orderbuch-Modell)",
+      "launch_infra": "Spot-Auktionen für Ticker (HIP-1), eigene Spot-Token",
+      "trade_infra": "Hyperliquid-DEX (Perps + Spot)",
+      "notes": "Für Memecoins primär als Perp-Venue relevant (Hebel auf WIF, PEPE, TRUMP & Co.); Funding-Rates dort sind ein brauchbarer Sentiment-Sensor. Eigene Spot-Memes (z. B. um HYPE-Ökosystem) als Nebenschauplatz."
+    },
+    {
+      "name": "Sui / Aptos (Move-Chains)",
+      "meme_relevance": 2,
+      "tx_cost": "Cent-Bereich",
+      "launch_infra": "Kleinere pump.fun-Klone",
+      "trade_infra": "Cetus u. a.",
+      "notes": "Wiederholen das Muster 'neue Chain → Klon-Launchpad → kurze Meme-Welle' im kleineren Maßstab; episodische Relevanz in Chain-Hype-Phasen."
+    },
+    {
+      "name": "Cardano",
+      "meme_relevance": 2,
+      "tx_cost": "Cent-Bereich",
+      "launch_infra": "Direkte Native-Asset-Mints",
+      "trade_infra": "Minswap u. a.",
+      "notes": "Kleines, loyales Meme-Ökosystem um SNEK; geringe Launch-Frequenz, kaum Bot-Krieg – anderes Risikoprofil als Solana."
+    },
+    {
+      "name": "Avalanche",
+      "meme_relevance": 2,
+      "tx_cost": "Cent-Bereich",
+      "launch_infra": "Direkte Deploys, zeitweise Meme-Rush-Programme der Foundation",
+      "trade_infra": "Trader Joe / LFJ",
+      "notes": "Meme-Welle Ende 2023 (COQ); bemerkenswert, weil die Foundation Memecoins zeitweise offiziell förderte – Chains nutzen Memes als Wachstumskanal."
+    }
+  ]
+}

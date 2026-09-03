@@ -1,0 +1,119 @@
+{
+  "_meta": {
+    "description": "Metas/Narrative im Memecoin-Markt – die rotierenden Gewinner-Themen, in die Kapital und Launches strömen. Für Bots doppelt nützlich: als Klassifikations-Schema für neue Token und als Rotations-Signal (Launch-Anteil pro Meta = Meta-Sensor). Stand des Wissens: Anfang 2026.",
+    "fields": {
+      "name": "Meta/Narrativ",
+      "peak_period": "Hochphase(n)",
+      "chains": "Wo die Meta hauptsächlich lief",
+      "description": "Worum es ging",
+      "leaders": "Prägende Coins",
+      "lessons": "Was man daraus für künftige Metas lernt"
+    }
+  },
+  "metas": [
+    {
+      "name": "Dog-Meta",
+      "peak_period": "2020–2021, mit Dauer-Relevanz",
+      "chains": "alle",
+      "description": "Die Urform: Hunde-Coins im Windschatten von DOGE. Jede Chain bekam ihren Haus-Hund.",
+      "leaders": "DOGE, SHIB, FLOKI, BABYDOGE, später WIF, BONK, MYRO",
+      "lessons": "Erste Meta überhaupt; 'Chain-Maskottchen'-Muster wiederholt sich auf jeder neuen Chain."
+    },
+    {
+      "name": "Frog-/ETH-Retro-Meta",
+      "peak_period": "Frühjahr 2023",
+      "chains": "Ethereum",
+      "description": "PEPE startet die Renaissance der Meme-Kultur-Coins ohne Utility-Anspruch; drumherum Wojak, Apu, NPC und Ticker-Trolling (HPOS10I).",
+      "leaders": "PEPE, WOJAK, APU, TURBO, LADYS",
+      "lessons": "Internet-Kultur schlägt 'Utility-Story'; Selbstironie wurde zum Feature."
+    },
+    {
+      "name": "Solana-Renaissance / Launchpad-Meta",
+      "peak_period": "Ende 2023 – 2024",
+      "chains": "Solana",
+      "description": "BONK/WIF ziehen Kapital auf Solana; pump.fun industrialisiert ab Januar 2024 das Launchen – Memecoins werden von Einzel-Events zum Dauer-Fließband.",
+      "leaders": "BONK, WIF, POPCAT, MEW, MICHI",
+      "lessons": "Infrastruktur (billige Trades + Launchpad + Telegram-Bots) erschafft Metas, nicht umgekehrt."
+    },
+    {
+      "name": "PolitiFi-Meta",
+      "peak_period": "Frühjahr–Sommer 2024, Peak Januar 2025",
+      "chains": "Solana",
+      "description": "Politiker-Parodien (BODEN, TREMP) im US-Wahljahr; kulminiert im offiziellen TRUMP-Coin und MELANIA im Januar 2025.",
+      "leaders": "BODEN, TREMP, TRUMP, MELANIA",
+      "lessons": "Event-gebundene Coins sterben mit dem Event (BODEN nach Bidens Rückzug); 'offizielle' Coins schlagen Parodien, extrahieren aber härter."
+    },
+    {
+      "name": "Celebrity-Coin-Meta",
+      "peak_period": "Sommer 2024, Nachbeben 2025",
+      "chains": "Solana / Base",
+      "description": "Promis launchen eigene Coins (MOTHER, DADDY, Dutzende weitere); parallel Serie gehackter Promi-Accounts mit Fake-Coins.",
+      "leaders": "MOTHER, DADDY, HAWK (Negativbeispiel)",
+      "lessons": "Aufmerksamkeit ≠ Alignment: Die meisten Promi-Coins waren Extraktionsmaschinen; die Meta beschädigte das Vertrauen nachhaltig (HAWK, LIBRA als Endpunkte)."
+    },
+    {
+      "name": "Viral-Animal-Meta",
+      "peak_period": "Herbst 2024, Wellen bis 2025",
+      "chains": "Solana",
+      "description": "Reale virale Tiere werden in Stunden tokenisiert: Moo Deng (Zwergflusspferd), Peanut das Eichhörnchen, diverse Katzen/Capybaras.",
+      "leaders": "MOODENG, PNUT, CHILLGUY (verwandt: viral-culture)",
+      "lessons": "News-zu-Token-Latenz wurde zum Wettbewerbsfaktor; 'winner take most' unter Dutzenden Klonen; CEX-Listings kamen absurd schnell."
+    },
+    {
+      "name": "AI-Agent-Meta",
+      "peak_period": "Oktober 2024 – Q1 2025",
+      "chains": "Solana / Base",
+      "description": "KI-Agenten pushen, launchen oder 'besitzen' Token: Terminal of Truths/GOAT, ai16z/ElizaOS, Virtuals-Ökosystem (AIXBT & Co.), Clanker als Deploy-Bot.",
+      "leaders": "GOAT, AI16Z, FARTCOIN, VIRTUAL-Ökosystem",
+      "lessons": "Grenze Memecoin/Tech-Token verschwimmt; Agent-Aktivität kann Nachfrage simulieren – Social-Signale wurden unzuverlässiger."
+    },
+    {
+      "name": "Meme-Stock-/Anti-Finance-Meta",
+      "peak_period": "2023–2025 in Wellen (GME-Spike Mai 2024)",
+      "chains": "Ethereum / Solana",
+      "description": "Parodien auf die traditionelle Finanzwelt: SPX6900 ('flip the S&P'), GME-Coins um Roaring-Kitty-Comebacks, 'stocks are memes'-Erzählung.",
+      "leaders": "SPX6900, GME-Varianten, MOG (kulturell verwandt)",
+      "lessons": "Langsame, kultgetriebene Metas können Jahres-Performer sein – Gegenmodell zur Stunden-Meta."
+    },
+    {
+      "name": "Presale-Meta",
+      "peak_period": "März 2024 (kurz)",
+      "chains": "Solana",
+      "description": "Nach dem BOME-Erfolg: SOL blind an Presale-Adressen senden. Kollabierte binnen Wochen unter Scam-Quote.",
+      "leaders": "BOME, SLERF (durch Unfall)",
+      "lessons": "Meta-Mechaniken, die auf blindem Vertrauen basieren, werden sofort von Scammern geflutet – Lebensdauer Wochen."
+    },
+    {
+      "name": "Tap-to-Earn-/Telegram-Meta",
+      "peak_period": "Sommer–Herbst 2024",
+      "chains": "TON",
+      "description": "Telegram-Miniapps mit Token-Versprechen (Notcoin als Blaupause, Hamster Kombat, DOGS als Meme-Ableger) – Distribution über hunderte Mio. Telegram-Nutzer.",
+      "leaders": "NOT, DOGS, HMSTR",
+      "lessons": "Massen-Airdrops erzeugen Massen-Verkäufer; Distribution ohne Nachfrage-Sink endet in Dauer-Verkaufsdruck."
+    },
+    {
+      "name": "Content-/Creator-Coin-Meta ('Internet Capital Markets')",
+      "peak_period": "Frühjahr–Sommer 2025",
+      "chains": "Base / Solana",
+      "description": "Alles wird prägbar: Zora tokenisiert Posts, Believe launcht Coins per X-Reply, Bags teilt Fees mit Meme-Urhebern, time.fun tokenisiert Zeit.",
+      "leaders": "ZORA-Ökosystem, LAUNCHCOIN/Believe-Coins",
+      "lessons": "Creator-Fee-Sharing wurde zum Industriestandard (auch pump.fun zog nach); 'Startup-Coin'-Anstrich änderte die Extraktionslogik kaum."
+    },
+    {
+      "name": "Ehrlichkeits-/Anti-Utility-Meta",
+      "peak_period": "Sommer 2025",
+      "chains": "Solana",
+      "description": "Nach TRUMP/LIBRA-Vertrauensbruch performten ausgerechnet Coins, die offen 'nutzlos' sind – Ehrlichkeit als Narrativ.",
+      "leaders": "USELESS, ältere Vorbilder (Fartcoin-Ethos)",
+      "lessons": "Nach Skandal-Phasen rotiert der Markt in 'ehrliche' Memes – zynischer, aber messbarer Reflex."
+    },
+    {
+      "name": "BNB-/CZ-Orbit-Meta",
+      "peak_period": "Februar 2025, Herbst 2025",
+      "chains": "BNB Chain",
+      "description": "Coins im Windschatten von CZ-/Binance-Signalen (Broccoli-Welle nach CZ-Hundename; Four.meme-Wellen; BNB-Meme-Saison mit Binance-Alpha-Listings).",
+      "leaders": "BROCCOLI-Varianten, Four.meme-Leader",
+      "lessons": "Einzelpersonen-Signale (CZ-Posts) wirken auf BNB wie Musk-Tweets auf DOGE – stark, aber launisch."
+    }
+  ]
+}

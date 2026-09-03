@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "description": "Timeline prägender Ereignisse der Memecoin-Geschichte – als historischer Kontext und Muster-Bibliothek (welche Event-Typen bewegen den Markt wie?). Stand des Wissens: Anfang 2026; Datumsangaben teils gerundet.",
+    "fields": {
+      "date": "Zeitpunkt (YYYY-MM, so genau wie sinnvoll)",
+      "event": "Was passiert ist",
+      "impact": "Warum es für den Markt/Bot-Design relevant ist"
+    }
+  },
+  "events": [
+    { "date": "2013-12", "event": "Dogecoin-Launch als Bitcoin-Parodie.", "impact": "Geburtsstunde der Memecoins; beweist, dass Witz + Community ein dauerhaftes Asset tragen kann." },
+    { "date": "2021-01", "event": "WallStreetBets/GameStop-Welle schwappt auf DOGE über; Elon-Musk-Tweets treiben Serie von Pumps.", "impact": "Blaupause 'Einzelperson bewegt Coin' – bis heute Kernrisiko/Signal (Musk, CZ, Trump)." },
+    { "date": "2021-05", "event": "DOGE-Allzeithoch (~0,74 USD) um Musks SNL-Auftritt; 'Sell the News' in Reinform. SHIB explodiert parallel.", "impact": "Kanonisches Beispiel: maximale Aufmerksamkeit = Verteilungszone, nicht Einstieg." },
+    { "date": "2021-10", "event": "Shiba-Inu-Endspurt auf Allzeithoch; AnubisDAO-Rug (~60 Mio. USD) als Kontrastprogramm.", "impact": "Peak der ersten Meme-Manie; AnubisDAO wird Lehrbuch-Rug (Funds weg in Stunden trotz 'DeFi-Anstrich')." },
+    { "date": "2021-11", "event": "Squid-Game-Token SQUID: Anti-Verkaufs-Mechanik + Rug nach Medien-Hype.", "impact": "Berühmtester Honeypot; Mainstream-Medien als ungeprüfter Verstärker – Presse-Echo ≠ Legitimität." },
+    { "date": "2022-12", "event": "BONK-Airdrop an die Solana-Community nach dem FTX-Kollaps.", "impact": "Memecoin als Community-Defibrillator einer ganzen Chain; Start des Solana-Meme-Ökosystems." },
+    { "date": "2023-04", "event": "PEPE-Launch und -Explosion auf Ethereum.", "impact": "Rehabilitiert reine Kultur-Coins; Vorlage des 2023er-Playbooks (Stealth-Launch, kein Team-Anspruch)." },
+    { "date": "2023-08", "event": "BALD auf Base pumpt und rugged binnen Tagen (LP-Abzug).", "impact": "Zeigt: Neue Chains starten mit Meme + Rug; Basechain-Frühphase als Risiko-Cluster." },
+    { "date": "2024-01", "event": "pump.fun startet auf Solana.", "impact": "Industrialisierung des Token-Launches – die wichtigste strukturelle Veränderung des Memecoin-Marktes überhaupt." },
+    { "date": "2024-03", "event": "BOME graduiert per Presale in Rekordzeit zu Binance; SLERF-Dev verbrennt versehentlich LP/Airdrop-Funds; Presale-Meta boomt und stirbt.", "impact": "Höhepunkt der Solana-Frühjahrs-Manie; Slerf beweist die Irrationalität (Unfall als Pump-Katalysator)." },
+    { "date": "2024-05", "event": "Ex-Mitarbeiter kompromittiert pump.fun-Bonding-Curves via Flash-Loan-Angriff (~2 Mio. USD); Roaring-Kitty-Comeback befeuert GME-Meme-Coins.", "impact": "Insider-Risiko auch bei Plattformen; Meme-Stock-Crossover als wiederkehrendes Muster." },
+    { "date": "2024-06", "event": "Celebrity-Coin-Welle: Iggy Azalea (MOTHER), Andrew-Tate-Umfeld (DADDY), Dutzende weitere Promi-Launches.", "impact": "Promi-Distribution erreicht Retail direkt; Insider-Vorwürfe werden Standard – Vertrauens-Erosion beginnt." },
+    { "date": "2024-08", "event": "SunPump löst kurze Tron-Meme-Saison aus.", "impact": "Beweist das 'Jede Chain klont pump.fun'-Muster; Klon-Launchpads als Chain-Marketing." },
+    { "date": "2024-09", "event": "Murad's 'Memecoin Supercycle'-These (Token2049) macht die Runde; kuratierte 'Picks' pumpen.", "impact": "These-getriebene Koordination: ein einzelner Vortrag als wochenlanger Markt-Treiber; KOL-Listen als Momentum-Faktor." },
+    { "date": "2024-10", "event": "GOAT explodiert – KI-Agent 'Terminal of Truths' pusht einen pump.fun-Coin; Start der AI-Agent-Meta.", "impact": "Erstmals bewegt ein KI-Agent den Markt; Social-Signale können maschinell erzeugt sein." },
+    { "date": "2024-11", "event": "US-Wahl: Election-Pump; PNUT von News zu Binance-Listing in Wochen; CHILLGUY via TikTok; pump.fun-Livestreams eskalieren und werden abgeschaltet.", "impact": "News-zu-Token-Pipeline auf Höchstgeschwindigkeit; Plattform-Moderation wird Markt-Thema." },
+    { "date": "2024-12", "event": "HAWK (Hawk Tuah) kollabiert Minuten nach Launch (>90 %); PENGU-Airdrop; ai16z/FARTCOIN auf AI-Meta-Hochs.", "impact": "HAWK wird Lehrfall für Insider-Konzentration bei Promi-Coins (SEC untersuchte, Verfahren später ohne Anklage gegen die Namensgeberin beendet)." },
+    { "date": "2025-01", "event": "TRUMP-Coin launcht vor der Amtseinführung (zweistellige Mrd.-FDV in Stunden), MELANIA folgt und kippt den Markt; hunderte Fake-TRUMPs; Moonshot wird Top-App.", "impact": "Größtes Memecoin-Event aller Zeiten: saugt Liquidität aus dem Gesamtmarkt (Alt-Dump), definiert 'offizieller Promi-Coin' und dessen Extraktionsproblem." },
+    { "date": "2025-02", "event": "LIBRA-Skandal: Von Argentiniens Präsident Milei beworbener Coin kollabiert; Insider-Extraktion >100 Mio. USD mutmaßlich, politische und juristische Folgen. Parallel: CZ nennt seinen Hund 'Broccoli' → Ticker-Krieg auf BNB.", "impact": "Endgültiger Vertrauensbruch der Political-Coin-Meta; 'Single-Sided-Liquidity'-Konstruktionen als Warnmuster; CZ-Signale etablieren BNB-Meme-Orbit." },
+    { "date": "2025-03", "event": "pump.fun launcht PumpSwap; Graduations migrieren nicht mehr zu Raydium.", "impact": "Vertikalisierung der Launchpad-Ökonomie; Volumen-Verschiebung zwischen DEXes als neues Datenthema." },
+    { "date": "2025-04", "event": "Raydium kontert mit LaunchLab; LetsBonk.fun startet im BONK-Ökosystem.", "impact": "Beginn der Launchpad-Kriege – Plattform-Marktanteile werden selbst zum Trade-Signal." },
+    { "date": "2025-05", "event": "Believe/Creator-Coin-Hype ('Internet Capital Markets'); pump.fun führt Creator-Revenue-Sharing ein; Zora-Content-Coins-Debatte.", "impact": "Fee-Sharing wird Industriestandard; 'Startup-Coin'-Narrativ als neue Verpackung." },
+    { "date": "2025-07", "event": "PUMP-ICO (~500–600 Mio. USD in Minuten); LetsBonk überholt pump.fun zeitweise bei Launches/Graduations; USELESS-Höhenflug.", "impact": "Launchpads selbst werden die größten Token-Events; Konkurrenz + Ehrlichkeits-Meta prägen den Sommer." },
+    { "date": "2025-10", "event": "Historischer Liquidations-Crash im Gesamtmarkt (Mitte Oktober): Rekord-Liquidationen, Memecoins mit den tiefsten Drawdowns.", "impact": "Memecoins sind High-Beta: In Makro-Schocks verlieren sie zuerst und am meisten; Liquiditäts-Illusion (dünne Orderbücher) wird im Crash sichtbar." },
+    { "date": "2025-Q4", "event": "BNB-Meme-Saison (Four.meme-Wellen, Binance-Alpha-Effekte); Konsolidierung der Solana-Launchpad-Landschaft.", "impact": "Meta-Rotation zwischen Chains als wiederkehrendes Muster – Launchpad-Statistiken pro Chain als Früh-Indikator." }
+  ]
+}

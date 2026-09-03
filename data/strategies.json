@@ -1,0 +1,217 @@
+{
+  "_meta": {
+    "description": "Katalog von Memecoin-Trading-Strategien – als Wissensbasis für Bot-Design und Research. Keine Finanzberatung, keine Erfolgsgarantie: Jede dieser Strategien kann und wird Geld verlieren; die meisten Teilnehmer in diesem Markt verlieren netto. Vertiefung: docs/strategien.md",
+    "fields": {
+      "name": "Name der Strategie",
+      "family": "sniping | momentum | mean-reversion | flow-following | event | rotation | yield | arbitrage | hedging | filter",
+      "horizon": "Haltedauer (Sekunden bis Monate)",
+      "risk": "1 (relativ ruhig) bis 5 (Totalverlust-Roulette)",
+      "automation_fit": "Wie gut automatisierbar (low | medium | high)",
+      "mechanics": "Wie die Strategie funktioniert",
+      "signals": "Konkrete Einstiegs-/Ausstiegssignale",
+      "pitfalls": "Woran sie typischerweise scheitert",
+      "tools": "Passende Tools/Datenquellen (siehe data/tools.json)"
+    }
+  },
+  "strategies": [
+    {
+      "name": "Launch-Sniping (neue Token in der ersten Sekunde)",
+      "family": "sniping",
+      "horizon": "Sekunden bis Minuten",
+      "risk": 5,
+      "automation_fit": "high",
+      "mechanics": "Bot lauscht auf Token-Erstellungs-Events (z. B. pump.fun-Create via Websocket) und kauft in denselben oder den nächsten Block, um vor der Masse in der Bonding Curve zu sitzen. Verkauf in die ersten Folgekäufe.",
+      "signals": "Create-Event + Filter (Dev-Buy-Größe, Creator-Historie, Metadaten-Qualität, kein Bundle-Muster). Exit: fester Multiplikator, Zeitlimit oder Momentum-Abriss.",
+      "pitfalls": "Extrem kompetitiv (Latenz-Wettrüsten, Priority Fees/Jito-Tips fressen Marge); die meisten Launches sterben sofort; Insider-Bundles verkaufen in genau diese Snipes; ohne strengen Filter ist die Trefferquote katastrophal.",
+      "tools": "PumpPortal, Helius Webhooks, GMGN, Jito"
+    },
+    {
+      "name": "Graduation-Trading (Kurve kurz vor Abschluss)",
+      "family": "momentum",
+      "horizon": "Minuten bis Stunden",
+      "risk": 4,
+      "automation_fit": "high",
+      "mechanics": "Einstieg, wenn eine pump.fun-Bonding-Curve hohe Füllung erreicht (z. B. >80–90 %) und Momentum zeigt – Wette darauf, dass Graduation + DEX-Listing einen Aufmerksamkeits-Schub bringt.",
+      "signals": "Curve-Füllstand, Netto-Buy-Flow, Holder-Wachstum, Social-Erwähnungen. Exit: in den Graduation-Pump hinein oder nach definierter Zeit auf dem DEX.",
+      "pitfalls": "Bekanntes Muster → wird selbst gesnipet und gefadet; direkt nach Graduation dumpen oft Curve-Käufer; 'fast graduiert' kann Tage stagnieren oder rückwärts laufen.",
+      "signals_note": "Graduation ist das wichtigste binäre Event im pump.fun-Lifecycle – siehe docs/pumpfun-mechanik.md",
+      "tools": "PumpPortal, DEX Screener, GMGN"
+    },
+    {
+      "name": "Post-Graduation-Dip (den Migrations-Dump kaufen)",
+      "family": "mean-reversion",
+      "horizon": "Stunden bis Tage",
+      "risk": 4,
+      "automation_fit": "medium",
+      "mechanics": "Nach der DEX-Migration verkaufen Sniper und Curve-Frühkäufer typischerweise ab → erster großer Drawdown. Strategie kauft diesen Flush bei Coins, die danach weiter organische Nachfrage zeigen.",
+      "signals": "Drawdown von x % vom Graduation-Hoch + stabilisierendes Volumen + Holder wachsen weiter + kein Insider-Exodus (Bundle-Wallets schon draußen). Exit: Rückkehr zum Hoch oder Struktur-Bruch.",
+      "pitfalls": "Der 'Dip' ist meistens der Anfang vom Ende – ohne Nachfrage-Beweis fängt man fallende Messer; Unterscheidung 'Flush' vs. 'Tod' ist das ganze Spiel.",
+      "tools": "DEX Screener, Birdeye, RugCheck"
+    },
+    {
+      "name": "Smart-Money-Copy-Trading",
+      "family": "flow-following",
+      "horizon": "Minuten bis Tage",
+      "risk": 4,
+      "automation_fit": "high",
+      "mechanics": "Wallets mit nachweislich profitabler Historie tracken und ihre Käufe (teil-)automatisch kopieren, Verkäufe ebenso.",
+      "signals": "Kauf einer beobachteten Wallet über Mindestgröße; besser: mehrere unabhängige Smart-Wallets im selben Coin ('confluence'). Exit: Copy des Verkaufs oder eigene Regeln.",
+      "pitfalls": "Baiting (bekannte Wallets kaufen klein, verkaufen groß über Zweitwallets in die Kopierer hinein); Latenz macht dich zum letzten Käufer; Survivorship – 'profitable' Wallets sind oft nur Lucky Runner oder Insider, deren Edge nicht kopierbar ist.",
+      "tools": "GMGN, Birdeye, Trojan/BullX-Copytrading"
+    },
+    {
+      "name": "KOL-Call-Reaktion (Follow oder Fade)",
+      "family": "event",
+      "horizon": "Minuten bis Stunden",
+      "risk": 5,
+      "automation_fit": "medium",
+      "mechanics": "Variante A (Follow): Bei Calls großer Accounts sehr schnell rein, in den Aufmerksamkeits-Spike verkaufen. Variante B (Fade): Nach dem Call-Pump short/verkaufen, weil Calls oft Exit-Liquidität für Vorab-Käufer sind.",
+      "signals": "X/Telegram-Monitoring der relevanten Accounts, Reaktionsvolumen. Fade-Signal: Chart lief schon vor dem Call, Insider-Wallets kauften früher.",
+      "pitfalls": "Follow: Man ist strukturell hinter dem KOL und dessen Umfeld. Fade: Shorts auf illiquide Memes sind kaum verfügbar/teuer; manche Calls laufen trotzdem 10x. Rechtlich/ethisch verminte Zone (bezahlte Calls).",
+      "tools": "TweetScout, eigene Social-Listener, GMGN-Walletabgleich"
+    },
+    {
+      "name": "Trending-/Volumen-Scanner",
+      "family": "momentum",
+      "horizon": "Stunden",
+      "risk": 4,
+      "automation_fit": "high",
+      "mechanics": "Systematisch Coins kaufen, die gerade in Trending-Listen (DEX Screener, Birdeye, GMGN) auftauchen oder Volumen-/Holder-Spikes zeigen – reine Aufmerksamkeits-Momentum-Wette.",
+      "signals": "Neu im Trending + Volumen > x·MC + Preis über kurzem MA + Security-Filter grün. Exit: Trailing Stop, Zeitlimit, Verschwinden aus dem Trending.",
+      "pitfalls": "Trending wird gekauft/gefaked (Wash-Volumen, Rank-Manipulation) – ohne Wash-Filter kauft der Bot Kulissen; spät im Trend = Exit-Liquidität.",
+      "tools": "DEX Screener API, Birdeye, GMGN"
+    },
+    {
+      "name": "Meta-/Narrativ-Rotation",
+      "family": "rotation",
+      "horizon": "Tage bis Wochen",
+      "risk": 3,
+      "automation_fit": "medium",
+      "mechanics": "Erkennen, welche Meta gerade Kapital anzieht (Animal, AI, PolitiFi, …, siehe data/metas.json), und einen Korb der 2–5 stärksten Coins dieser Meta handeln; rotieren, wenn die Meta dreht.",
+      "signals": "Relative Stärke der Meta-Leader, Anteil neuer Launches pro Meta (Launchpad-Daten als Meta-Sensor!), Social-Share-of-Voice. Exit: Leader brechen Struktur, Launch-Anteil kippt.",
+      "pitfalls": "Metas drehen abrupt (BODEN-Kollaps); wer die Meta erst 'sicher' erkennt, ist spät; Korb-Coins korrelieren im Crash alle mit -80 %.",
+      "tools": "Launchpad-Statistiken, DEX Screener, eigene Klassifikation"
+    },
+    {
+      "name": "Event-/News-Trading (viraler Moment → Coin)",
+      "family": "event",
+      "horizon": "Stunden bis Tage",
+      "risk": 5,
+      "automation_fit": "medium",
+      "mechanics": "Virale Ereignisse (Moo Deng, Peanut das Eichhörnchen, CZ nennt seinen Hund) erzeugen in Minuten Dutzende Token. Strategie: das Event früh erkennen und den Coin identifizieren, auf den sich die Liquidität konzentriert ('winner take most').",
+      "signals": "News-/Social-Spike + ein Token zieht klar das meiste Volumen und die meisten Holder an. Exit: in den Peak der News-Welle, spätestens beim Abflachen der Suchtrends.",
+      "pitfalls": "Fast alle Event-Coins sind Insta-Rugs; der 'Winner' wechselt in den ersten Stunden mehrmals; wer das Event über Crypto-Twitter erfährt, ist meist schon spät.",
+      "tools": "Social-Listener, GMGN, Bubblemaps (Insider-Check)"
+    },
+    {
+      "name": "CEX-Listing-Reaktion",
+      "family": "event",
+      "horizon": "Minuten bis Tage",
+      "risk": 3,
+      "automation_fit": "high",
+      "mechanics": "Listings großer Börsen (v. a. Binance, Coinbase, Upbit) erzeugen wiederkehrende Muster: Spike auf die Ankündigung, oft 'Sell the News' zum Handelsstart. Strategie handelt die Ankündigungs-Reaktion regelbasiert (z. B. Kauf in Sekunden nach offizieller Announcement, Verkauf vor/zum Listing-Start).",
+      "signals": "Nur offizielle Announcement-Feeds der Börsen (API/RSS); historische Muster pro Börse. Exit: zeitbasiert um den Listing-Start.",
+      "pitfalls": "Muster sind bekannt und teils eingepreist; Fake-Announcements; bei schon stark gelaufenen Coins ist das Listing der Top-Marker. Handel auf nicht-öffentliche Listing-Infos wäre Insiderhandel – ausschließlich öffentliche Quellen verwenden.",
+      "tools": "Exchange-Announcement-APIs, CEX-Konten für Ausführung"
+    },
+    {
+      "name": "Blue-Chip-Meme-Dip-Buying",
+      "family": "mean-reversion",
+      "horizon": "Wochen bis Monate",
+      "risk": 2,
+      "automation_fit": "medium",
+      "mechanics": "Nur etablierte Memes mit überlebtem Zyklus (DOGE, PEPE, WIF, BONK, SHIB …) in großen Marktkorrekturen (-60 bis -85 % vom Hoch) akkumulieren – Wette auf die nächste Aufmerksamkeits-Welle statt auf einen neuen Coin.",
+      "signals": "Drawdown-Schwellen + Gesamtmarkt-Boden-Indikatoren + Coin behält Liquidität/Community. Exit: gestaffelt in Stärke-Phasen.",
+      "pitfalls": "Auch Blue-Chip-Memes können einen Zyklus einfach nicht zurückkommen; 'billig' kann Jahre billiger werden; Opportunity Cost gegenüber SOL/BTC.",
+      "tools": "CoinGecko, TradingView, On-Chain-Holderdaten"
+    },
+    {
+      "name": "CTO-Plays (Community Takeover)",
+      "family": "event",
+      "horizon": "Tage bis Wochen",
+      "risk": 4,
+      "automation_fit": "low",
+      "mechanics": "Coins kaufen, deren Dev verkauft/verschwunden ist, bei denen aber eine Community übernimmt (neues Team, neue Socials, Dexscreener-Update). Der 'Dev ist raus'-Zustand ist paradoxerweise ein De-Risking (kein Dev-Dump mehr möglich).",
+      "signals": "Dev-Wallet leer/geflaggt + aktive neue Community + Volumen kehrt zurück + LP geburnt. Exit: Story stirbt oder Ziel-MC erreicht.",
+      "pitfalls": "99 % der toten Coins bleiben tot; 'CTO' wird auch als Marketing-Lüge inszeniert (Dev spielt Community); braucht qualitative Einschätzung → schlecht automatisierbar.",
+      "tools": "GMGN, Bubblemaps, Telegram/X-Recherche"
+    },
+    {
+      "name": "Liquidity Providing auf Meme-Paaren",
+      "family": "yield",
+      "horizon": "Tage bis Wochen",
+      "risk": 3,
+      "automation_fit": "medium",
+      "mechanics": "Statt Richtungswette: Trading-Fees verdienen, indem man Liquidität in hochvolumige Meme-Pools stellt (v. a. Meteora-DLMM-/CLMM-Pools auf Solana). Bei extremem Volumen/TVL-Verhältnis können Fee-APRs die Verluste durch Impermanent Loss übertreffen.",
+      "signals": "Volumen/TVL-Ratio des Pools, Volatilitätsregime, Range-Wahl. Exit: Volumen fällt, Preis verlässt Range, Fundamental-Event.",
+      "pitfalls": "Impermanent Loss ist bei -90 %-Coins ein Totalverlust mit Umweg; auf der Dip-Seite sammelt man den sterbenden Coin ein; aktives Range-Management nötig.",
+      "tools": "Meteora, Orca, Metrik-Dashboards (z. B. LP-Analytics)"
+    },
+    {
+      "name": "Cross-Venue-Arbitrage",
+      "family": "arbitrage",
+      "horizon": "Sekunden",
+      "risk": 2,
+      "automation_fit": "high",
+      "mechanics": "Preisdifferenzen desselben Memes zwischen Venues (DEX vs. CEX, PumpSwap vs. Raydium-Pools, Chain-Bridges bei Multi-Chain-Memes) mit gleichzeitigen Gegen-Trades abschöpfen.",
+      "signals": "Spread > Gebühren + Slippage + Transferkosten, mit ausreichender Tiefe auf beiden Seiten.",
+      "pitfalls": "Hochkompetitiv (MEV-Bots, Market Maker); Inventar-Risiko während Transfers; Withdraw-Sperren auf CEX genau dann, wenn es interessant wird.",
+      "tools": "Eigene Infrastruktur, Jupiter, CEX-APIs"
+    },
+    {
+      "name": "Perp-Hedging & Funding-Harvesting",
+      "family": "hedging",
+      "horizon": "Tage bis Wochen",
+      "risk": 2,
+      "automation_fit": "high",
+      "mechanics": "Spot-Meme-Bestände über Perpetuals (Hyperliquid, CEX) absichern; oder delta-neutral: Spot long + Perp short, um in Hype-Phasen extrem positive Funding-Rates zu kassieren.",
+      "signals": "Funding-Rate-Niveau und -Persistenz; Basis zwischen Spot und Perp. Exit: Funding normalisiert, Borrow-/Margin-Kosten kippen die Rechnung.",
+      "pitfalls": "Liquidationsrisiko auf der Short-Seite bei parabolischen Squeezes; nur für die ~30–50 größten Memes verfügbar; Funding dreht schnell.",
+      "tools": "Hyperliquid, CEX-Perps, Funding-Dashboards"
+    },
+    {
+      "name": "Launchpad-/Ökosystem-Incentive-Farming",
+      "family": "yield",
+      "horizon": "Wochen",
+      "risk": 3,
+      "automation_fit": "medium",
+      "mechanics": "Anreizprogramme der Plattform-Kriege mitnehmen: Trading-Rewards, Punkte-Programme, Creator-Fee-Sharing, erwartete Airdrops neuer Terminals/Launchpads (Muster: wer Volumen bringt, wird beim Token-Launch belohnt).",
+      "signals": "Angekündigte oder historisch wahrscheinliche Reward-Programme; Kosten des erzeugten Volumens vs. erwarteter Reward.",
+      "pitfalls": "Airdrop-Erwartungen platzen oft; 'Volumen kaufen' ist realer Verlust gegen unsicheren Gewinn; Sybil-Filter der Plattformen.",
+      "tools": "Plattform-Docs, Punkte-Tracker"
+    },
+    {
+      "name": "Trench-Scalping (manuelles Micro-Cap-Flipping)",
+      "family": "sniping",
+      "horizon": "Minuten",
+      "risk": 5,
+      "automation_fit": "low",
+      "mechanics": "Diskretionäres Hochfrequenz-Flipping frischer Coins im Terminal (Axiom/Photon-Stil): kleine Positionen, viele Trades, sofortige Exits – lebt von Mustererkennung und Reaktionszeit des Traders.",
+      "signals": "Tape-Reading: Käufer-Cluster, Wallet-Qualität der Einstiege, Chart-Struktur der ersten Minuten.",
+      "pitfalls": "Für die meisten ein Minus-Summen-Spiel nach Gebühren; psychologisch zermürbend; genau die Zielgruppe, die Sniper und Bundler abernten.",
+      "tools": "Axiom, Photon, GMGN"
+    },
+    {
+      "name": "Bundle-/Insider-Filter als Meta-Strategie",
+      "family": "filter",
+      "horizon": "n/a (Overlay über alle Strategien)",
+      "risk": 1,
+      "automation_fit": "high",
+      "mechanics": "Kein eigener Trade, sondern der wichtigste Edge-Baustein: Jeden Kandidaten vor dem Einstieg automatisch auf Insider-Bundles, Dev-Historie, Holder-Konzentration, LP-Status und Wash-Volumen prüfen und harte K.-o.-Kriterien durchsetzen (siehe docs/risiko-und-scam-checks.md).",
+      "signals": "RugCheck-/GoPlus-Flags, Bundle-Erkennung, Funding-Quellen-Analyse der Top-Wallets.",
+      "pitfalls": "Falsche Sicherheit: Scammer optimieren gegen bekannte Checks; Filter kosten Latenz (Trade-off beim Sniping).",
+      "tools": "RugCheck API, GoPlus, Bubblemaps, GMGN"
+    },
+    {
+      "name": "DCA-/Grid-Systeme auf etablierte Memes",
+      "family": "mean-reversion",
+      "horizon": "Wochen bis Monate",
+      "risk": 2,
+      "automation_fit": "high",
+      "mechanics": "Regelbasiertes Kaufen/Verkaufen in festen Preis-Rastern (Grid) oder Zeitintervallen (DCA) auf liquiden Memes – monetarisiert die extreme Volatilität ohne Timing-Anspruch.",
+      "signals": "Nur Regime-Filter: Grid pausieren, wenn Struktur bricht (Trend statt Range).",
+      "pitfalls": "Grids sterben in Trends (unten voll investiert im Crash); Meme-Volatilität sprengt konservative Raster; nur mit Blue-Chips sinnvoll.",
+      "tools": "Jupiter DCA/Limit Orders, eigene Bots, CEX-Grid-Bots"
+    }
+  ]
+}
