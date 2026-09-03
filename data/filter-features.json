@@ -1,0 +1,250 @@
+{
+  "_meta": {
+    "description": "Feature-Katalog für die Filter-Engine (Rug-/Survival-Klassifikation und K.-o.-Checks): jedes Feature mit Berechnung, Datenquelle, Signalrichtung und Schwellen-Anhaltspunkten. Die Schwellen sind Startwerte für eigene Kalibrierung, keine Naturkonstanten – Gegner adaptieren, Werte driften. Vertiefung: docs/filter-engine.md. Stand des Wissens: 2026.",
+    "fields": {
+      "name": "Feature-Name (code-tauglich)",
+      "group": "creator | launch | distribution | liquidity | contract | market | social | temporal",
+      "computation": "Wie das Feature berechnet wird",
+      "data_source": "Woher die Rohdaten kommen",
+      "signal": "Was hohe/niedrige Werte bedeuten",
+      "threshold_hint": "Anhaltspunkt für K.-o.-/Warn-Schwellen (kalibrierungsbedürftig)",
+      "latency_cost": "instant (lokal) | cheap (1 RPC/API-Call) | expensive (Graph-/Verlaufsanalyse)"
+    }
+  },
+  "features": [
+    {
+      "name": "creator_wallet_age_hours",
+      "group": "creator",
+      "computation": "Zeit seit erster Transaktion der Creator-Wallet",
+      "data_source": "RPC / Indexer (Signaturen-Historie)",
+      "signal": "Frische Wallets (< wenige Stunden) sind das Standard-Muster von Wegwerf-Launches; alte Wallets mit Historie deuten auf wiederkehrende Creator",
+      "threshold_hint": "< 24 h = Warnflag; < 1 h = starkes Negativ-Signal (in Kombination mit großem Dev-Buy K.-o.)",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "creator_funding_source",
+      "group": "creator",
+      "computation": "Herkunft des ersten SOL-Eingangs der Creator-Wallet: CEX-Withdraw (welche Börse?), Bridge, andere Wallet (rekursiv verfolgen, 2–3 Hops)",
+      "data_source": "Indexer (Transfer-Historie), Label-Datenbank für CEX-/Bridge-Adressen",
+      "signal": "Funding aus derselben Quelle wie frühere Rug-Creator = Serien-Täter; Funding über Privacy-Wege/viele Hops = Verschleierungsabsicht",
+      "threshold_hint": "Match gegen eigene Blacklist historischer Rug-Funder = K.-o.; >3 Verschleierungs-Hops = Warnflag",
+      "latency_cost": "expensive"
+    },
+    {
+      "name": "creator_prior_launches",
+      "group": "creator",
+      "computation": "Anzahl früherer Token-Erstellungen derselben Wallet (und verbundener Wallets) + deren Ausgang (Anteil tot < 24 h, Anteil gerugt, Anteil graduiert)",
+      "data_source": "Eigenes Launch-Archiv (deshalb ALLE Launches speichern), RugCheck-Creator-Historie",
+      "signal": "Fließband-Creator (dutzende tote Launches) recyceln Aufmerksamkeit; ein Creator mit graduierten, gepflegten Coins ist das positivste Einzelsignal überhaupt",
+      "threshold_hint": ">10 Launches mit 0 Graduations = K.-o.; >=1 ehrlich gelaufener Vorgänger-Coin = starkes Positiv-Signal",
+      "latency_cost": "cheap (bei eigenem Archiv), sonst expensive"
+    },
+    {
+      "name": "dev_buy_share_pct",
+      "group": "launch",
+      "computation": "Anteil des Supplys, den der Creator in der Create-Transaktion (oder im selben Block) selbst kauft",
+      "data_source": "Launch-Event (PumpPortal/Geyser liefert Dev-Buy direkt)",
+      "signal": "0 % = Creator ohne Skin-in-the-Game (oft Spam); moderat (0,5–3 %) = normal/Selbstschutz gegen Sniper; groß (>5–10 %) = Dump-Setup",
+      "threshold_hint": "> 5 % Warnflag, > 10 % K.-o. (zusammen mit frischer Wallet); exakte Grenze aus eigener Outcome-Statistik kalibrieren",
+      "latency_cost": "instant"
+    },
+    {
+      "name": "same_block_buyer_count",
+      "group": "launch",
+      "computation": "Anzahl unterschiedlicher Wallets, die im Create-Block und den nächsten 1–2 Blöcken kaufen",
+      "data_source": "Geyser-/Websocket-Stream (Trades ab Block 0)",
+      "signal": "Organische Launches haben in Block 0 fast nie viele Käufer; >5–10 sofortige Käufer = Bundle- oder Sniper-Schwarm",
+      "threshold_hint": "Roh-Zählung allein reicht nicht → mit bundle_funding_overlap kombinieren; >15 Same-Block-Käufer = Warnflag unabhängig von allem",
+      "latency_cost": "instant (aus dem Stream)"
+    },
+    {
+      "name": "bundle_funding_overlap",
+      "group": "distribution",
+      "computation": "Für die ersten N Käufer-Wallets: Anteil, deren Funding auf dieselbe Quelle zurückführt (gleiche Wallet, gleiche CEX-Withdraw-Batch, gleicher Zeitcluster der Erstausstattung)",
+      "data_source": "Indexer-Rückverfolgung, GMGN-Bundle-Check, RugCheck-Insider-Graph als Abkürzung",
+      "signal": "DAS Kern-Feature der Bundle-Erkennung: hohe Überlappung = ein Akteur spielt viele; die 'Verteilung' ist Kulisse",
+      "threshold_hint": ">30 % der Early-Buyer aus einer Quelle = K.-o.; 10–30 % = Warnflag + Positionsgrößen-Malus",
+      "latency_cost": "expensive (Sekunden, asynchron nachziehen)"
+    },
+    {
+      "name": "top10_holder_share_pct",
+      "group": "distribution",
+      "computation": "Anteil der Top-10-Holder am Supply, bereinigt um Bonding-Curve-/LP-/Burn-Adressen und bekannte CEX-Wallets",
+      "data_source": "RPC getTokenLargestAccounts + Label-Liste",
+      "signal": "Konzentration = Dump-Potenzial; die Bereinigung ist entscheidend (unbereinigt ist das Feature wertlos, weil Curve/LP dominieren)",
+      "threshold_hint": "> 30 % bereinigt = K.-o. für Neueinstiege; 20–30 % = Warnflag; bei graduierten Coins strenger als auf der Curve",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "holder_growth_rate",
+      "group": "market",
+      "computation": "Neue Unique-Holder pro Minute, geglättet; plus Verhältnis neue Holder zu neuen Käufen (1 Wallet = 1 Kauf ist organischer als 1 Wallet = 50 Käufe)",
+      "data_source": "Trade-Stream aggregiert",
+      "signal": "Stetig wachsende, breite Holderbasis = echte Nachfrage; Volumen ohne Holder-Wachstum = Wash/Churn",
+      "threshold_hint": "Für Momentum-Strategien Mindest-Wachstum definieren (z. B. >30 neue Holder in 10 min für Curve-Kandidaten); Absolutwerte pro Marktphase kalibrieren",
+      "latency_cost": "instant (aus dem Stream)"
+    },
+    {
+      "name": "unique_trader_volume_ratio",
+      "group": "market",
+      "computation": "Volumen ÷ Anzahl aktiver Unique-Wallets im Zeitfenster; ergänzend Gini/Entropie der Volumen-Verteilung über Wallets",
+      "data_source": "Trade-Stream",
+      "signal": "Wash-Erkennung: sehr hohes Volumen pro Wallet + wenige Wallets + uniforme Trade-Größen = Bot-Kulisse",
+      "threshold_hint": "Coin im 'Trending' mit < 50 Unique-Tradern/Stunde = Fake-Verdacht; Verteilungs-Uniformität (geringe Varianz der Trade-Größen) als Zusatzflag",
+      "latency_cost": "instant"
+    },
+    {
+      "name": "buy_sell_wallet_asymmetry",
+      "group": "market",
+      "computation": "Überschneidung der Käufer- und Verkäufer-Wallets: Anteil des Verkaufsvolumens aus Wallets, die im selben kurzen Fenster auch kaufen",
+      "data_source": "Trade-Stream",
+      "signal": "Hohe Selbst-Überschneidung = Wash-Trading; Verkäufe konzentriert aus Early-/Cluster-Wallets = Distribution der Insider",
+      "threshold_hint": "> 40 % des Volumens aus Selbst-Überschneidung = Wash-K.-o. für Trending-Signale",
+      "latency_cost": "instant"
+    },
+    {
+      "name": "mint_authority_revoked",
+      "group": "contract",
+      "computation": "mintAuthority == null auf dem Mint-Account",
+      "data_source": "RPC getAccountInfo (1 Call, cachebar)",
+      "signal": "Aktive Mint-Authority = Supply-Exploit möglich",
+      "threshold_hint": "Nicht revoked = K.-o. (Launchpad-Token sind automatisch sauber; manuelle Deploys prüfen)",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "freeze_authority_revoked",
+      "group": "contract",
+      "computation": "freezeAuthority == null auf dem Mint-Account",
+      "data_source": "RPC getAccountInfo (gleicher Call wie oben)",
+      "signal": "Aktive Freeze-Authority = Wallets können am Verkauf gehindert werden",
+      "threshold_hint": "Nicht revoked = K.-o.",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "token2022_extension_flags",
+      "group": "contract",
+      "computation": "Bei Token-2022-Mints: Extensions parsen – TransferFee (Höhe? änderbar?), TransferHook (beliebiger Code im Transfer-Pfad!), PermanentDelegate (kann fremde Token bewegen!), DefaultAccountState (frozen?)",
+      "data_source": "RPC getAccountInfo (Extension-Daten im Mint)",
+      "signal": "Token-2022 bringt EVM-artige Risikoflächen auf Solana: TransferHook und PermanentDelegate sind die neuen Honeypot-/Confiscation-Vektoren",
+      "threshold_hint": "PermanentDelegate gesetzt = K.-o.; TransferHook = K.-o. außer Programm ist bekannt/auditiert; TransferFee > 5 % oder änderbar = Warnflag bis K.-o.",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "metadata_mutable",
+      "group": "contract",
+      "computation": "isMutable-Flag der Metaplex-Metadaten + Update-Authority gesetzt?",
+      "data_source": "Metadaten-Account via RPC/DAS",
+      "signal": "Mutable Metadaten = Coin kann nachträglich 'umlackiert' werden (Name/Bild-Tausch für Impersonation)",
+      "threshold_hint": "Warnflag, kein K.-o. (viele legitime Coins sind mutable); in Kombination mit Impersonations-Features hochgewichten",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "lp_burn_or_lock_status",
+      "group": "liquidity",
+      "computation": "Halten Burn-Adresse oder bekannter Locker-Contract die LP-Token? Anteil der gesicherten LP; bei Launchpad-Graduation automatisch erfüllt",
+      "data_source": "LP-Mint-Holder via RPC; Locker-Verträge (Label-Liste)",
+      "signal": "Ungesicherte LP = Hard-Rug jederzeit möglich",
+      "threshold_hint": "< 90 % der LP geburnt/gelockt = K.-o. bei manuellen Pools; Lock-Dauer < 30 Tage = Warnflag",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "liquidity_usd_and_mc_ratio",
+      "group": "liquidity",
+      "computation": "Pool-Liquidität in USD absolut + Market-Cap ÷ Liquidität",
+      "data_source": "DEX Screener/Birdeye API oder Pool-Reserven via RPC",
+      "signal": "Zu wenig absolute Liquidität = unhandelbar (eigener Impact); hohe MC/Liq-Ratio = Preis-Illusion, Exit unmöglich",
+      "threshold_hint": "Positionsgröße > 1–2 % der Pool-Liquidität vermeiden; MC/Liq > 30 = Warnflag, > 100 = K.-o. für alles außer Micro-Positionen",
+      "latency_cost": "cheap"
+    },
+    {
+      "name": "sniper_exit_progress",
+      "group": "temporal",
+      "computation": "Anteil der Block-0/1-Käufer, die bereits vollständig/teilweise verkauft haben",
+      "data_source": "Trade-Stream, Wallet-Positionsverfolgung der Early-Buyer",
+      "signal": "Für Post-Graduation-/Dip-Strategien zentral: Erst wenn Sniper/Bundler draußen sind, trägt organische Nachfrage den Preis",
+      "threshold_hint": "Dip-Einstieg erst bei > 70–80 % Sniper-Exit; Einstieg bei < 30 % Exit = man kauft deren Verkäufe",
+      "latency_cost": "instant (bei laufender Verfolgung)"
+    },
+    {
+      "name": "curve_fill_velocity",
+      "group": "temporal",
+      "computation": "Bonding-Curve-Füllstand (%) + erste/zweite Ableitung (Füllgeschwindigkeit, Beschleunigung)",
+      "data_source": "Curve-Reserven aus dem Trade-Stream",
+      "signal": "Beschleunigende Füllung mit breiter Käuferbasis = Graduation-Kandidat; Füllung durch wenige große Käufe = Bundle-Push",
+      "threshold_hint": "Graduation-Strategien: Einstieg z. B. bei > 60–80 % Füllung UND Beschleunigung > 0 UND Unique-Buyer-Anteil hoch",
+      "latency_cost": "instant"
+    },
+    {
+      "name": "name_ticker_collision",
+      "group": "launch",
+      "computation": "Fuzzy-Match des Namens/Tickers/Bildes gegen (a) Top-Coins-Liste, (b) Launches der letzten Stunden, (c) laufende virale Events",
+      "data_source": "Eigenes Launch-Archiv + verifizierte Token-Listen; Bild via Perceptual Hash",
+      "signal": "Match gegen Top-Coin = Impersonation; 30. 'BROCCOLI' der Stunde = Ticker-Krieg-Nachzügler; Match zum viralen Event = Event-Kandidat (positiv für Event-Strategie, aber Scam-Grundrate hoch)",
+      "threshold_hint": "Exakter Name+Bild-Match zu etabliertem Coin = K.-o. (Fake); Ticker-Duplikat > 5x/Stunde = nur den Volumen-Leader als kanonisch behandeln",
+      "latency_cost": "instant (lokaler Index)"
+    },
+    {
+      "name": "social_link_quality",
+      "group": "social",
+      "computation": "Existieren die verlinkten Socials? Account-Alter, Follower-Qualität (Bot-Anteil via Heuristik/TweetScout), Community-Größe vs. Coin-Alter",
+      "data_source": "X/Telegram-APIs, TweetScout",
+      "signal": "Socials älter als der Coin = geplanter, ernst gemeinter Launch; frisch erstellte Accounts mit gekauften Followern = Kulisse",
+      "threshold_hint": "Kein Social-Link = neutral (Stealth ist üblich); Account < 7 Tage + > 10k Follower = Fake-Flag",
+      "latency_cost": "expensive (Rate-Limits) – nur für Kandidaten, nicht für alle Launches"
+    },
+    {
+      "name": "mention_velocity_organic",
+      "group": "social",
+      "computation": "Erwähnungen/Minute über Baseline, multipliziert mit (1 − geschätzter Bot-Anteil); Bot-Anteil aus Account-Graph, Text-Ähnlichkeits-Clustern, Timing-Uniformität",
+      "data_source": "Social-Listener + eigene Astroturf-Erkennung",
+      "signal": "Organische Beschleunigung = das Kauf-Signal der Sentiment-Strategie; hohe Roh-Velocity mit hohem Bot-Anteil = Astroturf-Falle",
+      "threshold_hint": "Bot-Anteil > 50 % = Signal verwerfen; Velocity nur zusammen mit On-Chain-Bestätigung (holder_growth_rate) handeln",
+      "latency_cost": "expensive"
+    },
+    {
+      "name": "wash_adjusted_volume",
+      "group": "market",
+      "computation": "Volumen abzüglich geschätztem Wash-Anteil (aus unique_trader_volume_ratio, buy_sell_wallet_asymmetry, Trade-Größen-Uniformität)",
+      "data_source": "abgeleitet",
+      "signal": "Die ehrliche Version jeder Volumen-Metrik – Trending-/Momentum-Strategien sollten NUR hierauf laufen",
+      "threshold_hint": "Wash-Anteil > 60 % = Coin komplett ignorieren, egal wie gut der Chart aussieht",
+      "latency_cost": "instant (abgeleitet)"
+    },
+    {
+      "name": "smart_wallet_confluence",
+      "group": "market",
+      "computation": "Anzahl unabhängiger (!) Wallets aus der eigenen Qualitäts-Liste, die im Zeitfenster gekauft haben; Unabhängigkeit über Funding-Graph geprüft; Wallet-Qualität rollierend über letzte N Trades bewertet",
+      "data_source": "Wallet-Tracking (Helius-Webhooks o. ä.) + eigene Performance-DB",
+      "signal": "3+ unabhängige Qualitäts-Wallets = stärkstes Kaufsignal des Flow-Following; 1 Star-Wallet allein = Baiting-Risiko",
+      "threshold_hint": ">= 3 unabhängige Wallets binnen 15 min = Signal; Wallet fliegt aus der Liste bei Rolling-Winrate < kalibrierter Schwelle",
+      "latency_cost": "cheap (bei stehender Infrastruktur)"
+    },
+    {
+      "name": "creator_sell_activity",
+      "group": "temporal",
+      "computation": "Laufende Überwachung nach Einstieg: Verkäufe/Transfers der Creator-Wallet und verbundener Cluster (inkl. Transfers auf CEX-Deposits und frische Wallets als Verschleierung)",
+      "data_source": "Wallet-Webhooks auf Creator + Cluster",
+      "signal": "Dev verkauft still = Soft-Rug im Gange; Transfer auf frische Wallet = Verkaufs-Vorbereitung",
+      "threshold_hint": "Creator-Cluster verkauft > 20 % seiner Position = Auto-Exit-Trigger; jeder Transfer an CEX-Deposit = Alarm",
+      "latency_cost": "cheap (Webhook-getrieben)"
+    },
+    {
+      "name": "graduation_state",
+      "group": "temporal",
+      "computation": "Lifecycle-Zustand: on_curve / graduating / graduated_fresh (< 1 h) / established (> 24 h auf DEX)",
+      "data_source": "Launchpad-Events",
+      "signal": "Jeder Zustand hat eigenes Risiko-Regime und eigene Strategie-Zuordnung (docs/strategien.md, Abschnitt 3.1) – als kategoriales Feature in jedem Modell",
+      "threshold_hint": "n/a (Zustandsvariable); graduated_fresh ist das Dump-Fenster der Curve-Käufer",
+      "latency_cost": "instant"
+    },
+    {
+      "name": "ath_drawdown_structure",
+      "group": "market",
+      "computation": "Drawdown vom Allzeithoch + Struktur der Erholungsversuche (höhere Tiefs?) + Volumenprofil im Drawdown",
+      "data_source": "OHLCV (Birdeye/eigene Aggregation)",
+      "signal": "Unterscheidet 'Flush mit Nachfrage-Beweis' (Dip-Kandidat) von 'Tod auf Raten' (Ausbluten ohne Käufer)",
+      "threshold_hint": "Dip-Strategien: nur bei stabilisierendem wash_adjusted_volume UND weiterlaufendem Holder-Wachstum; Drawdown-Tiefe allein ist KEIN Signal",
+      "latency_cost": "cheap"
+    }
+  ]
+}
