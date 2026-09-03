@@ -81,7 +81,12 @@ class MomentumStrategy:
         if state.last_trade_at and now - state.last_trade_at > c.max_seconds_since_trade:
             reasons.append("Momentum abgerissen (kein Trade zuletzt)")
 
-        # Mikrostruktur-Gates (nur mit ausreichender Statistik)
+        # Mikrostruktur-Gates (nur mit ausreichender Statistik) – und nur,
+        # wenn nicht schon billige Checks abgelehnt haben (Performance:
+        # burst_buyer_share ist O(n) und darf nicht pro Event für tote
+        # Kandidaten laufen)
+        if reasons:
+            return Decision(enter=False, reasons=reasons)
         if len(state.unique_buyers) >= c.min_unique_buyers:
             burst = state.burst_buyer_share(c.burst_window_seconds)
             if burst > c.max_burst_buyer_share:

@@ -161,6 +161,37 @@ Simulation = freundlichere Fills). Beide mahnen zum selben Schluss:
 Woche + drei negative Grob-Studien = die Beweislast liegt weiter bei
 mehrwöchigen Sekunden-Daten (lokale Aufzeichnung), nicht beim Kapital.
 
+## Teil 4: 8 weitere echte Tage – Entry-Qualität isoliert (q33wx-Datensatz)
+
+Vierter unabhängiger Real-Zeitraum: q33wx/pumpfun-pumpswap-market-data –
+**69.855 reale Launches, 16.–27.07.2026**, mit Sekunden-Snapshots bei t=60s
+(Trades, Netto-SOL, Unique-Buyer, Dev-Share) und Endpunkt-Outcomes
+(peak_mult, final_mult, secs_to_peak, rugged). Ergänzend bestätigte die
+Recherche: mehr Roh-Trade-Tage existieren auf GitHub nicht; mehrwöchige
+Per-Trade-Archive gibt es nur auf (hier geblockten) Diensten wie
+replay.pumpapi.io – lokal für den Nutzer abrufbar.
+
+Studie: Bot-Entry-Regel bei t=60s (Buyer>=10, Trades>=15, Netto>=3 SOL,
+Dev<=10 %) gegen reale Outcomes, Entry-Preis über die Curve-Formel korrigiert
+(wer nach Traktion kauft, kauft höher), Endpunkt-Exit-Klammer wie Teil 1:
+
+| | Ø PnL (kons./optim.) | Winrate |
+|---|---|---|
+| Alle 69.855 Launches | −12,9 % / −12,0 % | 6–7 % |
+| Bot-Auswahl @60s (10,2 %) | **−32,6 % / −32,3 %** | ~4 % |
+
+**Zwei getrennte Erkenntnisse:** (1) Der Sicherheitszweck funktioniert –
+Rug-Quote in der Auswahl 2,1 % vs. 9,4 % Basis. (2) Als *Rendite*-Signal ist
+"Traktion bei 60s kaufen" unter Endpunkt-Exits sogar schlechter als der
+Durchschnitt: Der Peak liegt bei diesen Coins häufig in/kurz nach der ersten
+Minute (secs_to_peak), man kauft das lokale Hoch der Sniper-Welle. Wichtige
+Einschränkung: Endpunkt-Daten können die echten schnellen Exits des Bots
+(Zeit-Stopps nach Minuten, Trailing) nicht abbilden – dieselbe Auswahl kann
+mit reaktiven Exits anders abschneiden (vgl. Teil 2). Die Aussage ist also
+präzise: **Der Entry allein trägt keinen Edge; wenn es einen gibt, entsteht
+er im Zusammenspiel mit schnellen Exits – und genau das braucht
+Sekunden-Streams zur Validierung.**
+
 ## Konsequenzen
 
 1. **Kein Live-Trading mit diesem Stand.** Die Beweislast liegt jetzt bei der
