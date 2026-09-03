@@ -37,6 +37,9 @@ python -m memetrader run --budget-sol 1.0
 # Backtest auf aufgezeichneten Events (JSONL, ein Event pro Zeile):
 python -m memetrader replay events.jsonl
 
+# Entscheidungs-Log auswerten (PnL, Trefferquote, Exit-Gründe, Filter-Wirkung):
+python -m memetrader analyze memetrader.log.jsonl
+
 # Live (erst nach überzeugenden Paper-Wochen!):
 #   1. pip install solders
 #   2. export SOLANA_PRIVATE_KEY=...   # NUR lokal – nie in Chat/Repo/Cloud!

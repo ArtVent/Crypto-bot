@@ -26,6 +26,9 @@ def main(argv: list[str] | None = None) -> int:
     p_replay = sub.add_parser("replay", help="Aufgezeichnete Events (JSONL) durch den Bot spielen")
     p_replay.add_argument("events_file")
 
+    p_analyze = sub.add_parser("analyze", help="Entscheidungs-Log auswerten (PnL, Trefferquote, Exit-Gründe)")
+    p_analyze.add_argument("log_file", nargs="?", default="memetrader.log.jsonl")
+
     args = parser.parse_args(argv)
 
     from .bot import Bot, BotConfig
@@ -52,6 +55,12 @@ def main(argv: list[str] | None = None) -> int:
             asyncio.run(Bot(config, broker=broker).run())
         except KeyboardInterrupt:
             print("\nbeendet")
+        return 0
+
+    if args.cmd == "analyze":
+        from .analyze import analyze_file
+
+        print(analyze_file(args.log_file).report())
         return 0
 
     if args.cmd == "replay":
