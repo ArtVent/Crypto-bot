@@ -1,0 +1,59 @@
+{
+  "n_train": 33176,
+  "n_test": 8295,
+  "test_base_rate_high_pct": 84.0,
+  "roc_auc": 0.7207,
+  "operating_points": [
+    {
+      "threshold": 0.6,
+      "allow_share_pct": 0.3,
+      "high_risk_in_allow_pct": 54.5
+    },
+    {
+      "threshold": 0.7,
+      "allow_share_pct": 2.4,
+      "high_risk_in_allow_pct": 60.9
+    },
+    {
+      "threshold": 0.75,
+      "allow_share_pct": 6.6,
+      "high_risk_in_allow_pct": 65.6
+    },
+    {
+      "threshold": 0.8,
+      "allow_share_pct": 15.5,
+      "high_risk_in_allow_pct": 68.0
+    },
+    {
+      "threshold": 0.85,
+      "allow_share_pct": 32.8,
+      "high_risk_in_allow_pct": 71.7
+    },
+    {
+      "threshold": 0.9,
+      "allow_share_pct": 52.9,
+      "high_risk_in_allow_pct": 75.3
+    }
+  ],
+  "feature_names": [
+    "has_twitter",
+    "has_website",
+    "has_telegram",
+    "n_socials",
+    "desc_len",
+    "desc_words",
+    "desc_has_url",
+    "desc_all_caps_ratio",
+    "name_len",
+    "symbol_len",
+    "symbol_is_upper",
+    "name_has_digit",
+    "name_entropy",
+    "symbol_dupes_before",
+    "name_is_symbol",
+    "creator_prior_launches",
+    "creator_launch_same_day",
+    "hour_utc",
+    "weekday"
+  ]
+}

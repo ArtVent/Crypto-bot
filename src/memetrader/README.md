@@ -28,11 +28,42 @@ ist, dass es auch scheitern kann. Der Kill-Switch begrenzt den Schaden
 4. **Risk-Engine**: 0,05 SOL pro Position, max. 3 gleichzeitig,
    Tages-Kill-Switch, Budget-Deckel – alles in `RiskConfig` kalibrierbar.
 
+## ML-Filter – trainiert auf echten Trades
+
+`models/mlfilter-melt.joblib` ist ein auf **41.470 echten pump.fun-Coins**
+(MELT-Forschungsdatensatz, Dez 2024–März 2025) trainiertes Risiko-Modell:
+HistGradientBoosting auf 19 Launch-Zeitpunkt-Features (Socials, Beschreibung,
+Namens-/Ticker-Eigenschaften, Ticker-Duplikate, Creator-Historie, Uhrzeit) –
+mit strikt chronologischem Split und kausaler Feature-Konstruktion
+(Creator-/Duplikat-Zähler nur aus der Vergangenheit).
+
+**Ergebnisse (ehrlich):** ROC-AUC **0,72** auf 8.295 Holdout-Coins.
+Basisrate 84 % high-risk; der Bot nutzt das Modell als Gate bei Schwelle 0,80:
+nur ~15 % der Coins passieren, darin sinkt die High-Risk-Quote auf **68 %**.
+Das ist eine echte, messbare Risiko-Reduktion – und trotzdem bleibt die
+Mehrheit auch der gefilterten Coins riskant. Der ML-Filter ersetzt weder die
+Regel-Strategie noch das Risk-Management, er ergänzt sie.
+
+**Wichtigstes gelerntes Feature:** `symbol_dupes_before` (Ticker-Duplikate) –
+die empirische Bestätigung der Dedupe-Regel aus der Strategie; danach
+Socials-Anzahl und Beschreibungsqualität.
+
+**Lizenz:** Der MELT-Datensatz ist CC BY-NC 4.0 → dieses Modell nur für
+Forschung/persönliche Experimente. Für den kommerziellen Pfad (SaaS) mit
+`python -m memetrader.train_mlfilter` auf den eigenen Archiv-Daten
+(`memescan watch`/`label`) neu trainieren – die Pipeline ist identisch.
+
 ## Nutzung
 
 ```bash
-# Paper-Trading (Default) – läuft gegen echte Live-Streams, handelt simuliert:
+# Paper-Trading (Default) – läuft gegen echte Live-Streams, handelt simuliert;
+# das ML-Gate ist automatisch aktiv, wenn models/mlfilter-melt.joblib existiert:
 python -m memetrader run --budget-sol 1.0
+python -m memetrader run --ml-threshold 0.75   # strengeres Gate
+python -m memetrader run --ml-model ""         # ohne ML-Gate
+
+# ML-Modell neu trainieren (MELT oder eigene Archiv-Daten):
+python -m memetrader.train_mlfilter --melt-dir /pfad/zu/MELT --out models/mlfilter-melt.joblib
 
 # Backtest auf aufgezeichneten Events (JSONL, ein Event pro Zeile):
 python -m memetrader replay events.jsonl

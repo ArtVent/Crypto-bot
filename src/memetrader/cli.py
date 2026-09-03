@@ -22,6 +22,9 @@ def main(argv: list[str] | None = None) -> int:
     p_run.add_argument("--position-sol", type=float, default=0.05)
     p_run.add_argument("--live", action="store_true", help="ECHTES Geld – nur mit --i-understand-the-risk")
     p_run.add_argument("--i-understand-the-risk", action="store_true")
+    p_run.add_argument("--ml-model", default="models/mlfilter-melt.joblib",
+                       help="Pfad zum ML-Risiko-Modell ('' = ohne ML-Gate)")
+    p_run.add_argument("--ml-threshold", type=float, default=0.80)
 
     p_replay = sub.add_parser("replay", help="Aufgezeichnete Events (JSONL) durch den Bot spielen")
     p_replay.add_argument("events_file")
@@ -37,6 +40,14 @@ def main(argv: list[str] | None = None) -> int:
         config = BotConfig()
         config.risk.budget_sol = args.budget_sol
         config.risk.position_sol = args.position_sol
+        if args.ml_model:
+            from pathlib import Path as _Path
+
+            if _Path(args.ml_model).exists():
+                config.ml_model_path = args.ml_model
+                config.ml_risk_threshold = args.ml_threshold
+            else:
+                print(f"Hinweis: ML-Modell {args.ml_model} nicht gefunden – Bot läuft ohne ML-Gate.")
         broker = None
         if args.live:
             if not args.i_understand_the_risk:

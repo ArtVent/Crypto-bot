@@ -24,6 +24,7 @@ class CurveState:
     creator: str = ""
     symbol: str = ""
     name: str = ""
+    uri: str = ""
     v_sol: float = 0.0
     v_tokens: float = 0.0
     created_at: float = 0.0
@@ -35,6 +36,9 @@ class CurveState:
     creator_sold: bool = False
     migrated: bool = False
     last_trade_at: float = 0.0
+    # Kausale Kontext-Zähler (gesetzt vom Bot beim Create-Event)
+    symbol_dupes_before: int = 0
+    creator_prior_launches: int = 0
 
     @property
     def price_sol(self) -> float:

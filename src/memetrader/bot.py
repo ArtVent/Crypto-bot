@@ -34,16 +34,27 @@ class BotConfig:
     risk: RiskConfig = field(default_factory=RiskConfig)
     log_path: str = "memetrader.log.jsonl"
     evaluate_every_seconds: float = 2.0
+    # ML-Gate (optional): auf MELT trainiertes Risiko-Modell, siehe mlfilter.py
+    ml_model_path: str | None = None
+    ml_risk_threshold: float = 0.80
 
 
 class Bot:
-    def __init__(self, config: BotConfig | None = None, broker=None):
+    def __init__(self, config: BotConfig | None = None, broker=None, ml_gate=None):
         self.config = config or BotConfig()
         self.broker = broker or PaperBroker()
         self.strategy = MomentumStrategy(self.config.strategy)
         self.risk = RiskManager(self.config.risk)
         self.curves: dict[str, CurveState] = {}
         self._log = Path(self.config.log_path)
+        # Kausale Zähler für ML-Features (nur Vergangenheit, wie im Training)
+        self.symbol_counts: dict[str, int] = {}
+        self.creator_counts: dict[str, int] = {}
+        self.ml_gate = ml_gate
+        if self.ml_gate is None and self.config.ml_model_path:
+            from .mlfilter import MLGate
+
+            self.ml_gate = MLGate(self.config.ml_model_path)
 
     # --- Event-Verarbeitung (synchron, damit ohne Netz testbar) --------------
     def on_event(self, event: dict, now: float | None = None) -> list[Fill]:
@@ -54,17 +65,28 @@ class Bot:
             return []
 
         if tx == "create":
-            self.curves[mint] = CurveState(
+            symbol = (event.get("symbol") or "").upper()
+            creator = event.get("traderPublicKey") or ""
+            state = CurveState(
                 mint=mint,
-                creator=event.get("traderPublicKey") or "",
+                creator=creator,
                 symbol=event.get("symbol") or "",
                 name=event.get("name") or "",
+                uri=event.get("uri") or "",
                 v_sol=float(event.get("vSolInBondingCurve") or 0.0),
                 v_tokens=float(event.get("vTokensInBondingCurve") or 0.0),
                 created_at=now,
                 dev_buy_sol=float(event.get("solAmount") or 0.0),
                 real_sol_in_curve=float(event.get("solAmount") or 0.0),
             )
+            # Zähler-Snapshot VOR dem Hochzählen = "wie viele davor" (kausal)
+            state.symbol_dupes_before = self.symbol_counts.get(symbol, 0)
+            state.creator_prior_launches = self.creator_counts.get(creator, 0)
+            if symbol:
+                self.symbol_counts[symbol] = self.symbol_counts.get(symbol, 0) + 1
+            if creator:
+                self.creator_counts[creator] = self.creator_counts.get(creator, 0) + 1
+            self.curves[mint] = state
             return []
 
         state = self.curves.get(mint)
@@ -86,6 +108,19 @@ class Bot:
         decision = self.strategy.evaluate(state, now)
         if not decision.enter:
             return []
+        if self.ml_gate is not None:
+            risk_score = self.ml_gate.risk(
+                state,
+                symbol_dupes_before=state.symbol_dupes_before,
+                creator_prior_launches=state.creator_prior_launches,
+                now=now,
+            )
+            if risk_score >= self.config.ml_risk_threshold:
+                self._write_log(
+                    {"t": now, "event": "entry_blocked", "mint": state.mint,
+                     "why": f"ml_risk {risk_score:.2f} >= {self.config.ml_risk_threshold}"}
+                )
+                return []
         ok, why = self.risk.can_enter(now)
         if not ok:
             self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint, "why": why})
