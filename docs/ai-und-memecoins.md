@@ -120,3 +120,5 @@ Wer KI-Signale nutzt, erbt deren Angriffsfläche – die Gegenseite weiß, wie B
 | Käufer von 'AI-Bots' & Agent-Token-Retail | – | Netto-Verlierer als Gruppe |
 
 Die Rangfolge ist kein Zufall: **Je näher an der Fee-Quelle und je weiter weg von der Richtungs-Wette, desto verlässlicher das Geschäft.** Für den eigenen Bot heißt das: ML dort einsetzen, wo es Kosten senkt und Verluste vermeidet – das ist der Teil des 'AI-Traums', der reproduzierbar ist.
+
+Wie man aus dieser Erkenntnis legale, ethisch saubere Geschäftsmodelle baut – vom KI-Creator-Studio mit Fee-Einnahmen über Sicherheits-SaaS bis zum Daten-Geschäft – steht ausführlich in [`ai-geschaeftsmodelle.md`](ai-geschaeftsmodelle.md) und [`../data/ai-business-models.json`](../data/ai-business-models.json).

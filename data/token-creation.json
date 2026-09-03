@@ -74,6 +74,14 @@
       "time": "Auktionszyklus",
       "control": "Ticker + Token-Parameter im Orderbuch-Spot-Modell.",
       "buyer_implications": "Hohe Deploy-Kosten wirken als Spam-Filter – anderes Grundrauschen als auf Launchpads; kleine, aber kapitalisiertere Launch-Population."
+    },
+    {
+      "method": "KI-gestützter Creator-Launch (Studio-/Fee-Modell)",
+      "chain": "Solana / Base (Launchpads mit Creator-Fee-Sharing)",
+      "cost_approx": "< 1 USD pro Launch + KI-Kosten (Bild-/LLM-APIs, Cents pro Coin)",
+      "time": "Minuten pro Coin bei stehender Pipeline",
+      "control": "Wie beim Launchpad-Create (Metadaten + Dev-Buy); zusätzlich die eigene KI-Pipeline: Trend-Scan, Konzept, Assets, laufender Community-Content.",
+      "buyer_implications": "Seit der Creator-Fee-Ära (2025) ein legitimes Kreativ-Geschäftsmodell: Der Ersteller verdient am Handelsvolumen statt am Dump – erkennbar an offengelegter Creator-Wallet, gekennzeichnetem KI-Content und fehlendem Bundling. Ununterscheidbare Technik, entgegengesetzte Ethik zur Scam-Variante: Playbook und Abgrenzung in docs/ai-geschaeftsmodelle.md, Abschnitt 3."
     }
   ]
 }

@@ -12,6 +12,7 @@ Strukturierte Wissensdatenbank zu Memecoins, Launch-Plattformen, Strategien, Sca
 | [`scams.json`](scams.json) | Scam-/Manipulations-Taxonomie mit Red Flags und automatisierbarer Erkennung (Verteidigungs-Perspektive) |
 | [`ai-techniques.json`](ai-techniques.json) | KI-/ML-Techniken im Trading: was sie tun, wie sie Geld verdienen, wo ihre Grenzen liegen |
 | [`ai-agents.json`](ai-agents.json) | AI-Agenten-Ökosystem (Truth Terminal, AIXBT, Clanker, ElizaOS, …) mit Einnahmemodellen |
+| [`ai-business-models.json`](ai-business-models.json) | Legale & ethische KI-Geschäftsmodelle: Creator-Launches, SaaS, Daten, Services – mit Ethik-/Rechts-Anforderungen |
 | [`metas.json`](metas.json) | Narrative/Metas (Dog, AI, PolitiFi, …) mit Hochphasen, Leadern und Lektionen |
 | [`events.json`](events.json) | Timeline prägender Ereignisse der Memecoin-Geschichte (2013 – Ende 2025) |
 | [`chains.json`](chains.json) | Chain-Profile aus Memecoin-Sicht: Launch-/Trade-Infrastruktur, Kosten, Charakter |
@@ -27,6 +28,7 @@ Strukturierte Wissensdatenbank zu Memecoins, Launch-Plattformen, Strategien, Sca
 | [`pumpfun-mechanik.md`](../docs/pumpfun-mechanik.md) | Bonding Curve, Graduation, Fees, typische Muster auf pump.fun |
 | [`strategien.md`](../docs/strategien.md) | Strategie-Leitfaden: Edge-Quellen, Strategie-Familien, Risiko-Framework, Backtesting-Fallen |
 | [`ai-und-memecoins.md`](../docs/ai-und-memecoins.md) | KI & Memecoins: Anatomie eines KI-Snipers, wo ML wirklich verdient, Agenten-Geschäftsmodelle, Angriffe auf KI-Trader |
+| [`ai-geschaeftsmodelle.md`](../docs/ai-geschaeftsmodelle.md) | Legal & ethisch verdienen: Ertragspyramide, Creator-Launch-Playbook, Service-Schiene, Regulierungs-Landkarte |
 | [`risiko-und-scam-checks.md`](../docs/risiko-und-scam-checks.md) | Scam-Typen, automatisierbare Pre-Trade-Checks, Red Flags, Bot-Sicherheit |
 | [`beruehmte-faelle.md`](../docs/beruehmte-faelle.md) | Fallstudien: SQUID, BALD, HAWK, TRUMP, LIBRA & Co. – mit Lektionen für Filter |
 | [`token-erstellung.md`](../docs/token-erstellung.md) | Wie Token technisch entstehen, Anatomie eines Launches, Seriositäts-Checkliste, Rechtliches |

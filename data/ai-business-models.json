@@ -1,0 +1,157 @@
+{
+  "_meta": {
+    "description": "Legale und ethisch vertretbare Geschäftsmodelle, mit denen KI im Memecoin-Ökosystem Geld verdienen kann – sortiert nach Verlässlichkeit der Einnahmen. Jedes Modell nennt explizit die Ethik-/Rechts-Anforderungen, unter denen es sauber bleibt; ohne diese kippen mehrere davon in dokumentierte Scam-Muster (data/scams.json). Vertiefung: docs/ai-geschaeftsmodelle.md. Stand des Wissens: Anfang 2026, keine Rechtsberatung.",
+    "fields": {
+      "name": "Geschäftsmodell",
+      "model_type": "creation | content | product | service | data | infrastructure | trading | education",
+      "ai_role": "Was die KI konkret übernimmt",
+      "revenue_mechanics": "Wie Geld reinkommt",
+      "realistic_earnings": "Ehrliche Einordnung der Ertragserwartung",
+      "ethics_requirements": "Was zwingend gilt, damit das Modell sauber bleibt",
+      "legal_notes": "Rechtliche Stolpersteine",
+      "reliability": "1 (Lotterie) bis 5 (planbares Geschäft)"
+    }
+  },
+  "models": [
+    {
+      "name": "KI-gestützter Creator-Launch (Creator-Fee-Modell)",
+      "model_type": "creation",
+      "ai_role": "Meme-Findung (Trend-Scan), Namens-/Ticker-Generierung, Bild-/Logo-Erstellung (Bildmodelle), Community-Content (Posts, Memes, Sticker) – die KI ist das Ein-Personen-Kreativstudio hinter transparenten, eigenen Coin-Launches.",
+      "revenue_mechanics": "Creator-Revenue-Sharing der Launchpads: pump.fun & Co. zahlen dem Ersteller laufend einen Anteil des Handelsvolumens seiner Coins (Größenordnung ~0,05 % des Volumens, plattformabhängig); Bags/Zora mit konfigurierbaren Fee-Splits. Einnahmen sind richtungsunabhängig – der Creator verdient am Volumen, nicht am Dump.",
+      "realistic_earnings": "Brutal schiefe Verteilung: Der Median-Launch verdient Cents. Rechenbeispiel: 1 Mio. USD Lebenszeit-Volumen ≈ 500 USD Creator-Fees; ein viraler Coin mit 100 Mio. USD Volumen ≈ 50.000 USD. Als 'Studio' mit vielen ehrlichen Versuchen ein Lotterie-Portfolio mit kleinem laufendem Sockel.",
+      "ethics_requirements": "Kein eigener versteckter Großeinstieg über Zweitwallets (Bundling), eigene Käufe/Bestände offenlegen (Creator-Wallet publik), keine gebotteten Communities, KI-generierte Inhalte als solche kennzeichnen, keine falschen Versprechen ('Utility kommt') – der Coin wird ehrlich als Meme verkauft.",
+      "legal_notes": "Marktmanipulation (Wash Trading, koordinierte Pumps) ist strafbar; unkennzeichnete bezahlte Promotion ebenso in vielen Ländern; Steuerpflicht auf Fee-Einnahmen; MiCA-Pflichten je nach Ausgestaltung.",
+      "reliability": 2
+    },
+    {
+      "name": "Meme-Studio-as-a-Service (Kreativ-Dienstleistung für Communities)",
+      "model_type": "service",
+      "ai_role": "Auftragsproduktion: Logos, Meme-Packs, Sticker-Sets, Video-Clips, Website-Copy für Coin-Communities und CTOs – KI-Bildmodelle + LLM-Texter als Agentur-Ersatz.",
+      "revenue_mechanics": "Festpreise/Retainer in SOL/USDC pro Paket; keinerlei Kurs-Exposure. Zahlende Kunden: Communities mit Treasury, Launchpad-Projekte, CTO-Teams.",
+      "realistic_earnings": "Klassisches Freelance-Geschäft: planbar dreistellig bis vierstellig pro Monat bei gutem Ruf – unspektakulär, aber eines der wenigen Modelle mit fast null Totalverlust-Risiko.",
+      "ethics_requirements": "Keine Mitarbeit an Täuschung (keine Fake-Roadmaps, keine Bot-Armeen als 'Community-Paket'); bei Bezahlung in Coins des Kunden: Interessenkonflikt offenlegen.",
+      "legal_notes": "Gewerbe/Steuern wie jede Dienstleistung; Urheberrecht bei Meme-Vorlagen beachten (CHILLGUY-Lektion).",
+      "reliability": 4
+    },
+    {
+      "name": "Transparenter KI-Analyst/KOL (AIXBT-Modell, ehrlich betrieben)",
+      "model_type": "content",
+      "ai_role": "Agent generiert laufend Markt-Analysen, Meta-Reports, Launch-Zusammenfassungen aus On-Chain- und Social-Daten; baut als 'Charakter' Reichweite auf.",
+      "revenue_mechanics": "Abos/Premium-Zugang (Terminal, Newsletter, Discord), Plattform-Monetarisierung (X-Revenue-Share), optional eigener Token mit offengelegter Verteilung.",
+      "realistic_earnings": "Reichweiten-Geschäft: lange Null-Phase, dann skalierend; die Top-Agenten zeigten, dass fünf- bis sechsstellige Monatswerte möglich sind – für die Masse bleibt es ein Nebeneinkommen.",
+      "ethics_requirements": "Die harte Linie: NIEMALS bezahlte Erwähnungen ohne Kennzeichnung, keine Calls auf eigene Positionen ohne Offenlegung (eigene Wallet publik machen), Methodik dokumentieren, Fehler-Statistik veröffentlichen statt Winrate-Märchen.",
+      "legal_notes": "Unkennzeichnete Promotion und 'Scalping' der eigenen Calls sind je nach Land Marktmissbrauch/UWG-relevant; Anlageberatungs-Regeln beachten (Formulierungen als Information, nicht Empfehlung).",
+      "reliability": 3
+    },
+    {
+      "name": "Sicherheits-Tooling als Produkt (Rug-Checks, Bundle-Detektoren)",
+      "model_type": "product",
+      "ai_role": "Die Erkennungs-Modelle aus data/ai-techniques.json (Rug-Score, Cluster-Analyse, Astroturf-Erkennung) als API/Dashboard/Telegram-Bot verpackt – RugCheck/Bubblemaps zeigen die Nachfrage.",
+      "revenue_mechanics": "Freemium-API (Rate-Limits), Pro-Abos für Trader, B2B-Lizenzen an Terminals/Launchpads, die Sicherheits-Badges einbauen wollen.",
+      "realistic_earnings": "Echtes SaaS: wiederkehrend und richtungsunabhängig; Nische ist kompetitiv, aber Differenzierung über Erkennungsqualität möglich. Vier- bis fünfstellige MRR für gute Produkte realistisch erreichbar.",
+      "ethics_requirements": "Keine Pay-to-Pass-Scores (Projekte dürfen sich kein gutes Rating kaufen); False-Positive-/False-Negative-Raten ehrlich ausweisen; Scores als Risiko-Indikator framen, nie als Freigabe.",
+      "legal_notes": "Haftungs-Disclaimer nötig; Datenschutz bei Wallet-Analysen unkritisch (öffentliche Daten), bei Social-Daten ToS der Plattformen beachten.",
+      "reliability": 5
+    },
+    {
+      "name": "Daten-Geschäft (gelabelte Launch-Datasets & Feeds)",
+      "model_type": "data",
+      "ai_role": "KI-Pipeline sammelt, bereinigt und labelt, was sonst niemand vollständig hat: ALLE Launches inkl. der toten 99 % mit Features zum Launch-Zeitpunkt und Outcome-Labels (tot/gerugt/graduiert/gelaufen).",
+      "revenue_mechanics": "Verkauf von historischen Datasets und Echtzeit-Feeds an Quant-Teams, Forscher, Tool-Bauer; genau diese Daten sind der Engpass jedes ML-Sniping-Projekts (docs/ai-und-memecoins.md, Abschnitt 5).",
+      "realistic_earnings": "B2B-Nische mit wenigen, aber zahlungskräftigen Kunden; als Nebenprodukt des eigenen Bot-Betriebs fast kostenlos zu produzieren.",
+      "ethics_requirements": "Nur öffentliche On-Chain-/API-Daten; keine Weiterverkäufe von gescrapten Daten gegen Plattform-ToS ohne Prüfung; Label-Methodik offenlegen.",
+      "legal_notes": "ToS der Datenquellen (Birdeye, DEX Screener etc.) und deren Weiterverkaufs-Klauseln prüfen; ansonsten unkritisch.",
+      "reliability": 4
+    },
+    {
+      "name": "Infrastruktur & Execution-APIs (PumpPortal-Modell)",
+      "model_type": "infrastructure",
+      "ai_role": "KI ist hier Hilfsmittel (Doku-Bots, Anomalie-Monitoring, dynamische Fee-Empfehlung); das Produkt ist der zuverlässige Zugang: Websocket-Streams, Trade-APIs, Webhook-Dienste rund um Launchpads.",
+      "revenue_mechanics": "Gebühr pro Trade über die API (0,5–1 %) oder Abo-Staffeln – verdient an jedem Nutzer-Trade, unabhängig von dessen Erfolg.",
+      "realistic_earnings": "Das historisch verlässlichste Modell des gesamten Feldes ('Schaufeln verkaufen'); stark abhängig von Uptime-Ruf und Plattform-Wohlwollen.",
+      "ethics_requirements": "Transparente Fees, keine Orderflow-Ausnutzung gegen die eigenen Nutzer (Front-Running der Kunden-Trades wäre Betrug), ehrliche Uptime-Kommunikation.",
+      "legal_notes": "Je nach Ausgestaltung Nähe zu Zahlungsdienst-/Brokerage-Regulierung; AGB und Missbrauchs-Policies nötig.",
+      "reliability": 5
+    },
+    {
+      "name": "Eigenes ML-gefiltertes Trading (Prop-Trading)",
+      "model_type": "trading",
+      "ai_role": "Die Kern-Techniken: Rug-Klassifikation, Wallet-Intelligence, Sentiment-Velocity, Execution-Optimierung – ausschließlich mit eigenem Kapital.",
+      "revenue_mechanics": "Trading-PnL. Nur eigenes Geld = keine Lizenzpflichten des Asset-Managements, volle Flexibilität.",
+      "realistic_earnings": "Der einzige ehrliche Satz dazu: Möglich, aber die Mehrheit verliert; der Edge steckt in Verlust-Vermeidung und Disziplin (docs/strategien.md). Als Geschäftsmodell dem Service-/Produkt-Weg unterlegen, als Kompetenz-Basis für alle anderen Modelle unbezahlbar.",
+      "ethics_requirements": "Keine Manipulation (kein Wash-Volumen zum eigenen Vorteil, kein Astroturfing eigener Positionen); Steuern sauber deklarieren.",
+      "legal_notes": "Eigenkapital-Trading ist unreguliert legal; Gewinne steuerpflichtig (Land-abhängig).",
+      "reliability": 2
+    },
+    {
+      "name": "Bot-/Agent-Entwicklung als Auftragsarbeit",
+      "model_type": "service",
+      "ai_role": "LLM-gestützte Entwicklung: Kunden-Bots, Filter-Pipelines, Dashboards, Agent-Setups (ElizaOS/Virtuals-Integrationen) für Trader, Communities und Projekte bauen.",
+      "revenue_mechanics": "Projektpreise, Retainer, Wartungsverträge – der Entwickler verdient am Bau, nicht am Trading-Ausgang.",
+      "realistic_earnings": "Solides Freelance-/Agentur-Geschäft mit realer Nachfrage (jede Meta-Welle bringt neue Auftraggeber); Stundensätze wie Spezial-Entwicklung.",
+      "ethics_requirements": "Keine Aufträge annehmen, deren Zweck Manipulation ist (Volume-Bots, Bundler, Astroturf-Schwärme – siehe data/scams.json); Kunden über realistische Erfolgsaussichten aufklären statt 'Gelddruckmaschine' zu verkaufen.",
+      "legal_notes": "Beihilfe-Risiko bei wissentlichem Bau von Manipulations-Tools; sonst normales Dienstleistungsrecht.",
+      "reliability": 4
+    },
+    {
+      "name": "Launchpad-/Deploy-Agent mit Fee-Beteiligung (Clanker-Modell)",
+      "model_type": "infrastructure",
+      "ai_role": "Agent als Produkt: nimmt Nutzer-Anfragen entgegen (Social-Post, Chat), deployt Token sauber (Authorities revoked, Pool automatisch) und verwaltet die Fee-Splits.",
+      "revenue_mechanics": "Protokoll-Anteil an den Pool-/Trading-Fees jedes deployten Tokens – richtungsunabhängig, skaliert mit Nutzung (Clanker: Millionen-Einnahmen binnen Monaten).",
+      "realistic_earnings": "Winner-take-most-Markt: Etablierte Deploy-Agenten sind schwer anzugreifen; in Nischen (neue Chain, neue Plattform, Sprachraum) realistisch kopierbar.",
+      "ethics_requirements": "Deploy-Standards erzwingen (revoked Authorities, LP-Burn), Scam-Filter für Deploys (Impersonation bekannter Marken ablehnen), transparente Fee-Struktur.",
+      "legal_notes": "Plattform-Verantwortung wächst mit Größe (Missbrauch durch Nutzer, Marken-/IP-Beschwerden, je nach Land MiCA-/Betreiberpflichten).",
+      "reliability": 4
+    },
+    {
+      "name": "LP-Management-Automatisierung (eigene Liquidität)",
+      "model_type": "trading",
+      "ai_role": "Modelle wählen Pools (Volumen/TVL, Wash-bereinigt), setzen und verschieben DLMM-Ranges, rebalancen und ziehen bei Risiko-Signalen ab – Vollautomatisierung der LP-Strategie aus data/strategies.json.",
+      "revenue_mechanics": "Trading-Fees der Pools auf eigenes Kapital; Software optional als Tool verkaufen (dann Produkt-Modell).",
+      "realistic_earnings": "In Hype-Phasen zweistellige Monats-Fee-Renditen möglich, die Impermanent-Loss-Rechnung entscheidet; als Dauergeschäft anspruchsvoll, aber ehrlich quantifizierbar.",
+      "ethics_requirements": "Nur eigene Funds automatisieren; als Tool-Anbieter keine Renditeversprechen.",
+      "legal_notes": "Eigenes Kapital unkritisch; sobald FREMDES Kapital verwaltet wird → Lizenzpflicht (siehe Vault-Modell).",
+      "reliability": 3
+    },
+    {
+      "name": "Verwaltung fremden Kapitals (Vaults/Copy-Portfolios) – nur reguliert",
+      "model_type": "service",
+      "ai_role": "KI-Strategien als Vault/Managed Account anbieten, Performance-Fee-Modell.",
+      "revenue_mechanics": "Management-/Performance-Fees – das klassische Asset-Management-Modell.",
+      "realistic_earnings": "Skalierbarstes Trading-Modell – und genau deshalb das regulierteste.",
+      "ethics_requirements": "Volle Transparenz über Strategie, Risiken, Track Record (on-chain verifizierbar); keine Kundengelder ohne Verwahr-Lösung.",
+      "legal_notes": "ACHTUNG: In den meisten Jurisdiktionen (BaFin/MiCA, SEC/CFTC) lizenzpflichtige Tätigkeit – ohne Lizenz illegal, auch 'on-chain' und auch bei kleinen Summen. Ohne Rechtsberatung und Lizenz ist dieses Modell tabu; die unlizenzierte Variante ist der Kern vieler 'AI-Fonds'-Scams.",
+      "reliability": 3
+    },
+    {
+      "name": "Ehrliche Bildungs-Produkte & Research",
+      "model_type": "education",
+      "ai_role": "KI produziert und aktualisiert Kurse, Playbooks, wöchentliche Meta-Reports, interaktive Lern-Tools (z. B. Rug-Erkennungs-Trainer mit echten Fällen aus docs/beruehmte-faelle.md).",
+      "revenue_mechanics": "Verkauf/Abos; Sponsoring nur mit Kennzeichnung.",
+      "realistic_earnings": "Content-Markt: abhängig von Reichweite und Ruf; der Ruf ist das Kapital und mit einem einzigen gepushten Scam-Coin dauerhaft zerstört.",
+      "ethics_requirements": "Keine Gewinnversprechen, Verlust-Realität (99 %-Basisrate) prominent lehren statt verstecken, keine versteckten Affiliate-Pushes auf riskante Produkte.",
+      "legal_notes": "Abgrenzung Bildung vs. Anlageberatung sauber halten; Affiliate-Offenlegung.",
+      "reliability": 3
+    },
+    {
+      "name": "Moderations- & Schutz-KI für Plattformen/Communities",
+      "model_type": "product",
+      "ai_role": "Erkennung von Scam-Links, Impersonatoren, Drainer-Domains und Bot-Raids in Telegram/Discord-Communities; Launchpad-seitige Filter (Impersonations-Deploys, verbotene Inhalte).",
+      "revenue_mechanics": "B2B-Abos von Communities, Projekten und Plattformen – Sicherheitsbudget existiert, seit Moderation zum Reputationsthema wurde (pump.fun-Livestream-Ära).",
+      "realistic_earnings": "Kleinerer, aber stabiler B2B-Markt mit wenig Konkurrenz und hohem Vertrauens-Moat.",
+      "ethics_requirements": "Keine Überwachung über den Schutzzweck hinaus; Fehlalarm-Umgang fair gestalten.",
+      "legal_notes": "Datenschutz je nach Datenquelle; sonst unkritisch.",
+      "reliability": 4
+    },
+    {
+      "name": "Open-Source + Grants/Bounties",
+      "model_type": "education",
+      "ai_role": "KI-beschleunigte Entwicklung öffentlicher Güter: Open-Source-Detektoren, Datenstandards, Forensik-Tools, Sicherheits-Research (verantwortliche Meldung von Schwachstellen).",
+      "revenue_mechanics": "Ökosystem-Grants (Solana Foundation & Co.), Bug-Bounties, Sponsoring, Reputation → Folgeaufträge.",
+      "realistic_earnings": "Kein Reichtums-Modell, aber real: Grants im vier- bis fünfstelligen Bereich sind für nützliche Tools erreichbar; stärkster Reputations-Hebel für alle anderen Modelle.",
+      "ethics_requirements": "Responsible Disclosure bei Schwachstellen; keine Dual-Use-Veröffentlichungen, die primär Angreifern nützen.",
+      "legal_notes": "Unkritisch; Bounty-Bedingungen einhalten.",
+      "reliability": 3
+    }
+  ]
+}
