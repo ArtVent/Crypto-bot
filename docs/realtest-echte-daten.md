@@ -132,6 +132,35 @@ des PnL bei ähnlich großen Einzelbeiträgen.
 aufzeichnen (`memetrader record`) und denselben Replay über Wochen fahren;
 erst eine positive Wochen-Serie auf frischen Daten trägt Beweislast.
 
+## Teil 3: Eine echte Handelswoche (Fingerprinter, 03.–09.06.2026)
+
+Auf der Suche nach Wochen-Daten wurde ein dritter Real-Datensatz erschlossen:
+willho/fingerprinter-dataset (pg_dump, lokal restauriert) – **39.010 reale
+Launches über 6,7 zusammenhängende Tage**, 657k event-getriggerte Snapshots
+(Preis in SOL, 15-%-Move-/Drawdown-/Deathbed-Trigger, kumulative Wallets/
+Trades/Volumen). Replay: `fingerreplay.py` – Bot-Logik auf Event-Granularität
+(Entry bei bestätigtem 2x-Momentum im 45s–45min-Fenster + Nachfrage-Beweis,
+asymmetrische Exits, volle Portfolio-Rechnung, 3 % Kosten).
+
+| Variante | Ergebnis (1 SOL Start) | Trades | Winrate |
+|---|---|---|---|
+| Bot-Regel (Momentum-Bestätigung) | **0,631 SOL (−36,9 %)** | 46 | 17,4 % |
+| Kontrolle ohne Bestätigung | 0,568 SOL (−43,3 %) | 53 | 15,1 % |
+
+**Einordnung:** Die Momentum-Bestätigung verbessert messbar (+6,4 Punkte),
+aber die Woche endet klar negativ; der Kill-Switch griff an 2 von 7 Tagen.
+Wichtige Unterschiede zum profitablen Juli-Tag: gröbere Granularität
+(Events statt Sekunden-Trades), keine Mikrostruktur-Gates möglich (keine
+Wallet-Level-Daten -> Bundle-/Wash-Checks inaktiv), anderes Markt-Regime,
+Discovery-Auswahl des Quellsystems (~5,8k/Tag). Das Gesamtbild über alle
+Real-Zeiträume: je feiner die Zeitauflösung, desto besser das Ergebnis –
+was ZWEI Lesarten zulässt (Edge lebt im Sekunden-Timing UND/ODER feinere
+Simulation = freundlichere Fills). Beide mahnen zum selben Schluss:
+
+**Kein grünes Licht für echtes SOL.** Ein profitabler Tag + eine negative
+Woche + drei negative Grob-Studien = die Beweislast liegt weiter bei
+mehrwöchigen Sekunden-Daten (lokale Aufzeichnung), nicht beim Kapital.
+
 ## Konsequenzen
 
 1. **Kein Live-Trading mit diesem Stand.** Die Beweislast liegt jetzt bei der

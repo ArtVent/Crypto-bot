@@ -127,8 +127,21 @@ python -m memetrader replay events.jsonl
 python -m memetrader analyze memetrader.log.jsonl
 
 # Lookahead-freier Backtest: 60 Tage simulierter, basisraten-kalibrierter Markt
-# (oder --events <aufzeichnung.jsonl> für echte aufgezeichnete Streams):
+# (oder --events <aufzeichnung.jsonl> für echte aufgezeichnete Streams,
+#  oder --real-dir <parquet-verzeichnis> für rohe pump.fun-Tagesdaten):
 python -m memetrader backtest --days 60 --budget-sol 1.0 --seeds 1 2 3 4 5
+
+# DAUERBETRIEB: Paper-Training läuft IMMER, wenn kein Live-Prozess aktiv ist
+# (run --live pausiert es automatisch via Lockfile); Lernstand persistiert,
+# Abstürze werden neu gestartet, täglicher Bericht geht raus:
+python -m memetrader autopilot --budget-sol 1.0
+
+# Tagesberichte aufs Handy (Telegram): Bot bei @BotFather anlegen ->
+# Token kopieren; eigene Chat-ID z. B. via @userinfobot; dann:
+export TELEGRAM_BOT_TOKEN="123456:ABC..."
+export TELEGRAM_CHAT_ID="123456789"
+python -m memetrader notify-test          # Kanal prüfen
+# Alternativ/zusätzlich: NOTIFY_WEBHOOK_URL für Discord/Slack/ntfy.sh
 
 # Live (erst nach überzeugenden Paper-Wochen!):
 #   1. pip install solders
