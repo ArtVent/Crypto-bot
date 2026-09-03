@@ -41,6 +41,9 @@ def main(argv: list[str] | None = None) -> int:
     p_bt.add_argument("--seeds", type=int, nargs="+", default=[1, 2, 3, 4, 5])
     p_bt.add_argument("--claude", choices=["stub", "live", "off"], default="stub")
     p_bt.add_argument("--events", help="JSONL echter aufgezeichneter Events statt Simulation")
+    p_bt.add_argument("--real-dir", help="Verzeichnis mit pumpfun-market-lab-Parquet-Stundendateien (echte Rohdaten)")
+    p_bt.add_argument("--no-ml", action="store_true",
+                      help="ML-Gate aus (nötig bei Offline-Replay ohne Metadaten-Fetch)")
     p_bt.add_argument("--workdir", default="backtest-runs")
     p_bt.add_argument("--baseline", action="store_true",
                       help="Mikrostruktur-Gates (Bundle/Wash) deaktivieren – für Vorher/Nachher-Vergleiche")
@@ -110,20 +113,31 @@ def main(argv: list[str] | None = None) -> int:
 
         from .backtest import run_backtest
 
-        events = None
-        if args.events:
-            events = []
-            with open(args.events) as fh:
-                for line in fh:
-                    if line.strip():
-                        record = json.loads(line)
-                        events.append((record.pop("_t"), record))
-            events.sort(key=lambda e: e[0])
+        def make_events(_seed):
+            if args.real_dir:
+                from .realdata import iter_day_events
+
+                return iter_day_events(args.real_dir)
+            if args.events:
+                loaded = []
+                with open(args.events) as fh:
+                    for line in fh:
+                        if line.strip():
+                            record = json.loads(line)
+                            loaded.append((record.pop("_t"), record))
+                loaded.sort(key=lambda e: e[0])
+                return loaded
+            return None
+
+        if args.real_dir:
+            args.seeds = args.seeds[:1]  # echte Daten sind deterministisch – ein Lauf
         results = []
         for seed in args.seeds:
             result = run_backtest(days=args.days, launches_per_day=args.launches_per_day,
                                   seed=seed, budget_sol=args.budget_sol,
-                                  workdir=args.workdir, claude=args.claude, events=events,
+                                  workdir=args.workdir, claude=args.claude,
+                                  events=make_events(seed),
+                                  ml_model=None if args.no_ml else "models/mlfilter-melt.joblib",
                                   hardened_checks=not args.baseline)
             print(result.summary())
             results.append(result)

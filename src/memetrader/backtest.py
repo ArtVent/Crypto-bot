@@ -150,8 +150,10 @@ def run_backtest(
 
     if events is None:
         events = generate_market(days, launches_per_day, seed)
-    n_launches = sum(1 for _, e in events if e.get("txType") == "create")
 
+    n_launches = 0
+    n_events = 0
+    last_t = 0.0
     equity_curve: list[tuple[float, float]] = []
     peak = budget_sol
     max_dd = 0.0
@@ -172,6 +174,10 @@ def run_backtest(
         return budget_sol + bot.risk.realized_pnl_sol + open_value - open_cost_outstanding
 
     for t, event in events:
+        n_events += 1
+        last_t = t
+        if event.get("txType") == "create":
+            n_launches += 1
         day = int(t // 86400)
         if day != last_day:
             if last_day >= 0:
@@ -183,13 +189,16 @@ def run_backtest(
         bot.on_event(event, now=t)
         if bot.risk.halted:
             was_halted_today = True
-        eq = equity(t)
-        peak = max(peak, eq)
-        if peak > 0:
-            max_dd = max(max_dd, (peak - eq) / peak * 100.0)
+        if n_events % 5000 == 0:
+            eq = equity(t)
+            peak = max(peak, eq)
+            if peak > 0:
+                max_dd = max(max_dd, (peak - eq) / peak * 100.0)
+        if n_events % 200_000 == 0:
+            bot.prune(t)
 
     # Restpositionen zum letzten Kurs liquidieren (konservativ: Verkaufswert)
-    end_t = events[-1][0] if events else 0.0
+    end_t = last_t
     liquidation = 0.0
     for mint, pos in list(bot.risk.positions.items()):
         state = bot.curves.get(mint)
