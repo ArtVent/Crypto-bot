@@ -149,6 +149,27 @@
       "url": "https://tweetscout.io",
       "chains": "n/a (Social)",
       "use_case": "Bewertet Twitter/X-Accounts hinter einem Coin (Follower-Qualität, KOL-Verbindungen) – Social-Due-Diligence."
+    },
+    {
+      "name": "Kaito",
+      "type": "analytics",
+      "url": "https://kaito.ai",
+      "chains": "n/a (Social/AI)",
+      "use_case": "KI-gestützte Mindshare-/Narrativ-Analytik: misst Aufmerksamkeits-Anteile von Coins/Metas über Crypto-Social; 'Yaps'-Punktesystem prägte 2025 die Aufmerksamkeits-Ökonomie. Für Bots: Meta-Rotations-Sensor."
+    },
+    {
+      "name": "Nansen",
+      "type": "analytics",
+      "url": "https://nansen.ai",
+      "chains": "multi-chain",
+      "use_case": "Wallet-Labeling ('Smart Money') und Flow-Analytik mit KI-Features; eher für größere Coins/Flows als für Sekunden-Sniping relevant."
+    },
+    {
+      "name": "Arkham Intelligence",
+      "type": "analytics",
+      "url": "https://arkham.com",
+      "chains": "multi-chain",
+      "use_case": "Entity-Zuordnung von Wallets (wer steckt hinter Adressen?) inkl. KI-Unterstützung; nützlich für Insider-Forensik (Pre-Announcement-Käufe, Team-Wallets) und Fall-Recherche."
     }
   ]
 }

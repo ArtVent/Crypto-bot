@@ -211,6 +211,51 @@
       "public_cases": "Offen beworbene 'Trending-Services' im Telegram-Ökosystem"
     },
     {
+      "name": "KI-Astroturfing / Bot-Schwarm-Engagement",
+      "category": "social",
+      "severity": 4,
+      "mechanics": "KI-generierte Accounts und Texte simulieren eine organische Community: hunderte 'unterschiedliche' Posts, Replies und Telegram-Aktivität für einen Insider-Coin – gezielt gebaut, um Sentiment-Bots UND Menschen zu täuschen.",
+      "red_flags": "Explosives Social-Echo ohne Vorgeschichte; Accounts ähnlichen Alters/Musters; textlich variierte, inhaltlich identische Posts; Engagement-Zahlen passen nicht zu On-Chain-Käuferzahlen.",
+      "detection": "Astroturf-Erkennung: Account-Alter/-Graph-Analyse, Text-Ähnlichkeits-Cluster (Embeddings), Timing-Koordination; Social-Signale immer gegen On-Chain-Realität (Unique Buyer) verproben.",
+      "public_cases": "Standard-Dienstleistung im Telegram-Untergrund ('Trending + Raid'-Pakete); seit 2024 zunehmend LLM-generiert"
+    },
+    {
+      "name": "Fake-'AI-Trading-Bot'-Produkte",
+      "category": "infrastructure",
+      "severity": 5,
+      "mechanics": "Produkte, die mit 'KI-Sniper mit 90 % Winrate' werben: entweder Komplett-Scam (Einzahlung weg, Key-Diebstahl, trojanisierte Repos) oder funktionslose Hüllen, deren Betreiber nur an Nutzer-Fees verdienen. Oft mit gefälschten Backtests und gekauften Testimonials.",
+      "red_flags": "Garantierte Renditen; nicht verifizierbare Track Records; Zahlung vorab für 'Zugang'; Seed-Phrase-Abfrage; anonymes Team mit Dringlichkeits-Marketing.",
+      "detection": "Track Record nur akzeptieren, wenn on-chain nachvollziehbar (Wallet-Adressen); Code-Audit vor jedem Key-Kontakt; Grundregel aus docs/ai-und-memecoins.md: fragen, wer strukturell verdient – Nutzer oder Betreiber.",
+      "public_cases": "Laufende Kampagnen mit trojanisierten 'AI-Bot'-Repos und Fake-Bot-Websites (von Security-Firmen dokumentiert)"
+    },
+    {
+      "name": "Deepfake-/KI-Promi-Endorsements",
+      "category": "social",
+      "severity": 5,
+      "mechanics": "KI-generierte Videos/Audio bekannter Personen (Musk-Deepfake-Klassiker, gefälschte Livestreams) bewerben Coins oder 'Verdopplungs-Aktionen'; auch geklonte Stimmen in Telegram-Calls.",
+      "red_flags": "Promi bewirbt unbekannten Coin/Giveaway; Stream auf Zweit-Kanälen; 'Sende X, erhalte 2X zurück'.",
+      "detection": "Promi-Signale grundsätzlich nur über verifizierte Kanäle + Zweitquelle akzeptieren; Giveaway-Muster kategorisch als Scam klassifizieren; für Bots: Promi-Erwähnungen aus Video-Quellen nicht als Signal zulassen.",
+      "public_cases": "Massenhafte Musk-Deepfake-Streams auf YouTube seit 2023; KI-Stimmen-Scams ab 2024"
+    },
+    {
+      "name": "Prompt-Injection gegen Trading-Agenten",
+      "category": "infrastructure",
+      "severity": 4,
+      "mechanics": "Angreifer platzieren Instruktionen in Daten, die LLM-Agenten lesen (Posts, Token-Metadaten, Kommentare): vom Kauf-Köder ('dieser Coin wird von X unterstützt') bis zu direkten Befehls-Injektionen an Agenten mit Wallet-Vollmacht.",
+      "red_flags": "Für Betreiber: Agent begründet Aktionen mit 'gelesenen Anweisungen' oder nicht verifizierbaren Behauptungen aus Social-Quellen.",
+      "detection": "Architektur-Regel statt Erkennung: LLM-Inputs strikt als Daten behandeln, Aktionen nur über Code-Policies (Limits, Whitelists, Zwei-Schritt-Bestätigung); Behauptungen aus Social-Inputs on-chain verifizieren, bevor sie in Entscheidungen fließen. Freysa (2024) als Anschauungsfall: Prompts sind sozial durchbrechbar.",
+      "public_cases": "Freysa-Experiment (Base, 2024); dokumentierte Köder-Kampagnen gegen Social-lesende Bots"
+    },
+    {
+      "name": "Gefälschte KI-Signale & Pseudo-Scores",
+      "category": "market",
+      "severity": 3,
+      "mechanics": "Kostenpflichtige 'AI-Signal-Gruppen' und Token-'Scores', die entweder zufällig sind oder gezielt Coins pushen, in denen die Betreiber positioniert sind – das KI-Label ersetzt den früheren 'Insider-Tipp'.",
+      "red_flags": "Signale ohne Methodik/Track-Record; Score-Anbieter listet auffällig frische Coins prominent; Bezahlung für 'Premium-Calls'.",
+      "detection": "Signal-Anbieter wie KOLs behandeln: verbundene Wallets prüfen (kauften sie vor dem Signal?); Scores nur aus Quellen mit dokumentierter, überprüfbarer Methodik (z. B. RugCheck) in die Pipeline lassen.",
+      "public_cases": "Fortsetzung der klassischen Signal-Group-Scams unter KI-Branding seit 2024"
+    },
+    {
       "name": "Celebrity-Cash-Grab (legal grau, ökonomisch Extraktion)",
       "category": "distribution",
       "severity": 3,

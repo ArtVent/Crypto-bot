@@ -212,6 +212,50 @@
       "signals": "Nur Regime-Filter: Grid pausieren, wenn Struktur bricht (Trend statt Range).",
       "pitfalls": "Grids sterben in Trends (unten voll investiert im Crash); Meme-Volatilität sprengt konservative Raster; nur mit Blue-Chips sinnvoll.",
       "tools": "Jupiter DCA/Limit Orders, eigene Bots, CEX-Grid-Bots"
+    },
+    {
+      "name": "ML-gefiltertes Launch-Sniping",
+      "family": "sniping",
+      "horizon": "Sekunden bis Minuten",
+      "risk": 4,
+      "automation_fit": "high",
+      "mechanics": "Sniping-Variante, bei der ein trainiertes Klassifikations-Modell (Rug-/Survival-Score auf Creator-, Bundle- und Metadaten-Features) in Millisekunden entscheidet, welche Launches überhaupt gekauft werden – der Edge liegt im Nicht-Kaufen der ~99 % Schrott-Launches (siehe docs/ai-und-memecoins.md, Abschnitt 2).",
+      "signals": "Create-Event + Modell-Score über Schwelle + keine K.-o.-Flags. Exit: wie klassisches Sniping (Multiplikator, Zeitlimit, Momentum-Abriss).",
+      "pitfalls": "Modell-Drift (Gegner adaptieren in Wochen); Score-Latenz kostet Blöcke; ohne saubere Trainingsdaten (inkl. aller toten Launches) ist der Score Survivorship-Müll.",
+      "tools": "Eigenes Modell (XGBoost/LightGBM), Geyser/PumpPortal, RugCheck-/GMGN-Features"
+    },
+    {
+      "name": "Sentiment-Velocity-Trading (NLP)",
+      "family": "momentum",
+      "horizon": "Minuten bis Stunden",
+      "risk": 4,
+      "automation_fit": "high",
+      "mechanics": "Kauft Coins, deren Social-Erwähnungen organisch BESCHLEUNIGEN (Velocity + Qualität der Accounts), und verkauft in die Sättigung der Aufmerksamkeits-Kurve – Aufmerksamkeit als handelbares Fundamental-Datum.",
+      "signals": "Erwähnungs-Beschleunigung über Baseline + niedriger Bot-Anteil + On-Chain-Bestätigung (echte neue Holder). Exit: Velocity kippt, Bot-Anteil steigt, Top-Accounts posten Gewinnmitnahmen.",
+      "pitfalls": "Der am stärksten manipulierte Datenkanal: Bot-Schwärme und KI-generiertes Engagement erzeugen Fake-Velocity – ohne Astroturf-Erkennung kauft man Kulissen (siehe data/scams.json).",
+      "tools": "X-/Telegram-Listener, Bot-Erkennung, Kaito, eigene NLP-Pipeline"
+    },
+    {
+      "name": "Agent-Erwähnungs-Trading (AIXBT-Effekt)",
+      "family": "event",
+      "horizon": "Minuten bis Stunden",
+      "risk": 4,
+      "automation_fit": "high",
+      "mechanics": "Erwähnungen reichweitenstarker KI-Agenten (AIXBT-Typ) als Event handeln – analog zu KOL-Calls, aber maschinell erzeugt und daher schneller/regelmäßiger parsebar.",
+      "signals": "Agent-Post mit Coin-Nennung + historische Reaktions-Statistik dieses Agenten + Coin besteht Sicherheits-Filter. Exit: in die Reaktions-Spitze, zeitbasiert.",
+      "pitfalls": "Effekt verfällt mit der Meta und wird gefadet; Agenten werden gezielt mit präparierten Daten 'gefüttert' (wer die Inputs kennt, front-runnt den Agenten und seine Follower); Fake-Agent-Accounts.",
+      "tools": "X-Listener auf kanonische Agent-Accounts, eigene Reaktions-Statistik"
+    },
+    {
+      "name": "Agenten-Fee-Fundamentals (Cashflow-Auswahl im AI-Sektor)",
+      "family": "rotation",
+      "horizon": "Wochen",
+      "risk": 3,
+      "automation_fit": "medium",
+      "mechanics": "Im Agenten-Token-Universum nur die Projekte halten, die on-chain NACHWEISBARE laufende Einnahmen haben (Deploy-/Pool-Fees à la Clanker/Virtuals-Treasuries) – das einzige 'Fundamental-Datum' des Sektors – statt reiner Meta-Wetten.",
+      "signals": "On-Chain-Fee-Flüsse an Agent-/Protokoll-Treasuries (Höhe, Trend); Relation Einnahmen zu FDV. Exit: Fee-Trend bricht, Meta kippt.",
+      "pitfalls": "Auch Cashflow-Token folgen im Crash der Meta; Fee-Flüsse können kurzfristig durch Eigen-Volumen aufgeblasen werden (Wash-Check nötig).",
+      "tools": "Eigene On-Chain-Auswertung der Treasury-Adressen, Dune-Dashboards"
     }
   ]
 }

@@ -1,0 +1,106 @@
+{
+  "_meta": {
+    "description": "Das AI-Agenten-Ökosystem im Memecoin-Markt: Agenten, die Coins pushen, launchen, analysieren oder selbst handeln – und ihre Einnahmemodelle. Vertiefung: docs/ai-und-memecoins.md. Stand des Wissens: Anfang 2026.",
+    "fields": {
+      "name": "Agent/Projekt",
+      "type": "kol-agent | framework | launchpad-agent | trading-agent | experiment",
+      "chain": "Haupt-Chain",
+      "active_since": "Start (ca.)",
+      "role_in_market": "Was der Agent im Markt tut",
+      "revenue_model": "Wie damit Geld verdient wird/wurde",
+      "lessons": "Was man daraus lernt"
+    }
+  },
+  "agents": [
+    {
+      "name": "Truth Terminal (Terminal of Truths)",
+      "type": "kol-agent",
+      "chain": "Solana",
+      "active_since": "2024",
+      "role_in_market": "Semi-autonomer LLM-Agent von Andy Ayrey (aus dem 'Infinite Backrooms'-Experiment), der auf X postete und die 'Goatse Gospel'-Mythologie erzeugte. Pushte den (von Dritten auf pump.fun erstellten und dem Agenten geschenkten) GOAT-Token – Startschuss der AI-Agent-Meta Oktober 2024.",
+      "revenue_model": "Der Agent verdiente nicht durch Trading, sondern durch HALTEN: Ihm geschenkte Token (GOAT u. a.) machten seine Wallet zeitweise zweistellige Millionen wert ('erster KI-Millionär'); zuvor 50k-USD-BTC-Grant von Marc Andreessen. Umfeld monetarisierte über Folgeprojekte.",
+      "lessons": "Ein Agent mit Publikum ist ein Markt-Akteur: Aufmerksamkeit → Token-Geschenke → Vermögens-Effekt → mehr Aufmerksamkeit. Die Kausalkette lief über Kultur, nicht über Trading-Skill."
+    },
+    {
+      "name": "AIXBT",
+      "type": "kol-agent",
+      "chain": "Base (Virtuals)",
+      "active_since": "2024",
+      "role_in_market": "KI-'Analyst' auf X: postet rund um die Uhr Markt-Kommentare und Coin-Erwähnungen auf Basis von Mindshare-/Social-Daten; wurde einer der meistbeachteten Crypto-Accounts – AIXBT-Erwähnungen bewegten zeitweise messbar Kurse.",
+      "revenue_model": "Eigener Token (Fee-Beteiligung über das Virtuals-Modell, Bewertung zeitweise > 500 Mio. USD); gated Terminal-Zugang für Token-Halter; das Betreiber-Umfeld profitiert über Token-Anteile.",
+      "lessons": "Der 'KI-KOL' ist das skalierbarste Agenten-Geschäftsmodell: Content-Maschine + Token = monetarisierte Aufmerksamkeit. Für Trader: Agent-Erwähnungen sind ein handelbares Event – und ein manipulierbares (wer die Daten-Inputs des Agenten kennt, kann ihn füttern)."
+    },
+    {
+      "name": "ElizaOS / ai16z",
+      "type": "framework",
+      "chain": "Solana",
+      "active_since": "2024",
+      "role_in_market": "Open-Source-Framework (TypeScript) zum Bauen eigener Agenten mit Wallet-Anbindung; ai16z startete als KI-'Fonds'-Parodie auf daos.fun und wurde zum Zentrum der Solana-Agenten-Szene mit hunderten darauf gebauten Agenten.",
+      "revenue_model": "Token (AI16Z) als Ökosystem-Wette; Framework selbst kostenlos – Wertabschöpfung über Token-Appreciation, Partner-Launches und das Launchpad-Umfeld.",
+      "lessons": "Frameworks demokratisieren Agenten-Launches wie pump.fun Token-Launches – mit demselben Effekt: massenhaft Schrott, wenige Gewinner, und der Token des Frameworks als 'Schaufelverkäufer'-Wette."
+    },
+    {
+      "name": "Virtuals Protocol (Agenten-Ökonomie)",
+      "type": "framework",
+      "chain": "Base / Solana",
+      "active_since": "2024",
+      "role_in_market": "Launchpad + Runtime für Agenten mit eigenem Token je Agent (AIXBT, LUNA, GAME u. v. m.); definierte das Muster 'Agent als Unternehmen mit Cap Table'.",
+      "revenue_model": "Mehrstufig: Trading-Fees auf Agent-Token (Teil an Agent-Treasury, Teil ans Protokoll), VIRTUAL als Basiswährung aller Pools (struktureller Kaufdruck), Beteiligung des Protokolls an jedem Launch.",
+      "lessons": "Die Plattform verdient an jedem Agenten, egal ob er 'funktioniert' – dasselbe Casino-Ökonomie-Muster wie bei Memecoin-Launchpads, nur mit KI-Verpackung."
+    },
+    {
+      "name": "Clanker",
+      "type": "launchpad-agent",
+      "chain": "Base",
+      "active_since": "2024-11",
+      "role_in_market": "Deploy-Agent auf Farcaster: Nutzer taggen den Bot, er erstellt den Token und den Uniswap-Pool. Kein Analyst, sondern automatisierte Launch-Infrastruktur in Agenten-Form.",
+      "revenue_model": "Das klarste Agenten-Geschäftsmodell überhaupt: Anteil an den Pool-Fees jedes deployten Tokens – Berichten zufolge Fee-Einnahmen in Millionenhöhe binnen weniger Monate, dazu eigener Token.",
+      "lessons": "'Agent als Service mit Fee-Beteiligung' schlägt 'Agent als Trader': verlässliche, richtungsunabhängige Einnahmen. Wer im KI-Memecoin-Feld sicher verdient hat, waren fast immer Infrastruktur-Agenten."
+    },
+    {
+      "name": "Zerebro",
+      "type": "kol-agent",
+      "chain": "Solana",
+      "active_since": "2024",
+      "role_in_market": "Kreativ-Agent (Musik, Kunst, Posts) mit eigenem Token; zeitweise neben ai16z einer der größten Agenten-Token. 2025 schwer beschädigt, nachdem der Gründer seinen Tod inszenierte (inkl. begleitendem Token-Launch) – ein extremer Manipulationsfall.",
+      "revenue_model": "Token + Content-Ökosystem; der Skandal zeigte, dass auch 'Agent-Brands' letztlich Gründer-Risiko sind.",
+      "lessons": "Agenten-Token sind Personen-Token in Verkleidung: Der Mensch dahinter bleibt der zentrale Risikofaktor – und Todes-/Krisen-Inszenierungen sind eine reale Manipulationstaktik (siehe data/scams.json)."
+    },
+    {
+      "name": "Griffain",
+      "type": "trading-agent",
+      "chain": "Solana",
+      "active_since": "2024",
+      "role_in_market": "'On-Chain-Concierge': Agenten führen per Natural Language On-Chain-Aktionen aus (Swaps, Token-Recherche, Wallet-Aktionen) – Vorstufe autonomer Trading-Agenten für Endnutzer.",
+      "revenue_model": "Token + Produkt-Zugang; Wert-These: Ausführungsschicht für die Agenten-Ökonomie.",
+      "lessons": "Agenten mit Wallet-Vollmacht sind ein neues Angriffsziel (Prompt-Injection = direkter Geldabfluss). Nutzerseitig gelten Bot-Sicherheitsregeln doppelt."
+    },
+    {
+      "name": "Act I: The AI Prophecy (ACT)",
+      "type": "experiment",
+      "chain": "Solana",
+      "active_since": "2024",
+      "role_in_market": "Token rund um ein KI-Forschungs-/Community-Experiment; explodierte im November 2024 nach überraschendem Binance-Listing um ein Vielfaches an einem Tag.",
+      "revenue_model": "Klassischer Community-Token – Verdienst floss an frühe Halter; das Projekt selbst monetarisierte kaum.",
+      "lessons": "In der AI-Meta reichte 'KI-Label + Listing' für Extrembewegungen – Listings wirkten als Meta-Verstärker (Muster für Event-Strategien)."
+    },
+    {
+      "name": "Freysa",
+      "type": "experiment",
+      "chain": "Base",
+      "active_since": "2024-11",
+      "role_in_market": "Adversariales Spiel: Ein Agent bewacht einen Preispool und ist instruiert, ihn nie freizugeben; Nutzer zahlen pro Überzeugungsversuch. Ein Teilnehmer knackte den Agenten per geschickter Prompt-Konstruktion (~47k USD Pool).",
+      "revenue_model": "Spielgebühren speisten den Pool; Betreiber verdienten am Umsatz.",
+      "lessons": "Der wichtigste Sicherheits-Anschauungsunterricht der Agenten-Ära: LLM-Policies sind sozial durchbrechbar. Kein Agent sollte allein durch seinen Prompt von Geld getrennt sein – Guardrails gehören in Code."
+    },
+    {
+      "name": "Kommerzielle 'AI-Sniper'-Bots (Kategorie, kein Einzelprojekt)",
+      "type": "trading-agent",
+      "chain": "Solana / EVM",
+      "active_since": "2024",
+      "role_in_market": "Telegram-/Web-Bots, die mit 'AI-Erkennung' werben (GMGN-Smart-Money-Flags, 'AI-Score' in Terminals, dutzende No-Name-Sniper). Realer KI-Anteil meist: einfache Heuristiken + etwas ML-Scoring; der Rest ist Latenz-Infrastruktur.",
+      "revenue_model": "Die Betreiber verdienen zuverlässig über Trading-Fees ihrer Nutzer (0,5–1 % pro Trade) – unabhängig davon, ob die Nutzer gewinnen. Das 'AI'-Label ist primär Conversion-Marketing.",
+      "lessons": "Beim Wort 'AI-Bot' zuerst fragen: Wer verdient hier strukturell – der Nutzer oder der Betreiber? Fee-Modelle beantworten das fast immer. Fakes dieser Kategorie sind zudem ein Top-Scam-Vektor (data/scams.json: Fake-Bots)."
+    }
+  ]
+}

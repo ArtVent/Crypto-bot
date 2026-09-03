@@ -95,3 +95,7 @@ Ergebnis pro Token: `verdict` (deny/allow) + `score` + `flags[]` – als eigenes
 - **Degradation einplanen:** RPC-Ausfälle, API-Limits, Stream-Disconnects sind Normalbetrieb → Reconnect-Logik, Fallback-Endpoints, und im Zweifel: flat gehen statt blind weiterhandeln.
 - **Beobachtbarkeit:** Jede Entscheidung (Signal, Score, Verdict, Order, Fill) strukturiert loggen – ohne das ist weder Debugging noch Strategie-Verbesserung möglich.
 - **Edge-Verfall:** Jede funktionierende Memecoin-Strategie hat ein Verfallsdatum (Monate). Der Bot ist nie fertig; das Monitoring der eigenen Trefferquote ist das wichtigste Dashboard.
+
+## 9. KI/ML-Erweiterung
+
+Der wirksamste Ausbau dieser Architektur ist ein ML-Layer in der Filter-Engine (Rug-/Survival-Scoring statt reiner Regeln) plus NLP-Signale im Daten-Layer – nicht ein "KI-Trader" obendrauf. Fahrplan, Feature-Design, Angriffsflächen (Prompt-Injection, Sentiment-Vergiftung) und die Ökonomie dahinter: [`ai-und-memecoins.md`](ai-und-memecoins.md) sowie [`../data/ai-techniques.json`](../data/ai-techniques.json). Grundregel: LLMs klassifizieren und fassen zusammen; über Geld entscheiden Code-Policies.

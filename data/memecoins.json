@@ -435,6 +435,33 @@
       "category": "dog",
       "launchpad": "four.meme",
       "notes": "Entstand, nachdem CZ im Februar 2025 den Namen seines Hundes ('Broccoli') veröffentlichte – hunderte konkurrierende Broccoli-Token in Stunden; Musterbeispiel für Ticker-Kriege und CZ-getriebene BNB-Meme-Wellen."
+    },
+    {
+      "name": "aixbt by Virtuals",
+      "symbol": "AIXBT",
+      "chain": "Base",
+      "launched": 2024,
+      "category": "ai",
+      "launchpad": "virtuals",
+      "notes": "Token des KI-'Analysten'-Agenten AIXBT – der prägendste KI-KOL der Agent-Meta; Erwähnungen des Agenten bewegten zeitweise messbar Kurse. Details: data/ai-agents.json."
+    },
+    {
+      "name": "Act I: The AI Prophecy",
+      "symbol": "ACT",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "ai",
+      "launchpad": "pump.fun",
+      "notes": "KI-Community-/Forschungs-Token; explodierte im November 2024 nach überraschendem Binance-Listing um ein Vielfaches an einem Tag – Paradebeispiel für Listing-Effekte in der AI-Meta."
+    },
+    {
+      "name": "Zerebro",
+      "symbol": "ZEREBRO",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "ai",
+      "launchpad": null,
+      "notes": "Token eines Kreativ-KI-Agenten (Musik/Kunst); zeitweise Top-Agenten-Token, 2025 durch die inszenierte Todes-Täuschung des Gründers schwer beschädigt – Lehrstück: Agenten-Token bleiben Personen-Risiko."
     }
   ]
 }

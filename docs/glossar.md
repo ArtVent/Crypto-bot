@@ -4,7 +4,9 @@ Szene-Begriffe, wie sie auf Crypto-Twitter/Telegram verwendet werden. Nützlich 
 
 | Begriff | Bedeutung |
 |---|---|
+| **Agent / KI-Agent** | (Teil-)autonomes LLM-System mit eigenem Account/Wallet, das postet, launcht oder handelt (AIXBT, Truth Terminal) |
 | **Ape / apen** | Ohne große Prüfung (viel) in einen Coin einsteigen |
+| **Astroturfing** | Künstlich erzeugtes 'Community'-Echo durch Bot-Schwärme / KI-Accounts |
 | **Bags** | Die eigenen Token-Bestände ("heavy bags" = große, oft unverkäufliche Position) |
 | **Bonding / graduieren** | Abschluss der Bonding Curve auf pump.fun & Co. → Migration zum DEX |
 | **Bundle / Bundling** | Insider-Käufe über viele Wallets direkt im Launch-Block |
@@ -28,7 +30,9 @@ Szene-Begriffe, wie sie auf Crypto-Twitter/Telegram verwendet werden. Nützlich 
 | **LP** | Liquidity Pool bzw. Liquidity-Provider-Token |
 | **MC / mcap** | Market Cap – bei Memecoins die Standard-Größenangabe ("bei 2M eingestiegen") |
 | **Meta** | Das gerade laufende Gewinner-Narrativ (Animal-Meta, AI-Meta, …) |
+| **Mindshare** | Aufmerksamkeits-Anteil eines Coins/Themas im Crypto-Social-Raum (Kaito-Metrik) |
 | **Mint/Freeze Authority** | Solana: Rechte zum Nachminten/Einfrieren – müssen revoked sein |
+| **Prompt Injection** | Angriff, bei dem in Daten versteckte Instruktionen einen KI-Agenten fehlsteuern |
 | **Moon / mooning** | Explosiver Kursanstieg ("to the moon") |
 | **Narrative** | Story, die Kapital anzieht (siehe Meta) |
 | **Paperhanded** | Zu früh verkauft und den Run verpasst |
@@ -39,6 +43,7 @@ Szene-Begriffe, wie sie auf Crypto-Twitter/Telegram verwendet werden. Nützlich 
 | **Shill** | (Bezahltes) Bewerben eines Coins |
 | **Sniper** | Bot/Trader, der Launches in der ersten Sekunde kauft |
 | **Stealth Launch** | Launch ohne Vorankündigung |
+| **Sybil** | Ein Akteur, der als viele auftritt (Wallets/Accounts) – bei Airdrops, Bundles, Astroturfing |
 | **Supply** | Gesamtzahl der Token (Launchpad-Standard: 1 Mrd.) |
 | **Ticker-Krieg** | Mehrere Coins beanspruchen denselben Ticker (siehe NEIRO) |
 | **Trenches** | "Die Schützengräben": das tägliche Traden frischer Micro-Caps ("in the trenches") |

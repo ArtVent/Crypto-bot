@@ -1,0 +1,124 @@
+{
+  "_meta": {
+    "description": "KI-/ML-Techniken im Memecoin-Trading: was sie tun, womit sie Geld verdienen, wo ihre Grenzen liegen. Vertiefung: docs/ai-und-memecoins.md. Stand des Wissens: Anfang 2026. Wichtig: 'AI-Bot' ist im Memecoin-Marketing meist ein Verkaufswort – die Einträge hier beschreiben, was technisch tatsächlich existiert und funktioniert.",
+    "fields": {
+      "name": "Technik",
+      "category": "filtering | nlp | vision | graph | forecasting | execution | agents",
+      "what_it_does": "Aufgabe im Trading-System",
+      "inputs": "Typische Eingangsdaten/Features",
+      "how_money_is_made": "Über welchen Mechanismus die Technik Rendite erzeugt",
+      "limits": "Grenzen und Failure-Modes",
+      "maturity": "hype | experimental | proven"
+    }
+  },
+  "techniques": [
+    {
+      "name": "Rug-/Survival-Klassifikation (Pre-Trade-Scoring)",
+      "category": "filtering",
+      "what_it_does": "Sagt für einen frischen Launch die Wahrscheinlichkeit voraus, dass er stirbt/ruggt vs. läuft – als Score, der über Kauf/Nichtkauf entscheidet. Der wichtigste echte ML-Anwendungsfall im Sniping.",
+      "inputs": "Dev-Buy-Größe, Wallet-Alter/Funding-Quelle des Creators, Bundle-Merkmale der ersten Blöcke, Metadaten-Features (Namens-Duplikate, Socials-Alter), Holder-Wachstumsrate der ersten Minuten",
+      "how_money_is_made": "Nicht durch bessere Picks, sondern durch Verlust-Vermeidung: Bei ~99 % Basisrate wertloser Launches hebt jeder Prozentpunkt Filter-Präzision den Erwartungswert aller nachgelagerten Strategien. Der Filter IST der Edge, die Strategie dahinter fast austauschbar.",
+      "limits": "Adversarial: Scammer testen ihre Launches gegen öffentliche Scores; Features veralten in Wochen → Dauer-Retraining nötig. Labels sind verrauscht (was ist ein 'Rug' exakt?).",
+      "maturity": "proven"
+    },
+    {
+      "name": "Wallet-Intelligence & Graph-Clustering",
+      "category": "graph",
+      "what_it_does": "Erkennt zusammengehörige Wallets (Bundles, Insider-Cluster, Serien-Scammer) über Funding-Graphen und Verhaltens-Fingerprints; bewertet Wallet-Qualität für Copy-Trading.",
+      "inputs": "Transfer-Graph (wer fundet wen), Timing-Korrelationen (Käufe im selben Block/Sekundenfenster), Gas-/Fee-Muster, historische PnL je Wallet",
+      "how_money_is_made": "Zweifach: als K.-o.-Filter (Cluster hält >x % → kein Trade) und als Signal-Quelle (echte, unabhängige Smart-Money-Konfluenz erkennen statt gebaiteter Einzel-Wallets zu folgen).",
+      "limits": "Frische Wallets über Bridges/CEX-Hops sind schwer zu verknüpfen; bekannte Heuristiken werden gezielt umgangen (Funding über viele Zwischenstationen).",
+      "maturity": "proven"
+    },
+    {
+      "name": "Social-Sentiment & Erwähnungs-Velocity (NLP)",
+      "category": "nlp",
+      "what_it_does": "Misst in Echtzeit, wie schnell und in welcher Qualität ein Ticker/Meme im Social-Raum wächst: Erwähnungsrate, Beschleunigung, Account-Qualität, Bot-Anteil, Stimmung.",
+      "inputs": "X/Telegram/Discord-Streams, TikTok-Trends, Account-Metadaten (Alter, Follower-Qualität), Embeddings der Post-Inhalte",
+      "how_money_is_made": "Timing-Edge auf der Aufmerksamkeits-Kurve: früh erkennen, dass ein Meme organisch beschleunigt (Kauf), oder dass Erwähnungen top-lastig/gebottet sind (Meiden/Exit). Aufmerksamkeit IST bei Memecoins das Fundamental-Datum.",
+      "limits": "Der am stärksten manipulierte Datenkanal überhaupt (Bot-Schwärme, gekaufte Reichweite, KI-generierte Posts); API-Zugänge teuer/instabil; Sarkasmus/Ironie der Szene bricht naive Sentiment-Modelle.",
+      "maturity": "proven"
+    },
+    {
+      "name": "Meta-/Narrativ-Klassifikation per LLM",
+      "category": "nlp",
+      "what_it_does": "Ordnet jeden neuen Launch automatisch einer Meta zu (Dog/AI/PolitiFi/… – Schema in data/metas.json) und aggregiert daraus Launch-Anteile pro Meta als Rotations-Sensor.",
+      "inputs": "Token-Name, Ticker, Beschreibung, Bild (multimodal), verlinkte Socials",
+      "how_money_is_made": "Meta-Rotation systematisieren: steigender Launch- und Graduation-Anteil einer Meta ist ein Frühindikator, in deren Leader zu rotieren – bevor es der Chart aller zeigt.",
+      "limits": "LLM-Kosten/Latenz bei zehntausenden Launches täglich (Lösung: kleines Modell/Distillation für die Masse, großes Modell für Kandidaten); neue Metas haben per Definition noch keine Klasse.",
+      "maturity": "proven"
+    },
+    {
+      "name": "News-zu-Token-Pipeline (Event-Erkennung)",
+      "category": "nlp",
+      "what_it_does": "Erkennt virale Real-World-Ereignisse (Tier-Memes, Promi-Momente, CZ-Posts) in Minuten und mappt sie auf die entstehenden Token-Kandidaten inkl. 'Winner'-Bestimmung.",
+      "inputs": "News-/Social-Firehose, Trend-APIs, Launchpad-Streams (welche neuen Token matchen das Event?)",
+      "how_money_is_made": "Latenz-Edge im Event-Trading: Wer das Event 10 Minuten früher mit dem richtigen Token verbindet, kauft vor der Social-Media-Masse (Muster MOODENG/PNUT, siehe data/events.json).",
+      "limits": "Fast alle Event-Token sind Insta-Rugs → funktioniert nur mit hartem Sicherheits-Filter davor; 'Winner' wechselt in den ersten Stunden; Fehlalarme teuer.",
+      "maturity": "experimental"
+    },
+    {
+      "name": "Bild-/Meme-Erkennung (Computer Vision)",
+      "category": "vision",
+      "what_it_does": "Erkennt kopierte/abgewandelte Logos und Meme-Vorlagen: Duplikat-Erkennung gegen bekannte Coins (Impersonation-Flag), Zuordnung neuer Launches zu viralen Bildvorlagen.",
+      "inputs": "Token-Bilder von Launchpad-Metadaten, Referenz-Datenbank bekannter Memes/Logos, perceptual hashing + Embeddings",
+      "how_money_is_made": "Indirekt: Impersonation-Fakes werden vor dem Kauf aussortiert; Event-Pipeline wird präziser (Bild matcht das virale Original → Kandidat).",
+      "limits": "Leicht zu umgehen (Varianten), reiner Hilfs-Layer; ohne On-Chain-Checks wertlos.",
+      "maturity": "experimental"
+    },
+    {
+      "name": "Kurzfrist-Preis-/Flow-Modelle",
+      "category": "forecasting",
+      "what_it_does": "Sagt auf Sekunden-/Minuten-Horizont Fortsetzung vs. Abbruch eines Moves voraus (z. B. 'graduiert die Kurve?', 'hält der Trend nach Listing?') – Gradient-Boosting/kleine Sequenzmodelle auf Microstructure-Features.",
+      "inputs": "Orderflow (Buys/Sells, Größenverteilung), Holder-Delta, Kurven-Füllrate, Unique-Buyer-Rate, Wash-Anteil-Schätzung",
+      "how_money_is_made": "Bessere Entries/Exits innerhalb einer ohnehin gewählten Strategie (Momentum bestätigen, Distribution früh erkennen) – ein Prozentpunkt-Edge pro Trade, skaliert über Frequenz.",
+      "limits": "Nicht-Stationarität in Reinform: Regime drehen wöchentlich; Deep-Learning-Overkill endet fast immer im Overfitting – simple Modelle + frische Daten schlagen komplexe Modelle + alte Daten.",
+      "maturity": "experimental"
+    },
+    {
+      "name": "Execution-Optimierung (Fees, Timing, Routing)",
+      "category": "execution",
+      "what_it_does": "Lernt, wie viel Priority Fee/Jito-Tip eine Transaktion in der aktuellen Netzlast braucht, um zu landen, ohne zu überzahlen; wählt Route und Slicing für minimale Slippage.",
+      "inputs": "Netzwerk-Load-Metriken, historische Landungsraten je Fee-Level, Pool-Tiefe, eigene Fill-Historie",
+      "how_money_is_made": "Kostenseite: Bei hochfrequenten Strategien entscheiden Landungsrate und Fee-Effizienz über das Vorzeichen des PnL – 'unsichtbarer' Edge, der sich direkt aufsummiert.",
+      "limits": "Reine Optimierung – macht eine verlustbringende Strategie nicht profitabel, nur billiger im Verlieren.",
+      "maturity": "proven"
+    },
+    {
+      "name": "Autonome Trading-Agenten (LLM-in-the-loop)",
+      "category": "agents",
+      "what_it_does": "LLM-Agenten, die selbstständig recherchieren (Social lesen, On-Chain-Daten abfragen) und Trades vorschlagen oder ausführen – von Copilot-Setups (Mensch bestätigt) bis Vollautonomie mit Wallet.",
+      "inputs": "Alle obigen Signale als Tools/Function-Calls; Portfolio-Zustand; Regelwerk/Policy als Prompt + Code-Guardrails",
+      "how_money_is_made": "Realistisch heute: Skalierung der Analyse-Breite (ein Agent sichtet tausende Kandidaten wie ein Analysten-Team), nicht überlegene Einzelentscheidungen. Zusätzlich indirekt: Agenten mit Publikum bewegen Märkte selbst (siehe data/ai-agents.json).",
+      "limits": "Prompt-Injection/Daten-Vergiftung: Ein Agent, der Social-Media liest, liest Angreifer-Content – Köder-Posts können Agenten in Käufe locken. Latenz/Kosten pro Entscheidung; Halluzinationen bei On-Chain-Fakten → harte Code-Guardrails (Limits, Whitelists) sind Pflicht, LLM entscheidet nie allein über Geld.",
+      "maturity": "hype"
+    },
+    {
+      "name": "Anomalie-Erkennung für Betriebs-Sicherheit",
+      "category": "filtering",
+      "what_it_does": "Überwacht den eigenen Bot: erkennt manipulierte Preis-Feeds, abnormale Fill-Qualität, kompromittierte API-Antworten und eigenes Fehlverhalten (Doppelkäufe, Runaway-Loops).",
+      "inputs": "Eigene Order-/Fill-Logs, Feed-Kreuzvergleiche (mehrere Quellen), Latenz-Verteilungen",
+      "how_money_is_made": "Verlust-Vermeidung: Die größten Bot-Verluste kommen aus eigenen Fehlern und gefütterten Falschdaten, nicht aus schlechten Trades.",
+      "limits": "Braucht saubere Baseline-Daten; Alarm-Müdigkeit bei zu sensiblen Schwellen.",
+      "maturity": "proven"
+    },
+    {
+      "name": "Reinforcement Learning für Strategie-Parameter",
+      "category": "forecasting",
+      "what_it_does": "Optimiert Parameter (TP-Leitern, Zeit-Stops, Positionsgrößen) über simulierte/echte Feedback-Loops statt manueller Tuning-Sessions.",
+      "inputs": "Replay-Umgebung aus aufgezeichneten Streams, PnL-Reward mit Risiko-Malus",
+      "how_money_is_made": "Feintuning bestehender Edges; in der Praxis eher 'automatisiertes Grid-Search mit Gedächtnis' als echtes RL.",
+      "limits": "Der Klassiker: RL lernt die Simulation, nicht den Markt (Fill-Modellierung!); Sample-Ineffizienz gegen wöchentlich drehende Regimes. Vollständige End-to-End-RL-Trader sind im Memecoin-Bereich Stand heute Marketing, keine Realität.",
+      "maturity": "hype"
+    },
+    {
+      "name": "Bot-/Astroturf-Erkennung (Gegen-KI)",
+      "category": "nlp",
+      "what_it_does": "Klassifiziert, ob das Social-Echo eines Coins organisch oder maschinell ist: Bot-Account-Erkennung, KI-Text-Erkennung, Koordinations-Muster (gleiche Phrasen, Timing-Cluster).",
+      "inputs": "Account-Graphen, Posting-Zeitreihen, Text-Ähnlichkeits-Cluster, Follower-Überlappungen",
+      "how_money_is_made": "Verteidigung gegen die häufigste Falle der Sentiment-Strategien: gekaufte/generierte Aufmerksamkeit von echter unterscheiden – rettet die NLP-Signale vor ihrer eigenen Manipulierbarkeit.",
+      "limits": "Wettrüsten gegen immer bessere Generatoren; perfekte Erkennung unmöglich – Ziel ist Risiko-Gewichtung, nicht Gewissheit.",
+      "maturity": "experimental"
+    }
+  ]
+}
