@@ -1,0 +1,154 @@
+{
+  "_meta": {
+    "description": "Tools, Datenquellen und Trading-Bots rund um Memecoins. Stand des Wissens: Anfang 2026. Telegram-Bots erfordern, dass man ihnen einen Wallet-Key anvertraut – entsprechendes Risiko beachten.",
+    "fields": {
+      "name": "Name",
+      "type": "screener | analytics | security | trading-bot | terminal | api",
+      "url": "Website",
+      "chains": "Unterstützte Chains (Auswahl)",
+      "use_case": "Wofür man es benutzt"
+    }
+  },
+  "tools": [
+    {
+      "name": "DEX Screener",
+      "type": "screener",
+      "url": "https://dexscreener.com",
+      "chains": "praktisch alle",
+      "use_case": "Standard-Charting und Pair-Discovery für DEX-Paare; kostenlose Public API (Pairs, Preise, Volumen) – häufigste Datenquelle für Memecoin-Bots. 'Enhanced Token Info' als Paid-Feature für Projekte."
+    },
+    {
+      "name": "DEXTools",
+      "type": "screener",
+      "url": "https://www.dextools.io",
+      "chains": "EVM-Fokus",
+      "use_case": "Ältester DEX-Screener, im EVM-/ETH-Meme-Umfeld verbreitet; Hot Pairs, Score-System."
+    },
+    {
+      "name": "Birdeye",
+      "type": "analytics",
+      "url": "https://birdeye.so",
+      "chains": "Solana-Fokus, multi-chain",
+      "use_case": "Token-Analytics mit API (OHLCV, Holder, Trades) – beliebte Datenquelle für Solana-Bots."
+    },
+    {
+      "name": "GMGN.ai",
+      "type": "terminal",
+      "url": "https://gmgn.ai",
+      "chains": "Solana, Base, ETH, BNB, Tron",
+      "use_case": "Memecoin-Terminal: Smart-Money-Tracking, Wallet-Kopien, Sniper-/Bundler-Erkennung, integriertes Trading. In der Degen-Szene 2024/2025 sehr verbreitet."
+    },
+    {
+      "name": "Photon",
+      "type": "terminal",
+      "url": "https://photon-sol.tinyastro.io",
+      "chains": "Solana (+ EVM-Ableger)",
+      "use_case": "Schnelles Web-Trading-Terminal für Solana-Memecoins (1-Click-Buys, Auto-Sell); war im 2024er-Zyklus eines der meistgenutzten Frontends."
+    },
+    {
+      "name": "BullX",
+      "type": "terminal",
+      "url": "https://bullx.io",
+      "chains": "Solana + EVM",
+      "use_case": "Trading-Terminal mit Telegram-Login (Web-UI + TG-Ausführung), Multi-Chain; Photon-Konkurrent. Hinweis: 2025 zeitweise regulatorische Turbulenzen."
+    },
+    {
+      "name": "Axiom",
+      "type": "terminal",
+      "url": "https://axiom.trade",
+      "chains": "Solana",
+      "use_case": "2025 stark gewachsenes Pro-Terminal (Speed-Fokus, integrierte Perps/Yield); löste Photon/BullX bei vielen Tradern ab."
+    },
+    {
+      "name": "Trojan",
+      "type": "trading-bot",
+      "url": "https://trojan.app",
+      "chains": "Solana",
+      "use_case": "Einer der größten Solana-Telegram-Trading-Bots (Snipes, Limit Orders, Copy Trading)."
+    },
+    {
+      "name": "BonkBot",
+      "type": "trading-bot",
+      "url": "https://bonkbot.io",
+      "chains": "Solana",
+      "use_case": "Telegram-Bot aus dem BONK-Ökosystem; Fees fließen teilweise in BONK-Burns. Einfachster Einstieg ins TG-Trading."
+    },
+    {
+      "name": "Maestro",
+      "type": "trading-bot",
+      "url": "https://maestrobots.com",
+      "chains": "EVM + Solana",
+      "use_case": "Etablierter Multi-Chain-Telegram-Bot (Sniping, Copy-Trading, Anti-Rug-Features)."
+    },
+    {
+      "name": "Banana Gun",
+      "type": "trading-bot",
+      "url": "https://bananagun.io",
+      "chains": "Ethereum, Solana, Base",
+      "use_case": "Sniper-/Trading-Bot mit eigenem Token (BANANA); stark im ETH-Sniping."
+    },
+    {
+      "name": "RugCheck",
+      "type": "security",
+      "url": "https://rugcheck.xyz",
+      "chains": "Solana",
+      "use_case": "Token-Risiko-Report: Mint/Freeze-Authority, Top-Holder-Konzentration, LP-Status, Insider-Netzwerke. Public API – Standard-Sicherheitscheck in Solana-Bots."
+    },
+    {
+      "name": "GoPlus Security",
+      "type": "security",
+      "url": "https://gopluslabs.io",
+      "chains": "EVM + Solana",
+      "use_case": "Security-API (Honeypot-Erkennung, Tax-Analyse, Blacklist-Funktionen im Contract) – Standard für EVM-Token-Checks."
+    },
+    {
+      "name": "Honeypot.is",
+      "type": "security",
+      "url": "https://honeypot.is",
+      "chains": "Ethereum, BNB, Base",
+      "use_case": "Simuliert Kauf+Verkauf, um Honeypots zu erkennen (kann man verkaufen? welche Taxes?)."
+    },
+    {
+      "name": "Bubblemaps",
+      "type": "security",
+      "url": "https://bubblemaps.io",
+      "chains": "multi-chain",
+      "use_case": "Visualisiert Holder-Verflechtungen als Bubble-Graph – deckt Insider-Cluster/Bundling auf. 2025 mit eigenem Token (BMT) und 'Intel Desk'."
+    },
+    {
+      "name": "SolSniffer",
+      "type": "security",
+      "url": "https://solsniffer.com",
+      "chains": "Solana",
+      "use_case": "Token-Score/Contract-Check für Solana-Memecoins."
+    },
+    {
+      "name": "CoinGecko / CoinMarketCap",
+      "type": "analytics",
+      "url": "https://coingecko.com",
+      "chains": "alle",
+      "use_case": "Verifizierte Token-Listings, Marktdaten-API, Kategorien (z. B. 'Meme'); gut zum Abgleich gegen Fake-Token."
+    },
+    {
+      "name": "PumpPortal",
+      "type": "api",
+      "url": "https://pumpportal.fun",
+      "chains": "Solana",
+      "use_case": "Dritt-API/Websocket für pump.fun (neue Launches, Trades, Trade-Ausführung) – verbreitete Grundlage für pump.fun-Sniper-Bots."
+    },
+    {
+      "name": "Bitquery / Helius",
+      "type": "api",
+      "url": "https://helius.dev",
+      "chains": "Solana (Helius), multi-chain (Bitquery)",
+      "use_case": "RPC/Indexing-Infrastruktur: Helius (Webhooks, DAS, Enhanced APIs) ist der Standard-RPC-Anbieter für Solana-Memecoin-Bots; Bitquery liefert GraphQL-Streams inkl. pump.fun-Daten."
+    },
+    {
+      "name": "TweetScout / KOL-Tracker",
+      "type": "analytics",
+      "url": "https://tweetscout.io",
+      "chains": "n/a (Social)",
+      "use_case": "Bewertet Twitter/X-Accounts hinter einem Coin (Follower-Qualität, KOL-Verbindungen) – Social-Due-Diligence."
+    }
+  ]
+}

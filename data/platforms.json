@@ -1,0 +1,172 @@
+{
+  "_meta": {
+    "description": "Memecoin-Launch-Plattformen (Launchpads) und ihre Mechanik. Stand des Wissens: Anfang 2026. Gebühren und Graduation-Schwellen ändern sich häufig – vor Nutzung immer die offiziellen Docs prüfen.",
+    "fields": {
+      "name": "Name der Plattform",
+      "url": "Offizielle Website",
+      "chain": "Blockchain(s)",
+      "launched": "Startzeitpunkt (ca.)",
+      "model": "Launch-Mechanik",
+      "graduation": "Was passiert, wenn die Bonding Curve voll ist",
+      "fees_approx": "Gebühren (ungefähr, ohne Gewähr)",
+      "status_2025": "Einordnung / Marktposition",
+      "notes": "Besonderheiten"
+    }
+  },
+  "platforms": [
+    {
+      "name": "pump.fun",
+      "url": "https://pump.fun",
+      "chain": "Solana",
+      "launched": "Januar 2024",
+      "model": "Fair-Launch über Bonding Curve: Jeder kann für unter 1 USD einen Token mit 1 Mrd. Supply erstellen. Kein Presale, kein Team-Allocation-Zwang; Preis steigt deterministisch entlang der Kurve, solange gekauft wird.",
+      "graduation": "Wenn die Bonding Curve voll ist (ca. 69k–100k USD Market Cap bzw. ~85 SOL in der Kurve), 'graduiert' der Token: Liquidität wird automatisch in einen DEX-Pool migriert und die LP-Token werden verbrannt. Ursprünglich Migration zu Raydium (mit 6-SOL-Gebühr), seit März 2025 kostenlos in den eigenen DEX PumpSwap.",
+      "fees_approx": "1 % Trading-Fee auf der Bonding Curve; Token-Erstellung quasi kostenlos; seit 2025 Creator-Revenue-Sharing (Ersteller verdienen an den Trading-Fees ihrer Coins mit).",
+      "status_2025": "Marktführer und Synonym für die Memecoin-Meta 2024/2025. Über Millionen gelaunchte Token; nur ein sehr kleiner Prozentsatz (grob ~1 %) graduiert überhaupt. Juli 2025: ICO des eigenen PUMP-Tokens (einer der größten ICOs aller Zeiten, ~500–600 Mio. USD in Minuten). 2025 zeitweise starker Konkurrenzdruck durch LetsBonk.",
+      "notes": "Livestreaming-Feature wurde nach Missbrauchsfällen 2024 zeitweise abgeschaltet und 2025 mit Moderation reaktiviert. Rechtliche Auseinandersetzungen (Sammelklagen, UK-Warnung) laufen/liefen. Für Bots relevant: sehr hohe Token-Frequenz, eigene APIs/Websockets von Drittanbietern (z. B. PumpPortal)."
+    },
+    {
+      "name": "PumpSwap",
+      "url": "https://swap.pump.fun",
+      "chain": "Solana",
+      "launched": "März 2025",
+      "model": "Hauseigener AMM-DEX von pump.fun. Graduierte Tokens landen hier statt auf Raydium.",
+      "graduation": "n/a (Ziel-DEX, kein Launchpad)",
+      "fees_approx": "~0,25 % Swap-Fee (Teil an LPs, Teil ans Protokoll, Teil an Creator).",
+      "status_2025": "Schnell einer der volumenstärksten Solana-DEXe, da der gesamte pump.fun-Flow dorthin migriert.",
+      "notes": "Entzog Raydium einen erheblichen Teil des Memecoin-Volumens; Raydium konterte mit eigenem Launchpad (LaunchLab)."
+    },
+    {
+      "name": "LetsBonk.fun",
+      "url": "https://letsbonk.fun",
+      "chain": "Solana",
+      "launched": "April 2025",
+      "model": "Pump.fun-ähnlicher Bonding-Curve-Launchpad aus dem BONK-Ökosystem (mit Raydium LaunchLab als Infrastruktur).",
+      "graduation": "Migration in Raydium-Liquidität; Teil der Einnahmen fließt in BONK-Buybacks/-Burns.",
+      "fees_approx": "~1 % Trading-Fee auf der Curve (Verteilung u. a. an BONK-Ökosystem).",
+      "status_2025": "Überholte pump.fun im Juli 2025 zeitweise bei täglichen Launches und Graduations – erster ernsthafter Herausforderer. Danach Hin und Her um die Marktführerschaft.",
+      "notes": "Bekanntester Launch: USELESS u. a. Community-Argument: Gebühren stützen BONK statt eines VC-/Team-Tokens."
+    },
+    {
+      "name": "Moonshot",
+      "url": "https://moonshot.money",
+      "chain": "Solana",
+      "launched": "2024",
+      "model": "Launchpad von DEX Screener; später vor allem als Consumer-App (Kauf per Apple Pay/Karte) positioniert.",
+      "graduation": "Migration in DEX-Liquidität nach Curve-Abschluss.",
+      "fees_approx": "Trading-Fee im niedrigen Prozentbereich.",
+      "status_2025": "Bekannt geworden als 'Normie-Onramp' – der TRUMP-Coin machte die App im Januar 2025 zeitweise zur Top-Finance-App in den US-App-Stores.",
+      "notes": "Fokus weniger auf Degen-Launches, mehr auf einfachen Kauf-Flow für Einsteiger."
+    },
+    {
+      "name": "SunPump",
+      "url": "https://sunpump.meme",
+      "chain": "Tron",
+      "launched": "August 2024",
+      "model": "Pump.fun-Klon auf Tron, von Justin Sun gepusht.",
+      "graduation": "Migration zu SunSwap.",
+      "fees_approx": "~1 % auf der Curve.",
+      "status_2025": "Kurzer Hype-Sommer 2024 ('Tron-Meme-Saison'), danach stark abgeflacht.",
+      "notes": "Beispiel dafür, dass jede Chain ihren pump.fun-Klon bekam."
+    },
+    {
+      "name": "Four.meme",
+      "url": "https://four.meme",
+      "chain": "BNB Chain",
+      "launched": "2024",
+      "model": "Bonding-Curve-Launchpad auf BNB Chain.",
+      "graduation": "Migration zu PancakeSwap.",
+      "fees_approx": "~1 % auf der Curve.",
+      "status_2025": "Profitierte stark von CZ-/Binance-nahen Meme-Wellen auf BNB (z. B. Broccoli-Meta Februar 2025 und BNB-Meme-Saison Herbst 2025).",
+      "notes": "Wichtigster Launchpad im BNB-Meme-Ökosystem."
+    },
+    {
+      "name": "Virtuals Protocol",
+      "url": "https://virtuals.io",
+      "chain": "Base / Solana",
+      "launched": "2024",
+      "model": "Launchpad für KI-Agenten-Token: Jeder Agent bekommt einen eigenen Token, Handel zunächst gegen VIRTUAL über Bonding Curve.",
+      "graduation": "Eigener Liquiditätspool nach Curve-Abschluss.",
+      "fees_approx": "1 % Trading-Fee (fließt teils an Agent-Treasury).",
+      "status_2025": "Zentrum der AI-Agent-Meta (AIXBT, LUNA usw.); Grenzbereich zwischen Memecoin und 'AI-Token'.",
+      "notes": "Für Memecoin-Bots relevant, weil AI-Agent-Token handelsmechanisch wie Memecoins funktionieren."
+    },
+    {
+      "name": "daos.fun",
+      "url": "https://daos.fun",
+      "chain": "Solana",
+      "launched": "2024",
+      "model": "Launchpad für 'Meme-Fonds': Nutzer kaufen in einen von einem Manager geführten DAO-Fonds ein, der Fonds-Token wird handelbar.",
+      "graduation": "n/a (Fonds-Modell statt klassischer Curve-Graduation)",
+      "fees_approx": "Carry/Fees je Fonds unterschiedlich.",
+      "status_2025": "Bekannt durch ai16z (ElizaOS). Nische, aber prägend für die AI/DAO-Meta Ende 2024.",
+      "notes": "Regulatorisch heikelstes Modell (fondsähnlich)."
+    },
+    {
+      "name": "Believe",
+      "url": "https://believe.app",
+      "chain": "Solana",
+      "launched": "2025",
+      "model": "Launch per Social-Post: Token werden durch X-(Twitter-)Replies an @launchcoin erstellt ('Internet Capital Markets'-Narrativ, Startup-/Creator-Coins).",
+      "graduation": "Bonding Curve → DEX-Migration (Meteora-Infrastruktur).",
+      "fees_approx": "Trading-Fee mit Creator-Beteiligung.",
+      "status_2025": "Hype-Welle Mai 2025 (LAUNCHCOIN); positionierte sich als 'seriösere' Alternative für Founder-Coins, kühlte danach ab.",
+      "notes": "Beispiel für die 2025er-Meta 'Creator-/Startup-Coins statt reiner Memes'."
+    },
+    {
+      "name": "Clanker",
+      "url": "https://clanker.world",
+      "chain": "Base",
+      "launched": "November 2024",
+      "model": "KI-Agent auf Farcaster: Token-Deployment per Mention/Prompt, der Bot deployt direkt in einen Uniswap-v3-Pool (keine Bonding Curve).",
+      "graduation": "n/a (direkt DEX-Pool)",
+      "fees_approx": "1 % Pool-Fee, geteilt zwischen Protokoll und Deployer.",
+      "status_2025": "Wichtigster Token-Deployer im Base-/Farcaster-Umfeld.",
+      "notes": "Zeigt den Trend 'Token-Launch als KI-Service'."
+    },
+    {
+      "name": "Zora",
+      "url": "https://zora.co",
+      "chain": "Base",
+      "launched": "2024/2025 (Coins-Feature)",
+      "model": "'Content Coins': Jeder Post kann als Coin geprägt werden; Creator erhalten automatisch Anteil und Fee-Beteiligung.",
+      "graduation": "Automatische Uniswap-Liquidität.",
+      "fees_approx": "Fee-Split zwischen Creator, Protokoll, Referrern.",
+      "status_2025": "Frühjahr 2025 Hype um 'Content Coins' (inkl. Debatte, ob das Memecoins sind); ZORA-Token-Airdrop.",
+      "notes": "Grenzfall SocialFi/Memecoin."
+    },
+    {
+      "name": "Bags",
+      "url": "https://bags.fm",
+      "chain": "Solana",
+      "launched": "2025",
+      "model": "Launchpad mit Fokus auf Creator-Fee-Sharing (auch für Dritte, z. B. den Meme-Urheber) und Social-Features.",
+      "graduation": "Curve → DEX-Migration.",
+      "fees_approx": "Trading-Fee mit konfigurierbarem Fee-Split.",
+      "status_2025": "Sommer 2025 populär in der KOL-Szene.",
+      "notes": "Reaktion auf die Kritik, dass Meme-Urheber bei fremden Launches leer ausgehen."
+    },
+    {
+      "name": "Raydium LaunchLab",
+      "url": "https://raydium.io",
+      "chain": "Solana",
+      "launched": "April 2025",
+      "model": "Raydiums eigenes Bonding-Curve-Launchpad (Antwort auf den Verlust des pump.fun-Flows an PumpSwap); White-Label-Basis u. a. für LetsBonk.",
+      "graduation": "Migration in Raydium-AMM-Pools.",
+      "fees_approx": "~1 % auf der Curve (konfigurierbar für Partner).",
+      "status_2025": "Vor allem indirekt relevant als Infrastruktur hinter Partner-Launchpads.",
+      "notes": "Zeigt die Vertikalisierung: DEXe bauen Launchpads, Launchpads bauen DEXe."
+    },
+    {
+      "name": "time.fun",
+      "url": "https://time.fun",
+      "chain": "Solana",
+      "launched": "2025",
+      "model": "Tokenisierung von Zeit/Zugang zu Personen (Minuten-Token von Creators) – kein klassischer Memecoin-Launchpad, aber Teil derselben Meta.",
+      "graduation": "n/a",
+      "fees_approx": "Plattform-Fee auf Käufe.",
+      "status_2025": "Nische; bekannt durch prominente Creator-Experimente.",
+      "notes": "Randfall, der zeigt, wie weit 'alles wird ein Coin' 2025 ging."
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "_meta": {
+    "description": "DEXe und Aggregatoren, die für Memecoin-Trading relevant sind. Stand des Wissens: Anfang 2026.",
+    "fields": {
+      "name": "Name",
+      "type": "amm | aggregator | orderbook",
+      "chain": "Blockchain(s)",
+      "relevance": "Warum für Memecoin-Trading relevant"
+    }
+  },
+  "dexes": [
+    {
+      "name": "Raydium",
+      "type": "amm",
+      "chain": "Solana",
+      "relevance": "Lange Zeit das Standard-Ziel für pump.fun-Graduations und Herzstück der Solana-Memecoin-Liquidität. Seit 2025 mit eigenem Launchpad (LaunchLab). Wichtig für Pool-Daten (LP burned? Pool-Alter?)."
+    },
+    {
+      "name": "PumpSwap",
+      "type": "amm",
+      "chain": "Solana",
+      "relevance": "Hauseigener DEX von pump.fun (seit März 2025); dort landet die Liquidität graduierter pump.fun-Tokens. Für Bots: Haupt-Venue für frisch graduierte Coins."
+    },
+    {
+      "name": "Meteora",
+      "type": "amm",
+      "chain": "Solana",
+      "relevance": "DLMM-Pools (dynamische, konzentrierte Liquidität); beliebt für Memecoin-LPing und als Infrastruktur mehrerer Launchpads (u. a. Believe, TRUMP-Liquidität)."
+    },
+    {
+      "name": "Orca",
+      "type": "amm",
+      "chain": "Solana",
+      "relevance": "Zweiter großer Solana-AMM (Whirlpools/CLMM); relevanter Teil des Routings für größere Memecoins."
+    },
+    {
+      "name": "Jupiter",
+      "type": "aggregator",
+      "chain": "Solana",
+      "relevance": "Der Standard-Aggregator auf Solana: routet über alle DEXe, bietet Limit Orders, DCA und eine viel genutzte Swap-API – für Solana-Trading-Bots meist die zentrale Ausführungsschicht. Betreibt zudem eine 'Strict List' verifizierter Token (nützlich gegen Fakes). Übernahm 2025 diverse Ökosystem-Produkte (u. a. Moonshot-Beteiligung)."
+    },
+    {
+      "name": "Uniswap",
+      "type": "amm",
+      "chain": "Ethereum / Base / weitere EVM",
+      "relevance": "Standard-DEX für ETH- und Base-Memecoins (PEPE, BRETT usw.); v2-Pools sind bei Meme-Launches wegen einfacher LP-Mechanik üblich, v3/v4 für konzentrierte Liquidität. Clanker/Zora deployen direkt in Uniswap-Pools."
+    },
+    {
+      "name": "PancakeSwap",
+      "type": "amm",
+      "chain": "BNB Chain",
+      "relevance": "Haupt-DEX der BNB Chain; Ziel der Four.meme-Graduations und Zentrum der BNB-Meme-Wellen."
+    },
+    {
+      "name": "Aerodrome",
+      "type": "amm",
+      "chain": "Base",
+      "relevance": "Liquiditäts-Hub der Base-Chain; relevant für größere Base-Memecoins."
+    },
+    {
+      "name": "Hyperliquid",
+      "type": "orderbook",
+      "chain": "Hyperliquid L1",
+      "relevance": "On-Chain-Perp-DEX: Memecoin-Perps (WIF, PEPE, TRUMP usw.) mit Hebel; 2024/2025 stark gewachsen. Für Bots: Funding-Rates und Perp-Listings als Sentiment-Signal."
+    }
+  ]
+}

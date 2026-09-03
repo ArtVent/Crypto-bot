@@ -1,0 +1,314 @@
+{
+  "_meta": {
+    "description": "Datenbank bekannter Memecoins. Alle Angaben ohne Gewähr, Stand des Wissens: Anfang 2026. Marktdaten (Preis, Market Cap) ändern sich ständig und gehören nicht in diese statische Datei – dafür Live-APIs nutzen (z. B. DEX Screener, Birdeye, CoinGecko).",
+    "warning": "Contract-/Mint-Adressen wurden bewusst NICHT aufgenommen, um Verwechslungen mit Fake-Token zu vermeiden. Adressen immer über offizielle Quellen oder verifizierte Listings (CoinGecko, Jupiter Strict List, DEX Screener) prüfen.",
+    "fields": {
+      "name": "Vollständiger Name",
+      "symbol": "Ticker",
+      "chain": "Haupt-Blockchain",
+      "launched": "Startjahr (ca.)",
+      "category": "Meme-Kategorie (dog, cat, frog, political, ai, culture, ...)",
+      "launchpad": "Plattform, über die der Coin gestartet wurde (falls bekannt)",
+      "notes": "Hintergrund / Besonderheiten"
+    }
+  },
+  "memecoins": [
+    {
+      "name": "Dogecoin",
+      "symbol": "DOGE",
+      "chain": "Dogecoin (eigene Chain)",
+      "launched": 2013,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Der Ur-Memecoin, gestartet als Parodie auf Bitcoin von Billy Markus und Jackson Palmer. Proof-of-Work (Merged Mining mit Litecoin), inflationäres Supply. Stark von Elon-Musk-Tweets beeinflusst. Größter Memecoin nach Market Cap."
+    },
+    {
+      "name": "Shiba Inu",
+      "symbol": "SHIB",
+      "chain": "Ethereum",
+      "launched": 2020,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Selbsternannter 'Dogecoin-Killer'. Eigenes Ökosystem: ShibaSwap (DEX), Shibarium (L2), Nebentoken LEECH/BONE/TREAT. Riesiges Supply (ursprünglich 1 Billiarde), Teil davon an Vitalik Buterin geschickt und verbrannt/gespendet."
+    },
+    {
+      "name": "Pepe",
+      "symbol": "PEPE",
+      "chain": "Ethereum",
+      "launched": 2023,
+      "category": "frog",
+      "launchpad": null,
+      "notes": "Basierend auf dem Pepe-the-Frog-Meme. Löste 2023 die große Frog-/Meme-Welle auf Ethereum aus. Kein Utility-Anspruch ('most memeable memecoin'). Einer der Top-Memecoins nach Market Cap."
+    },
+    {
+      "name": "dogwifhat",
+      "symbol": "WIF",
+      "chain": "Solana",
+      "launched": 2023,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Shiba-Inu-Hund mit gestrickter Mütze ('literally just a dog wif a hat'). Aushängeschild des Solana-Memecoin-Zyklus 2023/2024. Community finanzierte u. a. eine Einblendung auf der Vegas Sphere."
+    },
+    {
+      "name": "Bonk",
+      "symbol": "BONK",
+      "chain": "Solana",
+      "launched": 2022,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Erster großer Solana-Memecoin, per Airdrop an die Solana-Community verteilt (Dezember 2022, nach dem FTX-Crash als 'Community-Neustart'). Ökosystem mit BonkBot (Telegram-Trading) und der Launch-Plattform LetsBonk.fun."
+    },
+    {
+      "name": "Floki",
+      "symbol": "FLOKI",
+      "chain": "Ethereum / BNB Chain",
+      "launched": 2021,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Benannt nach Elon Musks Hund. Positioniert sich als 'Utility-Memecoin': Valhalla (P2E-Game), FlokiFi, TokenFi. Aggressives Marketing (Sport-Sponsorings)."
+    },
+    {
+      "name": "Popcat",
+      "symbol": "POPCAT",
+      "chain": "Solana",
+      "launched": 2023,
+      "category": "cat",
+      "launchpad": null,
+      "notes": "Basierend auf dem Popcat-Meme (Katze 'Oatmeal' mit aufgerissenem Mund). Einer der erfolgreichsten Cat-Coins des Solana-Zyklus 2024."
+    },
+    {
+      "name": "cat in a dogs world",
+      "symbol": "MEW",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "cat",
+      "launchpad": null,
+      "notes": "Cat-Narrativ als Gegenpol zur Dog-Coin-Dominanz. Schneller Aufstieg in die Top-Memecoins auf Solana 2024."
+    },
+    {
+      "name": "Brett",
+      "symbol": "BRETT",
+      "chain": "Base",
+      "launched": 2024,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Figur aus Matt Furies 'Boy's Club' (wie Pepe). Lange Zeit größter Memecoin auf der Base-Chain ('Base god')."
+    },
+    {
+      "name": "Mog Coin",
+      "symbol": "MOG",
+      "chain": "Ethereum",
+      "launched": 2023,
+      "category": "cat",
+      "launchpad": null,
+      "notes": "Internet-Culture-Coin rund ums 'Mogging'-Meme. Starke Crypto-Twitter-Community."
+    },
+    {
+      "name": "Turbo",
+      "symbol": "TURBO",
+      "chain": "Ethereum",
+      "launched": 2023,
+      "category": "ai",
+      "launchpad": null,
+      "notes": "Als 'erster von einer KI erschaffener Memecoin' vermarktet – Konzept/Design entstanden mit GPT-4 und einem Budget von 69 USD."
+    },
+    {
+      "name": "Fartcoin",
+      "symbol": "FARTCOIN",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "ai",
+      "launchpad": "pump.fun",
+      "notes": "Entstanden aus dem 'Terminal of Truths'-KI-Umfeld. Absurd-Humor-Coin, der Ende 2024/2025 eine Milliarden-Bewertung erreichte; oft als Symbol der 'AI-Meme-Meta' zitiert."
+    },
+    {
+      "name": "Goatseus Maximus",
+      "symbol": "GOAT",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "ai",
+      "launchpad": "pump.fun",
+      "notes": "Vom KI-Agenten 'Terminal of Truths' (Andy Ayrey) gepusht – gilt als der Coin, der die AI-Agent-Meme-Meta Ende 2024 startete."
+    },
+    {
+      "name": "Peanut the Squirrel",
+      "symbol": "PNUT",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "animal",
+      "launchpad": "pump.fun",
+      "notes": "Bezog sich auf das von US-Behörden eingeschläferte Eichhörnchen 'Peanut' (November 2024, viraler Empörungsfall). Beispiel für extrem schnelle News-getriebene Memecoins; Binance-Listing wenige Wochen nach Launch."
+    },
+    {
+      "name": "Official Trump",
+      "symbol": "TRUMP",
+      "chain": "Solana",
+      "launched": 2025,
+      "category": "political",
+      "launchpad": null,
+      "notes": "Von Donald Trump kurz vor der Amtseinführung im Januar 2025 gelauncht. Historischer Extremfall: zweistellige Milliarden-FDV innerhalb von Stunden, danach massiver Drawdown. 80 % des Supplys bei Trump-nahen Entitäten (Vesting). Löste breite Debatte über Celebrity-/Political-Coins aus."
+    },
+    {
+      "name": "Melania Meme",
+      "symbol": "MELANIA",
+      "chain": "Solana",
+      "launched": 2025,
+      "category": "political",
+      "launchpad": null,
+      "notes": "Von Melania Trump einen Tag nach TRUMP gelauncht; gilt als Auslöser der TRUMP-Korrektur und als Symbol für die Übersättigung der Celebrity-Coin-Welle."
+    },
+    {
+      "name": "SPX6900",
+      "symbol": "SPX",
+      "chain": "Ethereum / Solana / Base",
+      "launched": 2023,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Parodie auf den S&P 500 ('flip the stock market'). Kult-Community ('sprotos'), einer der stärksten Performer 2024/2025."
+    },
+    {
+      "name": "Gigachad",
+      "symbol": "GIGA",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Basierend auf dem Gigachad-Meme (Ernest Khalimov). Fitness-/Sigma-Male-Ästhetik, solide Solana-Community."
+    },
+    {
+      "name": "Book of Meme",
+      "symbol": "BOME",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Von Meme-Künstler Darkfarms. Presale-Modell (SOL an eine Adresse senden) – löste die kurzlebige Presale-Meta im März 2024 aus. Extrem schnelles Raydium/Binance-Listing."
+    },
+    {
+      "name": "Slerf",
+      "symbol": "SLERF",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "animal",
+      "launchpad": null,
+      "notes": "Berühmt durch einen Unfall: Der Dev verbrannte versehentlich die für den Airdrop/Presale reservierten Token und die LP – der Coin pumpte ausgerechnet deshalb. Lehrstück für Memecoin-Irrationalität."
+    },
+    {
+      "name": "Moo Deng",
+      "symbol": "MOODENG",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "animal",
+      "launchpad": "pump.fun",
+      "notes": "Basierend auf dem viralen Zwergflusspferd-Baby aus Thailand. Paradebeispiel für 'viral animal meta' 2024; 2025 zweite Welle nach Binance-Listing."
+    },
+    {
+      "name": "Chill Guy",
+      "symbol": "CHILLGUY",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "culture",
+      "launchpad": "pump.fun",
+      "notes": "'Just a chill guy'-Meme. TikTok-getriebener Hype November 2024; der Meme-Künstler distanzierte sich und meldete Copyright-Ansprüche an – Beispiel für IP-Risiko bei Memecoins."
+    },
+    {
+      "name": "ai16z",
+      "symbol": "AI16Z",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "ai",
+      "launchpad": "daos.fun",
+      "notes": "Token des KI-Agenten-Frameworks Eliza/ElizaOS (Parodie auf a16z). Grenzfall Memecoin/AI-Token; führte die AI-Agent-Meta Ende 2024 an, später Rebranding-Diskussionen."
+    },
+    {
+      "name": "Pudgy Penguins",
+      "symbol": "PENGU",
+      "chain": "Solana",
+      "launched": 2024,
+      "category": "nft-brand",
+      "launchpad": null,
+      "notes": "Token der Pudgy-Penguins-NFT-Marke (Airdrop Dezember 2024). Beispiel für NFT-Marke → Memecoin; 2025 durch ETF-Antrag (mit PENGU-Exposure) im Gespräch."
+    },
+    {
+      "name": "Dogs",
+      "symbol": "DOGS",
+      "chain": "TON",
+      "launched": 2024,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Telegram-/TON-Memecoin rund um das Spotty-Maskottchen von Pavel Durov, verteilt per Massen-Airdrop an Telegram-Nutzer."
+    },
+    {
+      "name": "Neiro",
+      "symbol": "NEIRO",
+      "chain": "Ethereum / Solana",
+      "launched": 2024,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Benannt nach dem neuen Hund der Doge-Besitzerin. Chaotischer Launch mit konkurrierenden Versionen ('First Neiro' vs. Neuauflagen) – Lehrstück zum Thema Ticker-Kriege und Fake-Versionen."
+    },
+    {
+      "name": "Baby Doge Coin",
+      "symbol": "BABYDOGE",
+      "chain": "BNB Chain",
+      "launched": 2021,
+      "category": "dog",
+      "launchpad": null,
+      "notes": "Ableger-Hype aus der Doge-Welle 2021, extrem großes Supply, Burn-Mechaniken, große Retail-Community."
+    },
+    {
+      "name": "Snek",
+      "symbol": "SNEK",
+      "chain": "Cardano",
+      "launched": 2023,
+      "category": "animal",
+      "launchpad": null,
+      "notes": "Größter Memecoin des Cardano-Ökosystems."
+    },
+    {
+      "name": "Toshi",
+      "symbol": "TOSHI",
+      "chain": "Base",
+      "launched": 2023,
+      "category": "cat",
+      "launchpad": null,
+      "notes": "Benannt nach der Katze von Coinbase-CEO Brian Armstrong; einer der ersten großen Base-Memecoins, 2025 auch auf Coinbase gelistet."
+    },
+    {
+      "name": "Degen",
+      "symbol": "DEGEN",
+      "chain": "Base",
+      "launched": 2024,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Entstanden als Tipping-Token im Farcaster-Social-Netzwerk (Degen-Channel); eigene L3 ('Degen Chain'). Bindeglied zwischen SocialFi und Memecoins."
+    },
+    {
+      "name": "Wojak",
+      "symbol": "WOJAK",
+      "chain": "Ethereum",
+      "launched": 2023,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Basierend auf dem Wojak-'Feels Guy'-Meme, Teil der Meme-Welle im Frühjahr 2023."
+    },
+    {
+      "name": "HarryPotterObamaSonic10Inu",
+      "symbol": "BITCOIN",
+      "chain": "Ethereum",
+      "launched": 2023,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Absurditäts-Meme mit dem Ticker 'BITCOIN'. Bekanntestes Beispiel für Ticker-Trolling."
+    },
+    {
+      "name": "Useless Coin",
+      "symbol": "USELESS",
+      "chain": "Solana",
+      "launched": 2025,
+      "category": "culture",
+      "launchpad": null,
+      "notes": "Selbstironischer Anti-Utility-Coin ('völlig nutzlos'), einer der bekannteren Solana-Runner 2025 – Symbol der 'Ehrlichkeits-Meta'."
+    }
+  ]
+}
