@@ -123,3 +123,39 @@ def iter_day_events(data_dir: str | Path) -> Iterator[tuple[float, dict]]:
         out = flush()
         if out:
             yield out
+
+
+def iter_amm_events(amm_dir: str | Path) -> Iterator[tuple[float, dict]]:
+    """PumpSwap-AMM-Swaps als Bot-Events (pool='pump-amm').
+
+    Reale Reserven dienen als Konstantprodukt-Basis für die Bewertung –
+    PumpSwap ist ein x*y=k-AMM auf realen Reserven, simulate_sell darauf
+    approximiert echte Verkaufserlöse.
+    """
+    import pandas as pd
+
+    files = sorted(Path(amm_dir).glob("*.parquet"))
+    if not files:
+        raise FileNotFoundError(f"keine Parquet-Dateien in {amm_dir}")
+    for path in files:
+        df = pd.read_parquet(path)
+        df = df.sort_values(["slot_number"], kind="stable").reset_index(drop=True)
+        for row in df.itertuples():
+            if row.event_type != "swap" or row.action not in ("buy", "sell"):
+                continue
+            yield (float(row.timestamp), {
+                "txType": row.action,
+                "mint": row.token_mint,
+                "pool": "pump-amm",
+                "traderPublicKey": row.user_wallet,
+                "solAmount": float(row.lamports_amount or 0) / LAMPORTS,
+                "vSolInBondingCurve": float(row.real_lamports_reserve) / LAMPORTS,
+                "vTokensInBondingCurve": float(row.real_token_reserve) / TOKEN_DECIMALS,
+            })
+
+
+def iter_merged_events(curve_dir: str | Path, amm_dir: str | Path) -> Iterator[tuple[float, dict]]:
+    """Curve- und AMM-Strom chronologisch gemerged (heapq.merge auf t)."""
+    import heapq
+
+    return heapq.merge(iter_day_events(curve_dir), iter_amm_events(amm_dir), key=lambda e: e[0])

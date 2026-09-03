@@ -26,6 +26,7 @@ class ExitReason(str, Enum):
     TIME_STOP = "time_stop"
     CREATOR_SOLD = "creator_sold"
     MIGRATION = "migration"
+    TRAILING_STOP = "trailing_stop"
     KILL_SWITCH = "kill_switch"
 
 
@@ -42,6 +43,11 @@ class RiskConfig:
     max_hold_seconds: float = 20 * 60.0
     progress_deadline_seconds: float = 8 * 60.0  # Zeit-Stop: bis dahin > +20 %
     progress_min_pct: float = 20.0
+    # Graduierte Positionen durch die Migration halten (Real-Day-Befund:
+    # migration_exits waren die Top-Gewinner – abgeschnitten beim Übergang)
+    hold_through_migration: bool = True
+    trailing_stop_pct: float = 30.0        # Exit, wenn PnL X Punkte unter Peak fällt
+    migrated_max_hold_seconds: float = 4 * 3600.0
 
 
 @dataclass
@@ -116,8 +122,18 @@ class RiskManager:
         if creator_sold:
             return ExitAction(ExitReason.CREATOR_SOLD, 1.0)
         if migrated:
-            # Graduation: Curve-These beendet; Paper-Bot realisiert hier.
-            return ExitAction(ExitReason.MIGRATION, 1.0)
+            if not c.hold_through_migration:
+                return ExitAction(ExitReason.MIGRATION, 1.0)
+            # Graduierte Runner: Trailing statt Sofort-Exit; großzügigere Zeit
+            if pos.peak_pnl_pct - pnl >= c.trailing_stop_pct:
+                return ExitAction(ExitReason.TRAILING_STOP, 1.0)
+            if pnl <= c.stop_loss_pct:
+                return ExitAction(ExitReason.STOP_LOSS, 1.0)
+            if pos.state == PositionState.ENTERED and pnl >= c.derisk_at_pct:
+                return ExitAction(ExitReason.TAKE_PROFIT, c.derisk_sell_fraction)
+            if held > c.migrated_max_hold_seconds:
+                return ExitAction(ExitReason.TIME_STOP, 1.0)
+            return None
         if pnl <= c.stop_loss_pct:
             return ExitAction(ExitReason.STOP_LOSS, 1.0)
         if pos.state == PositionState.ENTERED and pnl >= c.derisk_at_pct:

@@ -29,8 +29,10 @@ class Bounds:
     stop_loss_pct: tuple[float, float] = (-50.0, -20.0)
     take_profit_pct: tuple[float, float] = (150.0, 400.0)
     progress_deadline_seconds: tuple[float, float] = (4 * 60.0, 15 * 60.0)
-    min_fill_pct: tuple[float, float] = (10.0, 35.0)
-    min_unique_buyers: tuple[float, float] = (10.0, 30.0)
+    # Real-Day-Walk-Forward-Befund: Über-Verschärfung (35 %/30 Käufer) kostete
+    # mehr Rendite als sie Verluste sparte -> engere Ober-Grenzen
+    min_fill_pct: tuple[float, float] = (10.0, 25.0)
+    min_unique_buyers: tuple[float, float] = (10.0, 20.0)
     ml_risk_threshold: tuple[float, float] = (0.60, 0.90)
     position_scale: tuple[float, float] = (0.25, 1.0)
 
@@ -111,6 +113,18 @@ class AdaptiveTuner:
                    f"{lessons['bad_entry']}x bad_entry – Curve-Mindestfüllung erhöht")
             adjust(self.strategy, "min_unique_buyers", self.strategy.min_unique_buyers + 3, "min_unique_buyers",
                    f"{lessons['bad_entry']}x bad_entry – mehr Nachfrage-Beweis verlangt")
+        # Opportunitätskosten-Gegenspieler (Walk-Forward-Befund): läuft es
+        # sauber (keine bad_entries, überwiegend gute Exits), Filter wieder
+        # Richtung Default lockern – Über-Verschärfung kostet Rendite
+        good_lessons = sum(lessons[k] for k in
+                           ("good_stop", "good_take_profit", "good_time_stop", "good_trail", "good_creator_exit"))
+        if len(window) >= 8 and lessons["bad_entry"] == 0 and good_lessons >= len(window) * 0.5:
+            if self.strategy.min_fill_pct > 10.0:
+                adjust(self.strategy, "min_fill_pct", self.strategy.min_fill_pct - 2.5, "min_fill_pct",
+                       "0x bad_entry bei sauberem Fenster – Entry-Filter gelockert (Opportunitätskosten)")
+            if self.strategy.min_unique_buyers > 10:
+                adjust(self.strategy, "min_unique_buyers", self.strategy.min_unique_buyers - 2, "min_unique_buyers",
+                       "0x bad_entry bei sauberem Fenster – Entry-Filter gelockert (Opportunitätskosten)")
 
         # ML-Gate-Kalibrierung: Verlierer hatten höheres ml_risk als Gewinner?
         losers = [r for r in window if (r.pnl_sol or 0) < 0 and r.context.ml_risk is not None]

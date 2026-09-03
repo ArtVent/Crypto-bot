@@ -172,3 +172,33 @@ def test_bot_full_learning_loop_shaken_out(tmp_path):
     assert records[0].context.unique_buyers >= 10  # Entry-Kontext gespeichert
     log = (tmp_path / "log.jsonl").read_text()
     assert '"lesson"' in log
+
+
+def test_trailing_and_hold_through_migration(tmp_path):
+    from memetrader.risk import ExitReason, RiskConfig, RiskManager
+
+    rm = RiskManager(RiskConfig(hold_through_migration=True, trailing_stop_pct=30.0))
+    pos = rm.open_position("M1", "X", 1000.0, 0.05, now=0.0)
+    # Migriert + im Plus: KEIN Sofort-Exit mehr
+    assert rm.check_exit(pos, value_sol=0.08, creator_sold=False, migrated=True, now=100.0) is None
+    # Peak +100 %, dann Rückfall auf +60 % -> Trailing (40 Punkte unter Peak)
+    rm.check_exit(pos, value_sol=0.10, creator_sold=False, migrated=True, now=200.0)
+    action = rm.check_exit(pos, value_sol=0.08, creator_sold=False, migrated=True, now=300.0)
+    assert action and action.reason == ExitReason.TRAILING_STOP
+
+
+def test_tuner_loosens_when_clean(tmp_path):
+    from memetrader.adaptive import AdaptiveTuner
+    from memetrader.risk import RiskConfig
+    from memetrader.strategy import StrategyConfig
+
+    strat = StrategyConfig(min_fill_pct=20.0, min_unique_buyers=16)
+    tuner = AdaptiveTuner(strat, RiskConfig(), tmp_path / "t.json")
+    window = []
+    for _ in range(9):
+        r = record("stop_loss", peak=0.01)
+        r.lesson = "good_stop"
+        window.append(r)
+    tuner.on_trades_finalized(window, now=1.0)
+    assert strat.min_fill_pct == 17.5
+    assert strat.min_unique_buyers == 14

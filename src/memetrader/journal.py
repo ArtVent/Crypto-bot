@@ -82,6 +82,8 @@ def classify_lesson(record: TradeRecord) -> str:
         return "impatient" if peak > cost * RUNNER_FACTOR else "good_time_stop"
     if reason == "take_profit":
         return "sold_too_early" if peak > proceeds * RUNNER_FACTOR else "good_take_profit"
+    if reason == "trailing_stop":
+        return "sold_too_early" if peak > proceeds * RUNNER_FACTOR else "good_trail"
     if reason == "creator_sold":
         return "overreacted_creator_exit" if peak > cost * RECOVERY_FACTOR else "good_creator_exit"
     if reason == "migration":
