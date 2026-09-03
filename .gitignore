@@ -3,3 +3,7 @@ __pycache__/
 *.db
 .pytest_cache/
 *.egg-info/
+memetrader.log.jsonl
+memetrader.journal.jsonl
+memetrader.tuning.json
+memetrader.memory.md
