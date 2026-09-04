@@ -46,4 +46,4 @@ Serie, wird sie verworfen und das steht dann genauso hier.
 
 | Datum (UTC) | Fenster | Events | Referenz | Kappe | Trades (Ref/Kappe) | Bemerkung |
 |---|---|---|---|---|---|---|
-| _(wird von den täglichen Läufen gefüllt)_ | | | | | | |
+| 2026-09-04 07:23 | 5 min | 56 | +0,00 % | +0,00 % | 0/0 | Validierungslauf der Pipeline (zu kurz für Trades – zählt nicht zur Serie) |
