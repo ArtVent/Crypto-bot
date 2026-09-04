@@ -24,8 +24,8 @@ on:
         required: false
         default: "50"
   schedule:
-    # 19:17 UTC = aktive US-Stunden auf pump.fun.
-    - cron: "17 19 * * *"
+    # 18:17 UTC – so landet der Telegram-Kurzbericht gegen 21:00 deutscher Zeit.
+    - cron: "17 18 * * *"
 
 permissions:
   contents: write
@@ -125,21 +125,24 @@ jobs:
             report/report.json
           retention-days: 30
 
-      - name: Telegram-Bericht (optional)
+      # Einbahnstraße: sendet NUR an die hinterlegte Chat-ID, liest nie
+      # eingehende Nachrichten – niemand sonst kann den Bot benutzen.
+      - name: Telegram-Kurzbericht (optional)
         if: success()
         env:
           TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then
-            echo "Telegram nicht konfiguriert – übersprungen."
+            echo "Telegram nicht konfiguriert – übersprungen (Secrets TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID setzen)."
             exit 0
           fi
-          text=$(head -c 3500 report/report.md)
+          text=$(python .github/telegram_kurzbericht.py)
+          echo "Sende: $text"
           curl -fsS "https://api.telegram.org/bot${TOKEN}/sendMessage" \
             --data-urlencode chat_id="$CHAT" \
             --data-urlencode text="$text" >/dev/null
-          echo "Telegram-Bericht gesendet."
+          echo "Telegram-Kurzbericht gesendet."
 
       - name: Release-Fehlschlag als rot markieren
         if: steps.release.outcome == 'failure'
