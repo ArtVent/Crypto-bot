@@ -131,6 +131,29 @@ jobs:
 
       # Einbahnstraße: sendet NUR an die hinterlegte Chat-ID, liest nie
       # eingehende Nachrichten – niemand sonst kann den Bot benutzen.
+      # (1) Trade-Alert: nur wenn der Bot in diesem Lauf Trades gefunden hat.
+      - name: Telegram-Trade-Alert (optional)
+        if: success()
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then
+            echo "Telegram nicht konfiguriert – übersprungen."
+            exit 0
+          fi
+          text=$(python .github/telegram_trades.py)
+          if [ -z "$text" ]; then
+            echo "Keine Trades in diesem Lauf – kein Alert."
+            exit 0
+          fi
+          echo "Sende Trade-Alert: $text"
+          curl -fsS "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            --data-urlencode chat_id="$CHAT" \
+            --data-urlencode text="$text" >/dev/null
+          echo "Trade-Alert gesendet."
+
+      # (2) Tages-Kurzbericht: immer eine Zeile (auch bei 0 Trades).
       - name: Telegram-Kurzbericht (optional)
         if: success()
         env:
