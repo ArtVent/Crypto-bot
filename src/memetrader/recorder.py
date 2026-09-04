@@ -32,6 +32,7 @@ class RecorderCore:
     _tracked: dict[str, float] = field(default_factory=dict)  # mint -> first_seen
     _last_prune: float = 0.0
     events_written: int = 0
+    tx_counts: dict[str, int] = field(default_factory=dict)  # Beobachtbarkeit im Log
 
     def on_message(self, event: dict, now: float) -> tuple[str | None, list[str]]:
         """Liefert (JSONL-Zeile oder None, ausgehende WS-Nachrichten)."""
@@ -54,6 +55,8 @@ class RecorderCore:
             self._last_prune = now
 
         self.events_written += 1
+        kind = tx or event.get("pool") or "?"
+        self.tx_counts[kind] = self.tx_counts.get(kind, 0) + 1
         return json.dumps({**event, "_t": now}, ensure_ascii=False), outgoing
 
     def _prune(self, now: float) -> list[str]:
@@ -121,4 +124,5 @@ async def run_recorder(out_path: str, minutes: float, ws_url: str = PUMPPORTAL_W
                 await asyncio.sleep(2.0)
         fh.flush()
     print(f"[record] fertig: {core.events_written} Events -> {out_path}", flush=True)
+    print(f"[record] Zusammensetzung: {dict(core.tx_counts)}", flush=True)
     return core.events_written

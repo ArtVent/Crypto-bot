@@ -57,13 +57,15 @@ jobs:
           fi
           minutes="${minutes:-50}"
           echo "Aufnahmedauer: ${minutes} Minuten"
+          echo "REC_MINUTES=$minutes" >> "$GITHUB_ENV"
           python -m memetrader record --minutes "$minutes" --out recording.jsonl
 
       - name: Aufnahme prüfen
         run: |
           n=$(wc -l < recording.jsonl)
-          echo "Events aufgezeichnet: $n"
-          test "$n" -ge 50   # leerer/toter Stream soll den Lauf rot machen
+          min_events=$(( REC_MINUTES * 10 ))   # toter Stream soll den Lauf rot machen
+          echo "Events aufgezeichnet: $n (Minimum: $min_events)"
+          test "$n" -ge "$min_events"
 
       - name: A/B-Replay (Referenz vs. Dichte-Kappe)
         run: python -m memetrader abtest recording.jsonl --out-dir report
