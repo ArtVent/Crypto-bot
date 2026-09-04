@@ -29,8 +29,14 @@ class RecorderCore:
     track_minutes: float = 90.0
     max_tracked: int = 5000
     prune_interval_seconds: float = 60.0
+    subscribe_flush_seconds: float = 2.0   # neue Mints gesammelt abonnieren
+    subscribe_batch_max: int = 20
+    status_log_max: int = 10               # erste Server-Statusmeldungen loggen
     _tracked: dict[str, float] = field(default_factory=dict)  # mint -> first_seen
+    _pending_subs: list[str] = field(default_factory=list)
+    _last_flush: float = 0.0
     _last_prune: float = 0.0
+    _status_logged: int = 0
     events_written: int = 0
     tx_counts: dict[str, int] = field(default_factory=dict)  # Beobachtbarkeit im Log
 
@@ -39,17 +45,24 @@ class RecorderCore:
         outgoing: list[str] = []
         tx = event.get("txType")
         mint = event.get("mint")
-        # Bestätigungen/Statusmeldungen ohne txType nicht aufzeichnen
+        # Bestätigungen/Fehler ohne txType: nicht aufzeichnen, aber SICHTBAR
+        # machen – ein stilles Subscribe-Reject würde sonst nie auffallen
         if not tx and not event.get("pool"):
-            return None, outgoing
+            self.tx_counts["status"] = self.tx_counts.get("status", 0) + 1
+            if self._status_logged < self.status_log_max:
+                self._status_logged += 1
+                print(f"[record] Server-Status: {json.dumps(event, ensure_ascii=False)[:300]}",
+                      flush=True)
+            return None, self._flush_subs(now)
 
         if tx == "create" and mint and mint not in self._tracked:
             self._tracked[mint] = now
-            outgoing.append(json.dumps({"method": "subscribeTokenTrade", "keys": [mint]}))
+            self._pending_subs.append(mint)
         elif (tx == "migrate" or event.get("pool") == "pump-amm") and mint in self._tracked:
             outgoing.append(json.dumps({"method": "unsubscribeTokenTrade", "keys": [mint]}))
             del self._tracked[mint]
 
+        outgoing += self._flush_subs(now)
         if now - self._last_prune >= self.prune_interval_seconds:
             outgoing += self._prune(now)
             self._last_prune = now
@@ -58,6 +71,22 @@ class RecorderCore:
         kind = tx or event.get("pool") or "?"
         self.tx_counts[kind] = self.tx_counts.get(kind, 0) + 1
         return json.dumps({**event, "_t": now}, ensure_ascii=False), outgoing
+
+    def _flush_subs(self, now: float) -> list[str]:
+        """Gesammelte Mints als EINE Subscribe-Nachricht (Rate-Limit-Schutz)."""
+        if not self._pending_subs:
+            return []
+        if len(self._pending_subs) < self.subscribe_batch_max and \
+                now - self._last_flush < self.subscribe_flush_seconds:
+            return []
+        batch, self._pending_subs = self._pending_subs, []
+        self._last_flush = now
+        # inzwischen migrierte/geprunte Mints nicht mehr abonnieren
+        batch = [m for m in batch if m in self._tracked]
+        return [
+            json.dumps({"method": "subscribeTokenTrade", "keys": batch[i:i + _UNSUB_BATCH]})
+            for i in range(0, len(batch), _UNSUB_BATCH)
+        ]
 
     def _prune(self, now: float) -> list[str]:
         cutoff = now - self.track_minutes * 60.0
@@ -101,6 +130,8 @@ async def run_recorder(out_path: str, minutes: float, ws_url: str = PUMPPORTAL_W
                         try:
                             message = await asyncio.wait_for(ws.recv(), timeout=min(remaining, 30.0))
                         except asyncio.TimeoutError:
+                            for msg in core._flush_subs(time.time()):
+                                await ws.send(msg)
                             continue
                         now = time.time()
                         try:

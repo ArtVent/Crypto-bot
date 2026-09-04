@@ -67,26 +67,12 @@ jobs:
           echo "Events aufgezeichnet: $n (Minimum: $min_events)"
           test "$n" -ge "$min_events"
 
-      - name: A/B-Replay (Referenz vs. Dichte-Kappe)
-        run: python -m memetrader abtest recording.jsonl --out-dir report
-
-      - name: Release veröffentlichen
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: A/B-Replay (Referenz vs. Kappe vs. Leiter)
         run: |
-          tag="paper-$(date -u +%Y%m%d-%H%M)"
-          gzip -9 recording.jsonl
-          files="recording.jsonl.gz report/report.json"
-          # Journale existieren nur, wenn Trades stattfanden
-          [ -f report/ref/bt_1.journal.jsonl ] && cp report/ref/bt_1.journal.jsonl referenz-journal.jsonl && files="$files referenz-journal.jsonl"
-          [ -f report/cap/bt_1.journal.jsonl ] && cp report/cap/bt_1.journal.jsonl kappe-journal.jsonl && files="$files kappe-journal.jsonl"
-          gh release create "$tag" \
-            --target "${{ github.sha }}" \
-            --title "Paper-Trading $tag" \
-            --notes-file report/report.md \
-            $files
-          echo "PAPER_TAG=$tag" >> "$GITHUB_ENV"
+          python -m memetrader abtest recording.jsonl --out-dir report
+          echo "PAPER_TAG=paper-$(date -u +%Y%m%d-%H%M)" >> "$GITHUB_ENV"
 
+      # Bericht ZUERST ins Repo sichern – überlebt einen Release-Fehlschlag
       - name: Bericht ins Repo committen
         run: |
           git config user.name "github-actions[bot]"
@@ -99,6 +85,34 @@ jobs:
           # Falls parallel gepusht wurde: einmal nachziehen (Berichte kollidieren nie)
           git pull --rebase origin "${{ github.ref_name }}" || true
           git push origin "HEAD:${{ github.ref_name }}"
+
+      - name: Release veröffentlichen
+        id: release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gzip -9 recording.jsonl
+          files="recording.jsonl.gz report/report.json"
+          # Journale existieren nur, wenn Trades stattfanden
+          for arm in ref cap ladder; do
+            [ -f "report/$arm/bt_1.journal.jsonl" ] && cp "report/$arm/bt_1.journal.jsonl" "journal-$arm.jsonl" && files="$files journal-$arm.jsonl"
+          done
+          gh release create "$PAPER_TAG" \
+            --target "${{ github.sha }}" \
+            --title "Paper-Trading $PAPER_TAG" \
+            --notes-file report/report.md \
+            $files
+
+      - name: "Fallback: Aufzeichnung als Artifact sichern"
+        if: steps.release.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: recording-${{ env.PAPER_TAG }}
+          path: |
+            recording.jsonl.gz
+            report/report.json
+          retention-days: 30
 
       - name: Telegram-Bericht (optional)
         if: success()
@@ -115,3 +129,9 @@ jobs:
             --data-urlencode chat_id="$CHAT" \
             --data-urlencode text="$text" >/dev/null
           echo "Telegram-Bericht gesendet."
+
+      - name: Release-Fehlschlag als rot markieren
+        if: steps.release.outcome == 'failure'
+        run: |
+          echo "Release fehlgeschlagen (403?) – Bericht ist committet, Aufzeichnung als Artifact gesichert."
+          exit 1
