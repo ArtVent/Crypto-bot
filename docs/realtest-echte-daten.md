@@ -314,6 +314,21 @@ Forward-A/B** (`abtest`, docs/forward-validierung.md) und wird nur bei
 kumulativem Serien-Vorsprung Default – dieselbe Regel wie für die
 Dichte-Kappe.
 
+**Nachtrag – dieselbe Leiter auf der echten Verlustwoche (Teil 3):** Auf
+den Fingerprinter-Daten (6,7 Tage, kaltes Regime) verbessert die
++100 %-Leiter das Ergebnis von −36,9 % auf **−30,7 %** (Winrate 17→22 %,
+Tiefstand 0,45→0,51 SOL) – gleiche Richtung wie am heißen Tag, aber die
+Woche bleibt tief negativ. Der Befund beider Regime zusammen: **Die Leiter
+verbessert die Exits konsistent um ~5–6 Punkte, aber das Vorzeichen einer
+Periode bestimmt das Regime, nicht die Exit-Mechanik.** Hochgerechnet auf
+14 Tage (geometrisch, Leiter-Konfiguration): nur kalte Tage ≈ 0,46 SOL;
+Break-even braucht ~1 heißen Tag je ~3,7 kalte; hälftig heiß/kalt ≈
+2,8 SOL; nur heiße Tage ≈ 17 SOL (Fantasie-Obergrenze, ein einzelner
+Tag hochkompoundiert). Wie häufig heiße Tage wirklich sind, kann nur die
+laufende Forward-Serie zeigen; der wirksamste Hebel laut dieser Rechnung
+ist, kalte Regime gar nicht zu handeln (Regime-Gate `min_market_heat`,
+vorhanden, Default aus, Forward-Kandidat).
+
 ## Konsequenzen
 
 1. **Kein Live-Trading mit diesem Stand.** Die Beweislast liegt jetzt bei der
