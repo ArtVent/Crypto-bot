@@ -53,7 +53,24 @@ Dump. Kausal (nur bisher gesehene Trades), aus dem reinen Log-Strom, nicht
 gamebar über frische Wallets (es misst Verhalten, nicht Identität).
 Default AUS – wird nur nach A/B-Beleg Default.
 
-**A/B-Ergebnis (historischer Tag):** _läuft – wird nach Abschluss ergänzt._
+**A/B-Ergebnis (historischer Tag, korrigierter Code):**
+
+| Schwelle `max_early_seller_share` | Rendite | Trades | Winrate | Max-DD |
+|---|---|---|---|---|
+| aus (Referenz) | +56,97 % | 61 | 44 % | 18,5 % |
+| ≤ 0,50 | +48,36 % | 47 | 47 % | 16,0 % |
+| ≤ 0,35 | +39,48 % | 23 | 70 % | 9,3 % |
+| ≤ 0,25 | +22,20 % | 8 | 88 % | 3,9 % |
+| ≤ 0,15 | +8,09 % | 3 | 100 % | 1,5 % |
+
+**Das Signal trennt echt** (anders als die Reputations-DB): Winrate steigt
+monoton 44 → 100 %, Drawdown fällt 18,5 → 1,5 % – es sortiert Verlierer
+nachweislich aus. **Aber** an einem heißen Tag trifft es auch Gewinner
+(weniger Trades → weniger Compounding → geringere Gesamtrendite). Fazit wie
+angekündigt: **Filter senkt Risiko, erzeugt keine Rendite.** Entscheidung:
+Default AUS; als **fünfter Forward-Arm** (Schwelle 0,35) in die tägliche
+Serie – gerade auf kalten Tagen (Teil 3) könnte das Drawdown-Kappen netto
+helfen. Nur bei kumulativem Serien-Vorteil wird es Default.
 
 Weitere bereits vorhandene, evidenzkonforme Gates (Deep Research bestätigt
 sie als richtig): Burst-Buyer-Anteil (Bundle), Kaufgrößen-CV (Bot-

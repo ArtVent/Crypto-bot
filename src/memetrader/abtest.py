@@ -44,7 +44,8 @@ def _row(result: BacktestResult) -> dict:
 def run_abtest(events_file: str | Path, out_dir: str | Path,
                budget_sol: float = 1.0, max_smart_buyers: int = 7,
                recycle_trigger_pct: float = 100.0,
-               min_market_heat: float = 3.0) -> dict:
+               min_market_heat: float = 3.0,
+               max_early_seller_share: float = 0.35) -> dict:
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     events = load_events(events_file)
@@ -67,6 +68,10 @@ def run_abtest(events_file: str | Path, out_dir: str | Path,
     regime = run_backtest(events=events, workdir=out_dir / "regime", budget_sol=budget_sol,
                           ml_model=None, claude="stub",
                           bot_overrides={"min_market_heat": min_market_heat})
+    # Insider-Exit-Gate: keine Verlierer kaufen, in die die frühen Insider dumpen
+    insider = run_backtest(events=events, workdir=out_dir / "insider", budget_sol=budget_sol,
+                           ml_model=None, claude="stub",
+                           strategy_overrides={"max_early_seller_share": max_early_seller_share})
 
     report = {
         "recorded_utc": time.strftime("%Y-%m-%d %H:%M", time.gmtime(events[0][0])),
@@ -76,10 +81,12 @@ def run_abtest(events_file: str | Path, out_dir: str | Path,
         "max_smart_buyers": max_smart_buyers,
         "recycle_trigger_pct": recycle_trigger_pct,
         "min_market_heat": min_market_heat,
+        "max_early_seller_share": max_early_seller_share,
         "reference": _row(ref),
         "density_cap": _row(cap),
         "recycle_ladder": _row(ladder),
         "regime_gate": _row(regime),
+        "insider_exit": _row(insider),
     }
     (out_dir / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     (out_dir / "report.md").write_text(format_report(report))
@@ -90,6 +97,7 @@ def format_report(report: dict) -> str:
     ref, cap = report["reference"], report["density_cap"]
     ladder = report.get("recycle_ladder")
     regime = report.get("regime_gate")
+    insider = report.get("insider_exit")
 
     def line(name: str, row: dict) -> str:
         wr = f"{row['win_rate'] * 100:.0f}%" if row["win_rate"] is not None else "–"
@@ -107,6 +115,9 @@ def format_report(report: dict) -> str:
     if regime is not None:
         rows.append(line(f"Regime-Gate (≥{report['min_market_heat']:.0f} Grads/h)", regime))
         deltas.append(f"Regime {regime['return_pct'] - ref['return_pct']:+.2f}")
+    if insider is not None:
+        rows.append(line(f"Insider-Exit (≤{report['max_early_seller_share']:.0%})", insider))
+        deltas.append(f"Insider {insider['return_pct'] - ref['return_pct']:+.2f}")
     return "\n".join([
         "# Paper-Trading A/B-Bericht",
         "",

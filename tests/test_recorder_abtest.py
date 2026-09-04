@@ -53,9 +53,10 @@ def test_abtest_writes_reports(tmp_path):
     assert report["reference"]["closed"] == 0  # zu wenig Aktivität für einen Trade
     assert report["recycle_ladder"]["closed"] == 0 and report["recycle_trigger_pct"] == 100.0
     assert report["regime_gate"]["closed"] == 0 and report["min_market_heat"] == 3.0
+    assert report["insider_exit"]["closed"] == 0 and report["max_early_seller_share"] == 0.35
     md = format_report(report)
     assert "Referenz" in md and "Dichte-Kappe" in md and "Recycle-Leiter" in md
-    assert "Regime-Gate" in md
+    assert "Regime-Gate" in md and "Insider-Exit" in md
     assert (tmp_path / "out" / "report.md").read_text() == md
 
 
