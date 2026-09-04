@@ -91,3 +91,17 @@ def test_bot_credits_graduation_and_smart_gate(tmp_path):
     bot.on_event(d.buy_event(0.6, "smartie0"), now=max(t, 50.0) + 120)
     bot.on_event(d.buy_event(0.5, "late"), now=max(t, 50.0) + 121)
     assert "D" in bot.risk.positions
+
+
+def test_bot_density_cap_blocks_sniper_pile_in(tmp_path):
+    """max_smart_buyers: zu VIELE kreditierte Wallets = Bot-Pile-in, kein Qualitätssignal."""
+    bot = make_bot(tmp_path)
+    bot.config.max_smart_buyers = 2
+    # Drei der Curve-Käufer doppelt kreditieren -> alle drei 'smart' (Score 2.0)
+    bot.wallets.credit_graduation(["wallet0", "wallet1", "wallet2"], now=0.0)
+    bot.wallets.credit_graduation(["wallet0", "wallet1", "wallet2"], now=0.0)
+    sim = SimCurve(mint="PILE", creator="devP", symbol="PILE")
+    t = feed_healthy_curve(bot, sim)          # Käufer wallet0..wallet13
+    bot.on_event(sim.buy_event(0.2, "late"), now=max(t, 50.0))  # löst Bewertung aus
+    assert "PILE" not in bot.risk.positions
+    assert "bot_density" in (tmp_path / "log.jsonl").read_text()

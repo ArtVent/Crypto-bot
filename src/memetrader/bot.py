@@ -52,6 +52,11 @@ class BotConfig:
     # Wallet-/Creator-Intelligence & Regime-Gate (wallet_intel.py)
     block_serial_creators: bool = True    # Creator mit >=3 Launches, 0 Graduations
     min_smart_wallets: int = 0            # >0: Konfluenz-Gate (Smart-Buyer unter den Käufern)
+    # >0: Bot-Dichte-Kappe. Auf heißen Tagen sind graduation-kreditierte Wallets
+    # überwiegend Serien-Sniper-Bots; VIELE davon im Käuferfeld = Pile-in-Signatur
+    # (In-Sample-Befund 2026-07-31, siehe docs/realtest-echte-daten.md Teil 5 –
+    # Default aus, Forward-Validierung über Autopilot-Papertrading)
+    max_smart_buyers: int = 0
     min_market_heat: float = 0.0          # >0: nur handeln bei >= X Graduationen/Stunde
 
 
@@ -262,6 +267,10 @@ class Bot:
         if self.config.min_smart_wallets > 0 and smart_buyers < self.config.min_smart_wallets:
             self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
                              "why": f"no_smart_wallets ({smart_buyers})"})
+            return []
+        if self.config.max_smart_buyers > 0 and smart_buyers > self.config.max_smart_buyers:
+            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
+                             "why": f"bot_density ({smart_buyers} Serien-Sniper im Käuferfeld)"})
             return []
         risk_score = None
         if self.ml_gate is not None:

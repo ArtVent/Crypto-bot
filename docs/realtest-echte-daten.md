@@ -215,6 +215,59 @@ präzise: **Der Entry allein trägt keinen Edge; wenn es einen gibt, entsteht
 er im Zusammenspiel mit schnellen Exits – und genau das braucht
 Sekunden-Streams zur Validierung.**
 
+## Teil 5: Wallet-Intelligence-A/B – drei neue Gates auf dem realen Tag
+
+Auf Nutzerwunsch ("neue Techniken") wurden drei rollierende, strikt kausale
+Intelligence-Schichten gebaut (`wallet_intel.py`) und im kontrollierten A/B
+auf dem vollen realen Tag (Teil 2, Curve + AMM gemerged) getestet – Referenz
+ist der ehrliche F-Lauf mit **+17,84 %**:
+
+| Variante | Ergebnis | Trades |
+|---|---|---|
+| F Referenz (ohne Gates) | +17,84 % | 58 |
+| X Serial-Creator-Block (≥3 Launches, 0 Grads) | +17,84 % | 58 |
+| Y X + Smart-Wallet-Konfluenz (min. 1) | +17,84 % | 58 |
+| Z X + Regime-Gate (min. 3 Graduationen/h) | +17,84 % | 58 |
+
+**Alle drei Läufe sind identisch zur Referenz – und das ist ein echter
+Befund, kein Harness-Fehler** (verifiziert: die Overrides kamen im Bot an,
+das Journal loggt `smart_buyers` je Entry): Auf diesem heißen Tag feuerte
+keines der Gates ein einziges Mal. Serial-Spammer-Coins schaffen es gar
+nicht erst durch die Momentum-Filter, der Markt fiel nie unter 3
+Graduationen/Stunde, und **jeder** der 58 Trades hatte bereits ≥1
+graduation-kreditierte Wallet unter den Käufern (Median ≈ 9, Spanne 1–29).
+
+**Die eigentliche Erkenntnis steckt in der Verteilung:** Viele "smarte"
+Wallets sind auf heißen Tagen kein Qualitäts-, sondern ein Dichte-Signal –
+graduation-kreditierte Wallets sind überwiegend Serien-Sniper-Bots, die in
+fast jeden Launch gehen. Journal-Analyse der 58 Trades:
+
+| Gruppe | Winrate | PnL |
+|---|---|---|
+| < 8 kreditierte Wallets (n=19) | **58 %** | +0,190 SOL |
+| ≥ 8 kreditierte Wallets (n=39) | 33 % | +0,086 SOL |
+
+Der Effekt hält in beiden Tageshälften unabhängig (Split-Half-Check), das
+Vorzeichen ist also stabil: **Ein Sniper-Pile-in (viele kreditierte Wallets
+im Käuferfeld) senkt die Trefferquote.** Das Konfluenz-Gate "mindestens X
+smarte Wallets" ist damit auf heißen Tagen genau falsch herum gedacht.
+
+Konsequenz: Bot-Dichte-**Kappe** `max_smart_buyers` implementiert (Gegenteil
+des Konfluenz-Gates) und in-sample auf demselben Tag getestet.
+
+<!-- W-ERGEBNIS -->
+
+**Entscheidungen (alle konservativ):**
+- `block_serial_creators` bleibt als Default an – kostenlos, blockt ein
+  dokumentiertes Scam-Muster, veränderte diesen Tag nicht.
+- `min_smart_wallets` bleibt aus (Default 0): auf heißen Tagen wirkungslos
+  bis kontraproduktiv.
+- `min_market_heat` bleibt aus, ist aber als Schutz für kalte Regimes
+  verfügbar (die Verlustwoche aus Teil 3 war ein kaltes Regime).
+- `max_smart_buyers` bleibt aus: Die Schwelle 8 stammt aus demselben Tag
+  (in-sample). Validierung erfolgt vorwärts im Autopilot-Papertraining auf
+  frischen Daten, nicht durch Adoption rückgetesteter eigener Hypothesen.
+
 ## Konsequenzen
 
 1. **Kein Live-Trading mit diesem Stand.** Die Beweislast liegt jetzt bei der
