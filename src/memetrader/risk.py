@@ -28,6 +28,7 @@ class ExitReason(str, Enum):
     MIGRATION = "migration"
     TRAILING_STOP = "trailing_stop"
     KILL_SWITCH = "kill_switch"
+    RECYCLE = "recycle"  # Teilverkaufs-Leiter: Basis raus, Gewinn läuft weiter
 
 
 @dataclass
@@ -51,6 +52,14 @@ class RiskConfig:
     hold_through_migration: bool = False
     trailing_stop_pct: float = 30.0        # Exit, wenn PnL X Punkte unter Peak fällt
     migrated_max_hold_seconds: float = 4 * 3600.0
+    # Teilverkaufs-Leiter ("Einsatz raus, Gewinn läuft"): Liegt der Positionswert
+    # recycle_trigger_pct über der aktuellen Basis (anfangs = Einsatz), wird genau
+    # die Basis verkauft; der Gewinnanteil bleibt im Markt und wird zur neuen
+    # Basis – das wiederholt sich, bis der Restwert unter recycle_min_value_sol
+    # fällt oder ein anderer Exit greift. 0 = aus (A/B-Ergebnis: siehe
+    # docs/realtest-echte-daten.md).
+    recycle_trigger_pct: float = 0.0
+    recycle_min_value_sol: float = 0.01
 
 
 @dataclass
@@ -63,6 +72,7 @@ class Position:
     state: PositionState = PositionState.ENTERED
     realized_sol: float = 0.0
     peak_pnl_pct: float = -100.0
+    recycle_basis_sol: float = 0.0  # 0 = noch keine Leiter-Stufe; sonst aktuelle Basis
 
     def pnl_pct(self, value_sol: float) -> float:
         if self.cost_sol <= 0:
@@ -139,6 +149,11 @@ class RiskManager:
             return None
         if pnl <= c.stop_loss_pct:
             return ExitAction(ExitReason.STOP_LOSS, 1.0)
+        if c.recycle_trigger_pct > 0 and value_sol >= c.recycle_min_value_sol:
+            basis = pos.recycle_basis_sol if pos.recycle_basis_sol > 0 else pos.cost_sol
+            if value_sol >= basis * (1.0 + c.recycle_trigger_pct / 100.0):
+                pos.recycle_basis_sol = value_sol - basis  # Gewinn wird neue Basis
+                return ExitAction(ExitReason.RECYCLE, basis / value_sol)
         if pos.state == PositionState.ENTERED and pnl >= c.derisk_at_pct:
             return ExitAction(ExitReason.TAKE_PROFIT, c.derisk_sell_fraction)
         if pos.state == PositionState.DERISKED and pnl >= c.take_profit_pct:

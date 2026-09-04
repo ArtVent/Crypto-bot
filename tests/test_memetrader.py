@@ -221,3 +221,25 @@ def test_bot_derisks_on_pump(tmp_path):
         if pos.state == PositionState.DERISKED or sim.mint not in bot.risk.positions:
             break
     assert pos.realized_sol > 0  # Teilverkauf hat stattgefunden
+
+
+def test_recycle_ladder_partial_sells():
+    """Teilverkaufs-Leiter: Basis raus bei +X %, Gewinn läuft als neue Basis weiter."""
+    rm = RiskManager(RiskConfig(recycle_trigger_pct=20.0))
+    pos = rm.open_position("M", "SYM", tokens=1000.0, cost_sol=0.05, now=0.0)
+    # noch unter Trigger: nichts tun
+    assert rm.check_exit(pos, value_sol=0.055, creator_sold=False, migrated=False, now=5.0) is None
+    # +20 %: genau die Basis (0.05) verkaufen, 0.01 bleibt drin und wird neue Basis
+    action = rm.check_exit(pos, value_sol=0.06, creator_sold=False, migrated=False, now=10.0)
+    assert action is not None and action.reason == ExitReason.RECYCLE
+    assert abs(action.sell_fraction - 0.05 / 0.06) < 1e-9
+    assert abs(pos.recycle_basis_sol - 0.01) < 1e-9
+    rm.record_sell(pos, pos.tokens * action.sell_fraction, 0.05)
+    assert pos.state == PositionState.DERISKED  # Einsatz ist zurück
+    # Rest wächst erneut +20 % über die neue Basis: nächste Leiter-Stufe
+    action2 = rm.check_exit(pos, value_sol=0.0121, creator_sold=False, migrated=False, now=20.0)
+    assert action2 is not None and action2.reason == ExitReason.RECYCLE
+    # unter Mindest-Restwert: keine weiteren Teilverkäufe (Fee-Schutz)
+    rm2 = RiskManager(RiskConfig(recycle_trigger_pct=20.0))
+    pos2 = rm2.open_position("N", "S", tokens=100.0, cost_sol=0.005, now=0.0)
+    assert rm2.check_exit(pos2, value_sol=0.009, creator_sold=False, migrated=False, now=5.0) is None
