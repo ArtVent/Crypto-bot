@@ -11,6 +11,12 @@
 name: paper-trading
 
 on:
+  # Haupt-Trigger: jede Änderung an .github/paper-trigger startet einen Lauf
+  # (funktioniert auf jedem Branch – die Datei enthält die Aufnahmedauer).
+  push:
+    branches: ["claude/memecoin-database-github-sjwlmb"]
+    paths: [".github/paper-trigger"]
+  # Nur wirksam, wenn der Workflow auf dem Default-Branch liegt:
   workflow_dispatch:
     inputs:
       minutes:
@@ -18,7 +24,6 @@ on:
         required: false
         default: "50"
   schedule:
-    # Greift nur, wenn der Workflow auf dem Default-Branch liegt.
     # 19:17 UTC = aktive US-Stunden auf pump.fun.
     - cron: "17 19 * * *"
 
@@ -46,9 +51,13 @@ jobs:
 
       - name: Live-Strom aufzeichnen
         run: |
-          python -m memetrader record \
-            --minutes "${{ github.event.inputs.minutes || '50' }}" \
-            --out recording.jsonl
+          minutes="${{ github.event.inputs.minutes || '' }}"
+          if [ -z "$minutes" ] && [ -f .github/paper-trigger ]; then
+            minutes=$(grep -oE '^[0-9]+' .github/paper-trigger | head -1)
+          fi
+          minutes="${minutes:-50}"
+          echo "Aufnahmedauer: ${minutes} Minuten"
+          python -m memetrader record --minutes "$minutes" --out recording.jsonl
 
       - name: Aufnahme prüfen
         run: |
