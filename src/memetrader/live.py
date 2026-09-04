@@ -35,6 +35,9 @@ class LiveState:
     realized_pnl_sol: float = 0.0
     sessions: int = 0
     total_entries: int = 0
+    last_report_day: int = -1        # UTC-Tag des letzten gesendeten Abendberichts
+    day_start_realized: float = 0.0  # realisierte PnL zu Tagesbeginn (für Tages-PnL)
+    day_entries: int = 0             # Entries seit Tagesbeginn
 
     @classmethod
     def load(cls, path: Path) -> "LiveState":
@@ -42,7 +45,10 @@ class LiveState:
             d = json.loads(Path(path).read_text())
             return cls(realized_pnl_sol=float(d.get("realized_pnl_sol", 0.0)),
                        sessions=int(d.get("sessions", 0)),
-                       total_entries=int(d.get("total_entries", 0)))
+                       total_entries=int(d.get("total_entries", 0)),
+                       last_report_day=int(d.get("last_report_day", -1)),
+                       day_start_realized=float(d.get("day_start_realized", 0.0)),
+                       day_entries=int(d.get("day_entries", 0)))
         except (FileNotFoundError, ValueError, json.JSONDecodeError):
             return cls()
 
@@ -53,15 +59,20 @@ class LiveState:
             "equity_sol": round(budget_sol + self.realized_pnl_sol, 6),
             "sessions": self.sessions,
             "total_entries": self.total_entries,
+            "last_report_day": self.last_report_day,
+            "day_start_realized": round(self.day_start_realized, 6),
+            "day_entries": self.day_entries,
             "updated_utc": time.strftime("%Y-%m-%d %H:%M", time.gmtime()),
         }, indent=2))
 
 
-def _entry_alert(event: dict, fill, bot: Bot) -> str:
-    sym = event.get("symbol") or fill.mint[:8]
-    return (f"🟢 KAUF {sym}  {fill.sol:.4f} SOL\n"
-            f"Konto: {bot.risk.summary().get('realized_pnl_sol', 0):+.4f} SOL realisiert, "
-            f"{len(bot.risk.positions)} offen")
+def evening_report(state: LiveState, budget_sol: float) -> str:
+    equity = budget_sol + state.realized_pnl_sol
+    day_pnl = state.realized_pnl_sol - state.day_start_realized
+    return (f"📊 Abendbericht (Paper): {state.day_entries} Trades heute, "
+            f"{day_pnl:+.4f} SOL heute.\n"
+            f"Konto: {equity:.4f} SOL ({(equity/budget_sol-1)*100:+.2f}% seit Start), "
+            f"{state.total_entries} Trades gesamt.")
 
 
 def liquidate_open(bot: Bot, now: float) -> float:
@@ -80,7 +91,10 @@ def liquidate_open(bot: Bot, now: float) -> float:
 
 async def run_live(config: BotConfig, run_seconds: float, notifier: Notifier | None = None,
                    state_path: str = "state/live-state.json", save_every: float = 120.0,
-                   ws_url: str | None = None) -> LiveState:
+                   ws_url: str | None = None, report_hour_utc: int = 19) -> LiveState:
+    """report_hour_utc: Der EINZIGE Telegram-Kanal ist ein Abendbericht pro Tag,
+    beim ersten Ereignis ab dieser UTC-Stunde (19 UTC ≈ 21:00 DE-Sommerzeit).
+    Keine Alerts pro Trade oder pro Session mehr."""
     import websockets
 
     notifier = notifier or Notifier.from_env()
@@ -91,6 +105,20 @@ async def run_live(config: BotConfig, run_seconds: float, notifier: Notifier | N
         print(f"[live] Lernstand geladen: {bot.tuner.state_summary()}", flush=True)
     # Kontostand aus vorheriger Session fortführen
     bot.risk.realized_pnl_sol = state.realized_pnl_sol
+
+    def maybe_daily_report() -> None:
+        tm = time.gmtime()
+        day = tm.tm_year * 1000 + tm.tm_yday
+        if state.last_report_day == -1:            # Erststart: nur verankern, nicht senden
+            state.last_report_day = day
+            return
+        if day != state.last_report_day and tm.tm_hour >= report_hour_utc:
+            state.realized_pnl_sol = bot.risk.realized_pnl_sol
+            notifier.send(evening_report(state, config.risk.budget_sol))
+            state.last_report_day = day
+            state.day_start_realized = bot.risk.realized_pnl_sol  # neuer Tag: Basis zurücksetzen
+            state.day_entries = 0
+            state.save(Path(state_path), config.risk.budget_sol)
 
     subscribe = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "logsSubscribe",
                             "params": [{"mentions": [PUMP_PROGRAM]}, {"commitment": "confirmed"}]})
@@ -109,6 +137,7 @@ async def run_live(config: BotConfig, run_seconds: float, notifier: Notifier | N
                     try:
                         message = await asyncio.wait_for(ws.recv(), timeout=30.0)
                     except asyncio.TimeoutError:
+                        maybe_daily_report()
                         continue
                     now = time.time()
                     try:
@@ -123,9 +152,11 @@ async def run_live(config: BotConfig, run_seconds: float, notifier: Notifier | N
                             if fill.side == "buy":
                                 entries_this_session += 1
                                 state.total_entries += 1
-                                msg_text = _entry_alert(event, fill, bot)
-                                print(msg_text, flush=True)
-                                notifier.send(msg_text)
+                                state.day_entries += 1
+                                # nur Konsolen-Log, KEIN Telegram pro Trade
+                                print(f"[live] KAUF {event.get('symbol') or fill.mint[:8]} "
+                                      f"{fill.sol:.4f} SOL", flush=True)
+                    maybe_daily_report()
                     if now - last_prune > 300:
                         bot.prune(now)
                         last_prune = now
@@ -143,10 +174,8 @@ async def run_live(config: BotConfig, run_seconds: float, notifier: Notifier | N
     state.realized_pnl_sol = bot.risk.realized_pnl_sol
     state.sessions += 1
     state.save(Path(state_path), config.risk.budget_sol)
+    # Session-Ende: KEIN Telegram mehr, nur Konsolen-Log
     equity = config.risk.budget_sol + state.realized_pnl_sol
-    summary = (f"⏱ Session #{state.sessions} beendet: {entries_this_session} Entries. "
-               f"Konto {equity:.4f} SOL ({(equity/config.risk.budget_sol-1)*100:+.2f}% seit Start, "
-               f"{state.total_entries} Entries gesamt).")
-    print(summary, flush=True)
-    notifier.send(summary)
+    print(f"[live] Session #{state.sessions} beendet: {entries_this_session} Entries. "
+          f"Konto {equity:.4f} SOL, {state.total_entries} Entries gesamt.", flush=True)
     return state

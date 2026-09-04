@@ -28,3 +28,17 @@ def test_liquidate_open_flattens_into_realized(tmp_path):
     assert "LQ" not in bot.risk.positions            # flach nach Session-Ende
     assert liq > 0 and bot.risk.realized_pnl_sol != pnl_before
     assert any(r.mint == "LQ" for r in bot.journal.finalized)  # im Journal erfasst
+
+
+def test_evening_report_and_new_state_fields(tmp_path):
+    from memetrader.live import LiveState, evening_report
+    p = tmp_path / "s.json"
+    st = LiveState(realized_pnl_sol=0.25, sessions=3, total_entries=12,
+                   last_report_day=2026250, day_start_realized=0.2, day_entries=4)
+    st.save(p, budget_sol=1.0)
+    r = LiveState.load(p)
+    assert r.last_report_day == 2026250 and r.day_entries == 4 and abs(r.day_start_realized - 0.2) < 1e-9
+    txt = evening_report(r, budget_sol=1.0)
+    assert "Abendbericht" in txt and "4 Trades heute" in txt and "+25.00%" in txt
+    # Tages-PnL = realized - day_start = 0.25 - 0.2 = +0.05
+    assert "+0.0500 SOL heute" in txt
