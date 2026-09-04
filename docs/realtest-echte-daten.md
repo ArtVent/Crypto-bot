@@ -1,5 +1,13 @@
 # Real-Test: Der Bot gegen echte historische Coins (Ergebnis: negativ)
 
+> **Nachtrag 04.09.2026 (Anti-Bug-Durchlauf):** Die unten genannten ABSOLUTEN
+> A/B-Zahlen (z. B. Referenz +17,84 %, Kappe +20,12 %, Leiter +22,47 %) wurden
+> mit einem Wiedereintritts-Bug berechnet (der Bot kaufte gerade verkaufte
+> Coins wieder nach). Nach der Korrektur ergibt derselbe Tag +57,0 % – ein
+> nicht robuster Einzeltag-Wert (Tuner-Kaskade), KEIN Edge-Versprechen. Die
+> relativen Aussagen bleiben richtungsgültig; Details in
+> `docs/anti-bug-durchlauf.md`. Maßgeblich ist ab jetzt die Forward-Serie.
+
 > Ausgeführt am 03.09.2026. Getestet wurde die Entry-Pipeline des Bots gegen
 > **echte** pump.fun-Coins mit **echten** Outcomes (MELT-Datensatz, 41.470
 > graduierte Coins Dez 2024–März 2025; CC BY-NC). Methodik: `realtest.py`.

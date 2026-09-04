@@ -42,6 +42,31 @@ korrektes Verhalten, kein Fehler.
 - Anchor-Diskriminatoren byte-genau gegen das echte pump.fun-IDL; Base58; Borsh-Offsets/Skalierung (Lamports/1e9, Token/1e6)
 - Kein Lookahead; Overrides greifen; kein Zustands-Leak zwischen den A/B-Läufen; Equity-Formel sauber mark-to-market
 
+## Folge für frühere Zahlen: Baseline verschoben (WICHTIG)
+
+Die Fixes ändern den Trade-Satz. Auf dem historischen Volltag (Curve+AMM):
+
+| Code-Stand | Rendite | Entries | Winrate | Max-DD |
+|---|---|---|---|---|
+| Vor allen Fixes | +17,8 % | 74 | 41 % | 23,1 % |
+| Nach allen Fixes | **+57,0 %** | 61 | 44 % | 18,5 % |
+
+**Das ist kein Rendite-Versprechen.** Ursache ist vor allem der
+Wiedereintritts-Schutz (der Bug kaufte gerade verkaufte Coins wieder nach –
+netto Verlierer an diesem Tag); der Rest ist Kaskade über den adaptiven
+Tuner. `final_equity` stammt weiter allein aus `record_sell` – es wird keine
+Rendite künstlich erzeugt, es ist ein anderer, korrekt ausgewählter
+Trade-Satz. Einzeltag-Absolutwerte sind bekanntlich nicht robust
+(Tuner-Sensitivität) – deshalb zählt nur die Forward-Serie.
+
+**Konsequenz:** Alle vor diesem Durchlauf dokumentierten ABSOLUTEN A/B-Zahlen
+(Referenz +17,84 %, Dichte-Kappe +20,12 %, Recycle-Leiter +22,47 %,
+Wochen-Werte) wurden mit dem Wiedereintritts-Bug berechnet und sind als
+Absolutwerte **überholt**. Die relativen Aussagen (welcher Arm besser lag,
+Vorzeichen der Regime-Analyse) bleiben als Richtung gültig. Maßgeblich ist
+ab jetzt die Forward-Serie (`forward-validierung.md`) mit dem korrigierten
+Code.
+
 ## Dokumentiert (Verhalten beabsichtigt)
 
 - Kill-Switch stellt offene Positionen glatt (nicht nur Entry-Sperre) – Kommentar präzisiert.
