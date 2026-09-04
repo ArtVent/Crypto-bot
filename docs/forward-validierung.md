@@ -18,9 +18,11 @@ Deshalb läuft das Papertrading als Workflow (`.github/workflows/paper-trading.y
 
 1. `memetrader record` zeichnet ~45–50 Minuten des rohen PumpPortal-Streams
    als Replay-JSONL auf (`recorder.py`, kausale Subscribe-Logik, netzfrei getestet).
-2. `memetrader abtest` spielt die Aufzeichnung **zweimal lookahead-frei** durch
-   den vollen Bot: Referenz-Konfiguration vs. Dichte-Kappe (max. 7 kreditierte
-   Wallets) – identische Events, deterministisch, vorregistriertes Duell.
+2. `memetrader abtest` spielt die Aufzeichnung **mehrfach lookahead-frei**
+   durch den vollen Bot – identische Events, deterministisch, vorregistrierte
+   Duelle: Referenz-Konfiguration vs. Dichte-Kappe (max. 7 kreditierte
+   Wallets) vs. Recycle-Leiter (+100 %, Teil 6 in realtest-echte-daten.md:
+   in-sample +22,5 % vs. +17,8 %).
 3. Aufzeichnung, `report.json`/`report.md` und Journale werden als GitHub-Release
    (`paper-…`-Tag) veröffentlicht; optional geht eine Telegram-Zusammenfassung
    raus (Repo-Secrets `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`).
@@ -36,14 +38,15 @@ Minutengrenze.
 
 ## Entscheidungsregel (vorab festgelegt)
 
-Die Kappe wird nur dann Default, wenn sie über **mindestens 14 frische
-Aufzeichnungen** kumulativ vorn liegt UND ihren Drawdown-Vorteil hält.
-Einzeltage zählen nicht – Aufnahmefenster von ~45 Minuten sind verrauscht;
-maßgeblich sind Summe und Verteilung über die Serie. Verliert die Kappe die
-Serie, wird sie verworfen und das steht dann genauso hier.
+Ein Kandidat (Dichte-Kappe, Recycle-Leiter) wird nur dann Default, wenn er
+über **mindestens 14 frische Aufzeichnungen** kumulativ vor der Referenz
+liegt UND sein Risikoprofil (Drawdown) nicht schlechter ist. Einzeltage
+zählen nicht – Aufnahmefenster von ~45 Minuten sind verrauscht; maßgeblich
+sind Summe und Verteilung über die Serie. Verliert ein Kandidat die Serie,
+wird er verworfen und das steht dann genauso hier.
 
 ## Ergebnis-Serie
 
-| Datum (UTC) | Fenster | Events | Referenz | Kappe | Trades (Ref/Kappe) | Bemerkung |
+| Datum (UTC) | Fenster | Events | Referenz | Kappe | Leiter | Bemerkung |
 |---|---|---|---|---|---|---|
-| 2026-09-04 07:23 | 5 min | 56 | +0,00 % | +0,00 % | 0/0 | Validierungslauf der Pipeline (zu kurz für Trades – zählt nicht zur Serie) |
+| 2026-09-04 07:23 | 5 min | 56 | +0,00 % | +0,00 % | – | Validierungslauf der Pipeline (zu kurz für Trades – zählt nicht zur Serie) |

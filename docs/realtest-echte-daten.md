@@ -282,6 +282,38 @@ Verluste gedeckelt) – genau das, was ein Dichte-Filter leisten soll.
   durch Adoption rückgetesteter eigener Hypothesen. Der Lauf W ist der
   vorregistrierte Vergleichsmaßstab dafür.
 
+## Teil 6: Teilverkaufs-Leiter ("Einsatz raus, Gewinn läuft")
+
+Auf Nutzerwunsch gebaut: Sobald der Positionswert die aktuelle Basis um X %
+übersteigt, wird genau die Basis verkauft; der Gewinn bleibt im Markt, wird
+zur neuen Basis, und das wiederholt sich (`recycle_trigger_pct` in
+`risk.py`). Kontrollierter A/B auf dem vollen realen Tag, drei Trigger:
+
+| Lauf | Ergebnis | Trades | Winrate | Max-DD |
+|---|---|---|---|---|
+| F Referenz (ohne Leiter) | +17,84 % | 58 | 41 % | 23,1 % |
+| Leiter +20 % | +8,58 % | 44 | 73 % | 10,5 % |
+| Leiter +50 % | +2,88 % | 54 | 52 % | 19,4 % |
+| **Leiter +100 %** | **+22,47 %** | 58 | 41 % | 21,7 % |
+
+**Struktur des Befunds:** Ein früher Trigger räumt ~83 % der Position beim
+ersten Zucken ab und kappt genau die Graduation-Runner, die den Tag tragen –
++20 % liefert die glatteste Kurve (WR 73 %, DD 10,5 %), aber halbiert den
+Gewinn. Das bestätigt Teil 4 von der anderen Seite: **Der Edge lebt davon,
+Gewinner laufen zu lassen.** Der späte Trigger (+100 %) ist in Stufe 1
+identisch mit dem bestehenden Derisk – sein Mehrwert ist die *Wiederholung*:
+Bei jedem weiteren Verdoppeln über der neuen Basis wird erneut gebankt,
+wodurch Runner-Gewinne stufenweise gesichert werden statt komplett am
+Trailing/Migrations-Exit zu hängen. +4,6 Punkte über der Referenz bei
+leicht niedrigerem Drawdown.
+
+**Einordnung und Entscheidung:** Die Wahl "+100 % ist am besten" ist eine
+Auswahl auf demselben (inzwischen vielgenutzten) Testtag. Default bleibt
+daher aus; die +100 %-Leiter läuft ab jetzt als **dritter Arm im täglichen
+Forward-A/B** (`abtest`, docs/forward-validierung.md) und wird nur bei
+kumulativem Serien-Vorsprung Default – dieselbe Regel wie für die
+Dichte-Kappe.
+
 ## Konsequenzen
 
 1. **Kein Live-Trading mit diesem Stand.** Die Beweislast liegt jetzt bei der

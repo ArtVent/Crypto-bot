@@ -42,7 +42,8 @@ def _row(result: BacktestResult) -> dict:
 
 
 def run_abtest(events_file: str | Path, out_dir: str | Path,
-               budget_sol: float = 1.0, max_smart_buyers: int = 7) -> dict:
+               budget_sol: float = 1.0, max_smart_buyers: int = 7,
+               recycle_trigger_pct: float = 100.0) -> dict:
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     events = load_events(events_file)
@@ -55,6 +56,9 @@ def run_abtest(events_file: str | Path, out_dir: str | Path,
     cap = run_backtest(events=events, workdir=out_dir / "cap", budget_sol=budget_sol,
                        ml_model=None, claude="stub",
                        bot_overrides={"max_smart_buyers": max_smart_buyers})
+    ladder = run_backtest(events=events, workdir=out_dir / "ladder", budget_sol=budget_sol,
+                          ml_model=None, claude="stub",
+                          risk_overrides={"recycle_trigger_pct": recycle_trigger_pct})
 
     report = {
         "recorded_utc": time.strftime("%Y-%m-%d %H:%M", time.gmtime(events[0][0])),
@@ -62,8 +66,10 @@ def run_abtest(events_file: str | Path, out_dir: str | Path,
         "n_events": len(events),
         "budget_sol": budget_sol,
         "max_smart_buyers": max_smart_buyers,
+        "recycle_trigger_pct": recycle_trigger_pct,
         "reference": _row(ref),
         "density_cap": _row(cap),
+        "recycle_ladder": _row(ladder),
     }
     (out_dir / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     (out_dir / "report.md").write_text(format_report(report))
@@ -72,14 +78,21 @@ def run_abtest(events_file: str | Path, out_dir: str | Path,
 
 def format_report(report: dict) -> str:
     ref, cap = report["reference"], report["density_cap"]
+    ladder = report.get("recycle_ladder")
 
     def line(name: str, row: dict) -> str:
         wr = f"{row['win_rate'] * 100:.0f}%" if row["win_rate"] is not None else "–"
         return (f"| {name} | {row['return_pct']:+.2f}% | {row['closed']} | "
                 f"{wr} | {row['max_drawdown_pct']:.1f}% |")
 
-    delta = cap["return_pct"] - ref["return_pct"]
-    verdict = ("Kappe vorn" if delta > 0 else "Referenz vorn" if delta < 0 else "Gleichstand")
+    rows = [
+        line("Referenz", ref),
+        line(f"Dichte-Kappe (max. {report['max_smart_buyers']})", cap),
+    ]
+    deltas = [f"Kappe {cap['return_pct'] - ref['return_pct']:+.2f}"]
+    if ladder is not None:
+        rows.append(line(f"Recycle-Leiter (+{report['recycle_trigger_pct']:.0f}%)", ladder))
+        deltas.append(f"Leiter {ladder['return_pct'] - ref['return_pct']:+.2f}")
     return "\n".join([
         "# Paper-Trading A/B-Bericht",
         "",
@@ -89,9 +102,8 @@ def format_report(report: dict) -> str:
         "",
         "| Lauf | Ergebnis | Trades | Winrate | Max-DD |",
         "|---|---|---|---|---|",
-        line("Referenz", ref),
-        line(f"Dichte-Kappe (max. {report['max_smart_buyers']})", cap),
+        *rows,
         "",
-        f"**{verdict}** ({delta:+.2f} Punkte). Einzeltage sind verrauscht – "
-        "zählen tut die Serie über mehrere frische Aufzeichnungen.",
+        f"**Delta zur Referenz (Punkte): {', '.join(deltas)}.** Einzeltage sind "
+        "verrauscht – zählen tut die Serie über mehrere frische Aufzeichnungen.",
     ]) + "\n"
