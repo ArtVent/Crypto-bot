@@ -1,0 +1,74 @@
+{
+  "recorded_utc": "2026-09-04 17:19",
+  "span_hours": 1.5,
+  "n_events": 238587,
+  "budget_sol": 1.0,
+  "max_smart_buyers": 7,
+  "recycle_trigger_pct": 100.0,
+  "min_market_heat": 3.0,
+  "max_early_seller_share": 0.35,
+  "reference": {
+    "final_equity_sol": 0.9795,
+    "return_pct": -2.05,
+    "entries": 3,
+    "closed": 3,
+    "win_rate": 0.333,
+    "max_drawdown_pct": 5.9,
+    "lessons": {
+      "overreacted_creator_exit": 1,
+      "good_time_stop": 1,
+      "bad_entry": 1
+    }
+  },
+  "density_cap": {
+    "final_equity_sol": 0.9795,
+    "return_pct": -2.05,
+    "entries": 3,
+    "closed": 3,
+    "win_rate": 0.333,
+    "max_drawdown_pct": 5.9,
+    "lessons": {
+      "overreacted_creator_exit": 1,
+      "good_time_stop": 1,
+      "bad_entry": 1
+    }
+  },
+  "recycle_ladder": {
+    "final_equity_sol": 0.9795,
+    "return_pct": -2.05,
+    "entries": 3,
+    "closed": 3,
+    "win_rate": 0.333,
+    "max_drawdown_pct": 5.9,
+    "lessons": {
+      "overreacted_creator_exit": 1,
+      "good_time_stop": 1,
+      "bad_entry": 1
+    }
+  },
+  "regime_gate": {
+    "final_equity_sol": 0.9795,
+    "return_pct": -2.05,
+    "entries": 3,
+    "closed": 3,
+    "win_rate": 0.333,
+    "max_drawdown_pct": 5.9,
+    "lessons": {
+      "overreacted_creator_exit": 1,
+      "good_time_stop": 1,
+      "bad_entry": 1
+    }
+  },
+  "insider_exit": {
+    "final_equity_sol": 0.972,
+    "return_pct": -2.8,
+    "entries": 2,
+    "closed": 2,
+    "win_rate": 0.0,
+    "max_drawdown_pct": 2.8,
+    "lessons": {
+      "good_time_stop": 1,
+      "bad_entry": 1
+    }
+  }
+}
