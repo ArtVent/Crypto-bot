@@ -22,7 +22,13 @@ Deshalb läuft das Papertrading als Workflow (`.github/workflows/paper-trading.y
    durch den vollen Bot – identische Events, deterministisch, vorregistrierte
    Duelle: Referenz-Konfiguration vs. Dichte-Kappe (max. 7 kreditierte
    Wallets) vs. Recycle-Leiter (+100 %, Teil 6 in realtest-echte-daten.md:
-   in-sample +22,5 % vs. +17,8 %).
+   in-sample +22,5 % vs. +17,8 %) vs. **Regime-Gate/Coldday-Erkennung**
+   (≥3 Graduationen/Stunde, sonst kein Entry – der laut 2-Wochen-Rechnung
+   größte Hebel: kalte Phasen kosten Köder ohne Fang, siehe Teil 3).
+   Warm-up-Hinweis: Der Regime-Sensor startet bei Aufnahmebeginn leer; die
+   ersten Minuten jedes Fensters sind für diesen Arm systematisch gesperrt.
+   Auf wirklich kalten Aufnahmen handelt er gar nicht – genau das ist der
+   Zweck, und die Serie misst, was das netto bringt.
 3. Aufzeichnung, `report.json`/`report.md` und Journale werden als GitHub-Release
    (`paper-…`-Tag) veröffentlicht; optional geht eine Telegram-Zusammenfassung
    raus (Repo-Secrets `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`).
@@ -61,6 +67,7 @@ wird er verworfen und das steht dann genauso hier.
 
 ## Ergebnis-Serie
 
-| Datum (UTC) | Fenster | Events | Referenz | Kappe | Leiter | Bemerkung |
-|---|---|---|---|---|---|---|
-| 2026-09-04 07:23 | 5 min | 56 | +0,00 % | +0,00 % | – | Validierungslauf der Pipeline (zu kurz für Trades – zählt nicht zur Serie) |
+| Datum (UTC) | Fenster | Events | Referenz | Kappe | Leiter | Regime | Bemerkung |
+|---|---|---|---|---|---|---|---|
+| 2026-09-04 07:23 | 5 min | 56 | +0,00 % | +0,00 % | – | – | Validierungslauf der Pipeline (zu kurz für Trades; zudem lieferte PumpPortal keine Trades mehr – zählt nicht zur Serie) |
+| 2026-09-04 09:09 | 4 min | 7.378 | +0,00 % | +0,00 % | +0,00 % | – | Diagnoselauf der neuen On-Chain-Quelle (voller Trade-Strom, 0 Reconnects; zu kurz für Trades – zählt nicht zur Serie) |

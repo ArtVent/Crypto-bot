@@ -106,7 +106,7 @@ jobs:
           gzip -9 recording.jsonl
           files="recording.jsonl.gz report/report.json"
           # Journale existieren nur, wenn Trades stattfanden
-          for arm in ref cap ladder; do
+          for arm in ref cap ladder regime; do
             [ -f "report/$arm/bt_1.journal.jsonl" ] && cp "report/$arm/bt_1.journal.jsonl" "journal-$arm.jsonl" && files="$files journal-$arm.jsonl"
           done
           gh release create "$PAPER_TAG" \
