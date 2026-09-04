@@ -253,9 +253,21 @@ im Käuferfeld) senkt die Trefferquote.** Das Konfluenz-Gate "mindestens X
 smarte Wallets" ist damit auf heißen Tagen genau falsch herum gedacht.
 
 Konsequenz: Bot-Dichte-**Kappe** `max_smart_buyers` implementiert (Gegenteil
-des Konfluenz-Gates) und in-sample auf demselben Tag getestet.
+des Konfluenz-Gates) und in-sample auf demselben Tag getestet:
 
-<!-- W-ERGEBNIS -->
+| Lauf | Ergebnis | Trades | Winrate | Max-DD |
+|---|---|---|---|---|
+| F Referenz | +17,84 % | 58 | 41 % | 23,1 % |
+| **W Kappe (max. 7 kreditierte Wallets)** | **+20,12 %** | 21 | **67 %** | **12,9 %** |
+
+Die Kappe blockte 3.789 Kandidaten und veränderte den Charakter des Tages:
+kaum noch Graduation-Runner (1 statt 9 migration_exits – überfüllte Coins
+graduieren eben oft), dafür enge Verluste (schlechtester Trade −0,02 SOL)
+und hohe Trefferquote. **Ehrliche Einordnung:** Rendite-Vorsprung bei n=21
+nicht belastbar (Top-3-Trades = 76 % des PnL; ohne den besten Trade ≈ +13 %),
+und die Schwelle 8 stammt aus der Journal-Analyse desselben Tages
+(in-sample). Belastbar ist die **Risiko-Verbesserung** (Drawdown halbiert,
+Verluste gedeckelt) – genau das, was ein Dichte-Filter leisten soll.
 
 **Entscheidungen (alle konservativ):**
 - `block_serial_creators` bleibt als Default an – kostenlos, blockt ein
@@ -264,9 +276,11 @@ des Konfluenz-Gates) und in-sample auf demselben Tag getestet.
   bis kontraproduktiv.
 - `min_market_heat` bleibt aus, ist aber als Schutz für kalte Regimes
   verfügbar (die Verlustwoche aus Teil 3 war ein kaltes Regime).
-- `max_smart_buyers` bleibt aus: Die Schwelle 8 stammt aus demselben Tag
-  (in-sample). Validierung erfolgt vorwärts im Autopilot-Papertraining auf
-  frischen Daten, nicht durch Adoption rückgetesteter eigener Hypothesen.
+- `max_smart_buyers` bleibt trotz des guten In-Sample-Laufs aus: Die
+  Schwelle stammt aus demselben Tag, an dem sie getestet wurde. Validierung
+  erfolgt vorwärts im Autopilot-Papertraining auf frischen Daten, nicht
+  durch Adoption rückgetesteter eigener Hypothesen. Der Lauf W ist der
+  vorregistrierte Vergleichsmaßstab dafür.
 
 ## Konsequenzen
 
