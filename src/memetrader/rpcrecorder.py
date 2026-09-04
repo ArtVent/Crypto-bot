@@ -223,6 +223,7 @@ async def run_rpc_recorder(out_path: str, minutes: float, ws_url: str | None = N
                 async with websockets.connect(ws_url, ping_interval=20,
                                               max_size=1 << 22) as ws:
                     await ws.send(subscribe)
+                    since_flush = 0
                     while True:
                         remaining = deadline - time.time()
                         if remaining <= 0:
@@ -232,16 +233,19 @@ async def run_rpc_recorder(out_path: str, minutes: float, ws_url: str | None = N
                         except asyncio.TimeoutError:
                             continue
                         now = time.time()
+                        reconnects = 0  # stabile Verbindung: Backoff zurücksetzen
                         try:
                             msg = json.loads(message)
                         except json.JSONDecodeError:
                             continue
-                        if msg.get("method") != "logsNotification":
-                            continue
+                        if not isinstance(msg, dict) or msg.get("method") != "logsNotification":
+                            continue  # Fremd-Frame überspringen, nicht reconnecten
                         value = msg.get("params", {}).get("result", {}).get("value", {})
                         for event in core.on_notification(value):
                             fh.write(json.dumps({**event, "_t": now}, ensure_ascii=False) + "\n")
-                            if core.events_out % 2000 == 0:
+                            since_flush += 1
+                            if since_flush >= 2000:
+                                since_flush = 0
                                 fh.flush()
                                 print(f"[rpc-record] {core.events_out} Events, "
                                       f"{(deadline - now) / 60:.0f} min verbleibend "

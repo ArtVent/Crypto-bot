@@ -86,6 +86,9 @@ def analyze_funnel(events_file: str | Path) -> dict:
                 st.migrated = True
 
     return {
+        "note": ("misst NUR das Strategie-Gate (Curve/Momentum); die nachgelagerten "
+                 "Bot-Gates serial_creator/market_heat/smart_wallets/ML/Claude/risk "
+                 "sind hier NICHT enthalten – mints_would_enter ist eine Obergrenze"),
         "mints_seen": len(curves),
         "buy_events": n_buy_events,
         "mints_would_enter": len(would_enter_mints),

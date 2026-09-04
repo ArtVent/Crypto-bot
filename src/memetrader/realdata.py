@@ -104,7 +104,9 @@ def iter_day_events(data_dir: str | Path) -> Iterator[tuple[float, dict]]:
                 and event["txType"] == "buy"
                 and event["traderPublicKey"] == pending_create["traderPublicKey"]
             ):
-                pending_create["solAmount"] = event["solAmount"]
+                # Mehrere Creator-Buys im selben Slot summieren (Bundle), nicht
+                # überschreiben; Reserven vom jeweils letzten (aktuellsten) Row.
+                pending_create["solAmount"] += event["solAmount"]
                 pending_create["vSolInBondingCurve"] = event["vSolInBondingCurve"]
                 pending_create["vTokensInBondingCurve"] = event["vTokensInBondingCurve"]
                 continue
@@ -118,7 +120,9 @@ def iter_day_events(data_dir: str | Path) -> Iterator[tuple[float, dict]]:
             mint = event["mint"]
             if mint not in graduated and float(row.real_lamports_reserve) >= GRADUATION_REAL_LAMPORTS:
                 graduated.add(mint)
-                yield (t + 0.5, {"txType": "migrate", "mint": mint, "pool": "pump-amm"})
+                # gleicher Zeitstempel wie der auslösende Swap: hält die Ausgabe
+                # monoton (heapq.merge im gemergten Strom setzt Sortierung voraus)
+                yield (t, {"txType": "migrate", "mint": mint, "pool": "pump-amm"})
 
         out = flush()
         if out:

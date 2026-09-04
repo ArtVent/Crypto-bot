@@ -87,11 +87,16 @@ class BacktestResult:
     vet_stats: dict = field(default_factory=dict)
     daily_equity: list = field(default_factory=list)
     halted_days: int = 0
+    budget_sol: float = 1.0
+
+    @property
+    def return_pct(self) -> float:
+        return (self.final_equity_sol / self.budget_sol - 1.0) * 100.0 if self.budget_sol else 0.0
 
     def summary(self) -> str:
         lines = [
-            f"Seed {self.seed}: 1.0000 SOL -> {self.final_equity_sol:.4f} SOL "
-            f"({(self.final_equity_sol - 1.0) * 100:+.1f}%)",
+            f"Seed {self.seed}: {self.budget_sol:.4f} SOL -> {self.final_equity_sol:.4f} SOL "
+            f"({self.return_pct:+.1f}%)",
             f"  Trades: {self.n_closed} geschlossen ({self.n_entries} Entries), "
             f"Winrate {self.win_rate * 100:.0f}%" if self.win_rate is not None else
             f"  Trades: {self.n_closed}",
@@ -182,6 +187,13 @@ def run_backtest(
             open_cost_outstanding += pos.cost_sol - pos.realized_sol
         return budget_sol + bot.risk.realized_pnl_sol + open_value - open_cost_outstanding
 
+    def update_dd(now: float) -> None:
+        nonlocal peak, max_dd
+        eq = equity(now)
+        peak = max(peak, eq)
+        if peak > 0:
+            max_dd = max(max_dd, (peak - eq) / peak * 100.0)
+
     for t, event in events:
         n_events += 1
         last_t = t
@@ -198,15 +210,17 @@ def run_backtest(
         bot.on_event(event, now=t)
         if bot.risk.halted:
             was_halted_today = True
-        if n_events % 5000 == 0:
-            eq = equity(t)
-            peak = max(peak, eq)
-            if peak > 0:
-                max_dd = max(max_dd, (peak - eq) / peak * 100.0)
+        # Drawdown auf jedem Event stichprobenartig (equity() ist O(offene Pos.)
+        # <= max_concurrent): dicht genug auch für kurze Aufnahmen, nicht nur
+        # alle 5000 Events (sonst max_dd=0 bei <5000 Events – dem A/B-Fall).
+        if n_events % 100 == 0:
+            update_dd(t)
         if n_events % 200_000 == 0:
             bot.prune(t)
 
-    # Restpositionen zum letzten Kurs liquidieren (konservativ: Verkaufswert)
+    # Restpositionen zum letzten Kurs liquidieren (konservativ: Verkaufswert).
+    # Über das Journal, damit n_closed/win_rate/lessons offene Positionen NICHT
+    # stillschweigend fallenlassen (sonst Bias zwischen Armen mit langer Haltezeit).
     end_t = last_t
     liquidation = 0.0
     for mint, pos in list(bot.risk.positions.items()):
@@ -214,6 +228,13 @@ def run_backtest(
         value = bot.broker.position_value(state, pos.tokens) if state else 0.0
         liquidation += value
         bot.risk.record_sell(pos, pos.tokens, value)
+        bot.journal.on_exit(mint, "end_liquidation", 1.0, value, True, end_t)
+    # letzten (Teil-)Tag flushen: Equity-Kurve + Kill-Switch-Zählung
+    if last_day >= 0:
+        equity_curve.append((last_day, round(equity(end_t), 4)))
+        if was_halted_today:
+            halted_days += 1
+    update_dd(end_t)
     bot.journal.finalize_due(end_t + 10 * 600.0)
 
     final_equity = budget_sol + bot.risk.realized_pnl_sol
@@ -234,6 +255,7 @@ def run_backtest(
         self_tuning_events=log_text.count('"event": "self_tune"'),
         vet_stats=dict(worker.stats) if isinstance(worker, StubClaudeWorker) else {},
         daily_equity=equity_curve,
+        budget_sol=budget_sol,
         halted_days=halted_days,
     )
 

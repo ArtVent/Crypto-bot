@@ -32,7 +32,7 @@ def load_events(events_file: str | Path) -> list[tuple[float, dict]]:
 def _row(result: BacktestResult) -> dict:
     return {
         "final_equity_sol": round(result.final_equity_sol, 4),
-        "return_pct": round((result.final_equity_sol - 1.0) * 100, 2),
+        "return_pct": round(result.return_pct, 2),
         "entries": result.n_entries,
         "closed": result.n_closed,
         "win_rate": round(result.win_rate, 3) if result.win_rate is not None else None,

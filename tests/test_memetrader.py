@@ -225,7 +225,8 @@ def test_bot_derisks_on_pump(tmp_path):
 
 def test_recycle_ladder_partial_sells():
     """Teilverkaufs-Leiter: Basis raus bei +X %, Gewinn läuft als neue Basis weiter."""
-    rm = RiskManager(RiskConfig(recycle_trigger_pct=20.0))
+    # recycle_min_value_sol=0 isoliert die reine Leiter-Mathematik (Dust-Guard separat)
+    rm = RiskManager(RiskConfig(recycle_trigger_pct=20.0, recycle_min_value_sol=0.0))
     pos = rm.open_position("M", "SYM", tokens=1000.0, cost_sol=0.05, now=0.0)
     # noch unter Trigger: nichts tun
     assert rm.check_exit(pos, value_sol=0.055, creator_sold=False, migrated=False, now=5.0) is None
@@ -239,7 +240,49 @@ def test_recycle_ladder_partial_sells():
     # Rest wächst erneut +20 % über die neue Basis: nächste Leiter-Stufe
     action2 = rm.check_exit(pos, value_sol=0.0121, creator_sold=False, migrated=False, now=20.0)
     assert action2 is not None and action2.reason == ExitReason.RECYCLE
-    # unter Mindest-Restwert: keine weiteren Teilverkäufe (Fee-Schutz)
-    rm2 = RiskManager(RiskConfig(recycle_trigger_pct=20.0))
-    pos2 = rm2.open_position("N", "S", tokens=100.0, cost_sol=0.005, now=0.0)
-    assert rm2.check_exit(pos2, value_sol=0.009, creator_sold=False, migrated=False, now=5.0) is None
+
+
+def test_no_reentry_after_exit_same_mint(tmp_path):
+    """Wiedereintritts-Schutz: ein Coin im Post-Exit-Fenster wird nicht neu gekauft."""
+    bot = make_bot(tmp_path)
+    sim = SimCurve(mint="RX", creator="dev", symbol="RX")
+    t = feed_healthy_curve(bot, sim)
+    bot.on_event(sim.buy_event(0.5, "late"), now=max(t, 50.0))
+    assert "RX" in bot.risk.positions
+    # Position schließen (Creator-Dump) -> landet im Post-Exit-Watch
+    bot.on_event(sim.sell_event(1.0, "dev"), now=max(t, 50.0) + 1)
+    assert "RX" not in bot.risk.positions and "RX" in bot.journal.watching
+    # weiterer gesunder Kauf darf KEINEN Neueinstieg auslösen
+    bot.on_event(sim.buy_event(0.5, "late2"), now=max(t, 50.0) + 2)
+    assert "RX" not in bot.risk.positions
+
+
+def test_no_entry_on_migrated_coin(tmp_path):
+    bot = make_bot(tmp_path)
+    sim = SimCurve(mint="MG", creator="dev", symbol="MG")
+    t = feed_healthy_curve(bot, sim)
+    bot.on_event({"txType": "migrate", "mint": "MG", "pool": "pump-amm"}, now=max(t, 50.0))
+    bot.on_event(sim.buy_event(0.5, "late"), now=max(t, 50.0) + 1)
+    assert "MG" not in bot.risk.positions
+
+
+def test_recycle_dust_guard_uses_remainder():
+    """Kein Recycle, wenn der Restwert (nicht der Gesamtwert) unter min fiele."""
+    # Stop/TP deaktiviert, damit nur die Leiter-Logik greift
+    cfg = RiskConfig(recycle_trigger_pct=20.0, recycle_min_value_sol=0.01,
+                     stop_loss_pct=-95.0, take_profit_pct=1e9, derisk_at_pct=1e9)
+    rm = RiskManager(cfg)
+    pos = rm.open_position("E", "E", tokens=100.0, cost_sol=0.02, now=0.0)
+    pos.recycle_basis_sol = 0.02
+    # Wert 0.025: Trigger 0.024 erfüllt, aber Rest 0.005 < 0.01 -> Dust-Guard blockt
+    assert rm.check_exit(pos, 0.025, False, False, now=5.0) is None
+    # Wert 0.031: Rest 0.011 >= 0.01 -> Recycle
+    assert rm.check_exit(pos, 0.031, False, False, now=6.0).reason == ExitReason.RECYCLE
+
+
+def test_backtest_result_budget_basis():
+    from memetrader.backtest import BacktestResult
+    r = BacktestResult(seed=1, days=1, launches=0, final_equity_sol=2.4,
+                       realized_pnl_sol=0.4, liquidation_sol=0, n_entries=0, n_closed=0,
+                       win_rate=None, max_drawdown_pct=0.0, budget_sol=2.0)
+    assert abs(r.return_pct - 20.0) < 1e-9  # 2.4 aus 2.0 = +20 %, nicht +140 %

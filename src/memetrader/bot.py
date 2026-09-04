@@ -175,16 +175,19 @@ class Bot:
                 state = self.curves.get(payload.mint)
                 if state is None or payload.mint in self.risk.positions:
                     continue
-                # Freigabe ist nur gültig, wenn die Lage JETZT noch stimmt
+                # Freigabe ist nur gültig, wenn die Lage JETZT noch stimmt –
+                # inkl. der rollierenden Intelligence-Gates (Markt kann im
+                # Vet-Fenster abgekühlt sein, Creator zum Serial-Spammer werden)
                 decision = self.strategy.evaluate(state, now)
+                block = self._intelligence_block(state, now)
                 ok, why = self.risk.can_enter(now)
-                if decision.enter and ok:
+                if decision.enter and block is None and ok:
                     fills += self._execute_entry(state, now, risk_score,
                                                  vet_note=payload.reason if payload.verdict == "ok" else None)
                 else:
+                    reason = why if not ok else (block if block else "; ".join(decision.reasons))
                     self._write_log({"t": now, "event": "entry_blocked", "mint": payload.mint,
-                                     "why": "nach Claude-Vet nicht mehr gültig: "
-                                            + (why if not ok else "; ".join(decision.reasons))})
+                                     "why": "nach Claude-Vet nicht mehr gültig: " + reason})
             elif kind == "post_mortem":
                 mint, note = payload
                 if note:
@@ -247,30 +250,37 @@ class Bot:
                 bounds = {key: getattr(self.tuner.bounds, key) for key in effective}
                 self.claude.submit_review(summary, effective, bounds)
 
+    def _intelligence_block(self, state: CurveState, now: float) -> str | None:
+        """Rollierende, kausale Intelligence-Gates (wallet_intel.py). Gibt den
+        Block-Grund zurück oder None. Wird bei Direkt-Entry UND beim verzögerten
+        Claude-Vet-Rücklauf geprüft, damit ein im Vet-Fenster kalt gewordener
+        Markt / Serial-Creator den Entry noch stoppt."""
+        if self.config.block_serial_creators and self.creators.is_serial_spammer(state.creator):
+            return "serial_creator_live"
+        if self.config.min_market_heat > 0 and \
+                self.regime.graduations_per_hour(now) < self.config.min_market_heat:
+            return f"market_cold ({self.regime.graduations_per_hour(now):.0f} grads/h)"
+        smart_buyers = self.wallets.smart_buyer_count(state.unique_buyers, now)
+        if self.config.min_smart_wallets > 0 and smart_buyers < self.config.min_smart_wallets:
+            return f"no_smart_wallets ({smart_buyers})"
+        if self.config.max_smart_buyers > 0 and smart_buyers > self.config.max_smart_buyers:
+            return f"bot_density ({smart_buyers} Serien-Sniper im Käuferfeld)"
+        return None
+
     def _maybe_enter(self, state: CurveState, now: float) -> list[Fill]:
-        if state.mint in self.risk.positions or state.mint in self._vet_waiting:
+        # Wiedereintritts-Schutz: nicht kaufen, wenn Position offen, Vet läuft,
+        # der Coin gerade erst verkauft wurde (noch im Post-Exit-Fenster) oder
+        # bereits graduiert ist (die Curve-Strategie ist dann nicht zuständig,
+        # und im Migrations-Zweig wurden gerade eigene Credits gebucht).
+        if (state.mint in self.risk.positions or state.mint in self._vet_waiting
+                or state.mint in self.journal.watching or state.migrated):
             return []
         decision = self.strategy.evaluate(state, now)
         if not decision.enter:
             return []
-        # Intelligence-Gates (rollierend, kausal – siehe wallet_intel.py)
-        if self.config.block_serial_creators and self.creators.is_serial_spammer(state.creator):
-            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
-                             "why": "serial_creator_live"})
-            return []
-        if self.config.min_market_heat > 0 and \
-                self.regime.graduations_per_hour(now) < self.config.min_market_heat:
-            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
-                             "why": f"market_cold ({self.regime.graduations_per_hour(now):.0f} grads/h)"})
-            return []
-        smart_buyers = self.wallets.smart_buyer_count(state.unique_buyers, now)
-        if self.config.min_smart_wallets > 0 and smart_buyers < self.config.min_smart_wallets:
-            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
-                             "why": f"no_smart_wallets ({smart_buyers})"})
-            return []
-        if self.config.max_smart_buyers > 0 and smart_buyers > self.config.max_smart_buyers:
-            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
-                             "why": f"bot_density ({smart_buyers} Serien-Sniper im Käuferfeld)"})
+        block = self._intelligence_block(state, now)
+        if block is not None:
+            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint, "why": block})
             return []
         risk_score = None
         if self.ml_gate is not None:

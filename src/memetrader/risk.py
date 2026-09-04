@@ -36,7 +36,9 @@ class RiskConfig:
     budget_sol: float = 1.0
     position_sol: float = 0.05          # pro Trade; bei 1 SOL sind kleinere
     max_concurrent: int = 3             # Positionen fee-dominiert (fee-oekonomie.md)
-    daily_loss_stop_sol: float = 0.15   # Kill-Switch: keine neuen Entries
+    daily_loss_stop_sol: float = 0.15   # Kill-Switch: keine neuen Entries UND
+    # offene Positionen werden beim nächsten Event glattgestellt (harter Tages-
+    # Stopp des Risikos; check_exit gibt bei halted für jede Position KILL_SWITCH)
     stop_loss_pct: float = -35.0
     derisk_at_pct: float = 100.0        # bei 2x: Einsatz raus
     derisk_sell_fraction: float = 0.5
@@ -149,10 +151,12 @@ class RiskManager:
             return None
         if pnl <= c.stop_loss_pct:
             return ExitAction(ExitReason.STOP_LOSS, 1.0)
-        if c.recycle_trigger_pct > 0 and value_sol >= c.recycle_min_value_sol:
+        if c.recycle_trigger_pct > 0:
             basis = pos.recycle_basis_sol if pos.recycle_basis_sol > 0 else pos.cost_sol
-            if value_sol >= basis * (1.0 + c.recycle_trigger_pct / 100.0):
-                pos.recycle_basis_sol = value_sol - basis  # Gewinn wird neue Basis
+            remainder = value_sol - basis  # Restwert, der nach dem Bank-Verkauf drin bliebe
+            if (value_sol >= basis * (1.0 + c.recycle_trigger_pct / 100.0)
+                    and remainder >= c.recycle_min_value_sol):
+                pos.recycle_basis_sol = remainder  # Gewinn wird neue Basis
                 return ExitAction(ExitReason.RECYCLE, basis / value_sol)
         if pos.state == PositionState.ENTERED and pnl >= c.derisk_at_pct:
             return ExitAction(ExitReason.TAKE_PROFIT, c.derisk_sell_fraction)

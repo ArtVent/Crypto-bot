@@ -151,6 +151,8 @@ async def run_recorder(out_path: str, minutes: float, ws_url: str | None = None)
                             event = json.loads(message)
                         except json.JSONDecodeError:
                             continue
+                        if not isinstance(event, dict):
+                            continue  # Fremd-Frame überspringen, nicht reconnecten
                         line, outgoing = core.on_message(event, now)
                         if line:
                             fh.write(line + "\n")
