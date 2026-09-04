@@ -1,0 +1,73 @@
+# Durchgehender Live-Paper-Bot. Jede Session läuft bis ~5,5 h (unter dem
+# 6-h-Runner-Limit) und führt über die committeten state/-Dateien dasselbe
+# 1-SOL-Papierkonto fort; verkettete Sessions bilden den Dauerbetrieb.
+# Öffentliches Repo => Actions-Minuten unbegrenzt. KEIN echtes Geld, KEIN Key.
+name: live-24-7
+
+on:
+  # Sofort-Start / Neustart durch Marker-Datei (funktioniert auf jedem Branch)
+  push:
+    branches: ["claude/memecoin-database-github-sjwlmb"]
+    paths: [".github/live-trigger"]
+  # Automatischer Dauerbetrieb – greift, sobald der Workflow auf dem
+  # Default-Branch (main) liegt: alle 6 h eine ~5,5-h-Session (~92 % Abdeckung).
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "Session-Laufzeit in Minuten"
+        required: false
+        default: "330"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-bot
+  cancel-in-progress: false
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350   # > Session-Laufzeit; Runner-Hardlimit 360 min
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/memecoin-database-github-sjwlmb
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+
+      - name: Live-Bot laufen lassen
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SOLANA_RPC_WS: ${{ secrets.SOLANA_RPC_WS }}
+          PUMPPORTAL_API_KEY: ${{ secrets.PUMPPORTAL_API_KEY }}
+        run: |
+          minutes="${{ github.event.inputs.minutes || '' }}"
+          if [ -z "$minutes" ] && [ -f .github/live-trigger ]; then
+            minutes=$(grep -oE '^[0-9]+' .github/live-trigger | head -1)
+          fi
+          minutes="${minutes:-330}"
+          echo "Session-Laufzeit: ${minutes} min"
+          mkdir -p state
+          python -m memetrader live --minutes "$minutes" --no-ml \
+            --state state/live-state.json \
+            --journal state/live.journal.jsonl \
+            --tuning state/live.tuning.json
+
+      - name: Kontostand ins Repo sichern (Session-Fortführung)
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/ || true
+          git commit -m "live: Kontostand $(date -u +%Y-%m-%dT%H:%M)" || { echo "nichts zu committen"; exit 0; }
+          for i in 1 2 3; do
+            git pull --rebase origin claude/memecoin-database-github-sjwlmb && \
+            git push origin "HEAD:claude/memecoin-database-github-sjwlmb" && break || sleep 5
+          done
