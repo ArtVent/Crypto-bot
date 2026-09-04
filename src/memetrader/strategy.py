@@ -41,6 +41,11 @@ class StrategyConfig:
     min_buy_size_cv: float = 0.25         # Kaufgrößen zu uniform = Bot-Muster
     max_top3_buyer_share: float = 0.45    # Top-3-Käufer dominieren das Kauf-SOL
     max_roundtrip_share: float = 0.35     # Käufer, die auch verkaufen (Wash)
+    # Insider-Exit-Gate (Deep Research: einziger echter Pre-Graduation-Rug):
+    # verkaufen zu viele der frühesten Käufer schon, kauft man in ihren Dump.
+    # 1.01 = aus (Default; wird als A/B-Arm validiert, bevor es Default wird).
+    max_early_seller_share: float = 1.01
+    early_buyer_window_k: int = 20
 
 
 @dataclass
@@ -107,6 +112,10 @@ class MomentumStrategy:
             roundtrip = state.roundtrip_share()
             if roundtrip > c.max_roundtrip_share:
                 reasons.append(f"Wash-Signatur: {roundtrip:.0%} der Käufer verkaufen auch")
+            early_exit = state.early_seller_share(c.early_buyer_window_k)
+            if early_exit > c.max_early_seller_share:
+                reasons.append(f"Insider-Exit: {early_exit:.0%} der frühesten "
+                               f"{c.early_buyer_window_k} Käufer verkaufen schon")
         cv = state.buy_size_cv()
         if cv is not None and state.buys >= c.min_buys and cv < c.min_buy_size_cv:
             reasons.append(f"uniforme Kaufgrößen (CV {cv:.2f} – Bot-Muster)")

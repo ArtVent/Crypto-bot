@@ -43,6 +43,7 @@ class CurveState:
     first_buy_times: list[float] = field(default_factory=list)
     buy_sol_by_wallet: dict[str, float] = field(default_factory=dict)
     sellers: set[str] = field(default_factory=set)
+    early_buyers: list[str] = field(default_factory=list)  # Käufer-Wallets in Ankunftsreihenfolge (gekappt)
     _buy_n: int = 0
     _buy_sum: float = 0.0
     _buy_sumsq: float = 0.0
@@ -71,6 +72,8 @@ class CurveState:
             self.real_sol_in_curve += sol
             if trader not in self.unique_buyers:
                 self.first_buy_times.append(now)
+                if trader and len(self.early_buyers) < 50:
+                    self.early_buyers.append(trader)  # frühe Käufer in Reihenfolge (Insider-Kandidaten)
             self.unique_buyers.add(trader)
             self.buy_sol_by_wallet[trader] = self.buy_sol_by_wallet.get(trader, 0.0) + sol
             self._buy_n += 1
@@ -119,6 +122,19 @@ class CurveState:
         if not self.unique_buyers:
             return 0.0
         return len(self.unique_buyers & self.sellers) / len(self.unique_buyers)
+
+    def early_seller_share(self, k: int = 20) -> float:
+        """Anteil der k FRÜHESTEN Käufer, die bereits verkauft haben.
+
+        Zielt auf den einzigen realen Pre-Graduation-Rug-Mechanismus (Deep
+        Research, docs/loser-filter-recherche.md): Insider/Sniper aus Block 0/1
+        akkumulieren billig und dumpen auf die Nachzügler. Verkaufen die
+        frühesten Käufer schon, ist das ihr Ausstieg – man kauft in ihren Dump.
+        Kausal (nur bisher gesehene Käufe/Verkäufe), aus dem reinen Log-Strom."""
+        early = self.early_buyers[:k]
+        if not early:
+            return 0.0
+        return sum(1 for w in early if w in self.sellers) / len(early)
 
 
 def simulate_buy(state: CurveState, sol_in: float, fee: float = CURVE_FEE) -> tuple[float, float]:

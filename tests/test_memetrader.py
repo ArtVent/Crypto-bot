@@ -286,3 +286,25 @@ def test_backtest_result_budget_basis():
                        realized_pnl_sol=0.4, liquidation_sol=0, n_entries=0, n_closed=0,
                        win_rate=None, max_drawdown_pct=0.0, budget_sol=2.0)
     assert abs(r.return_pct - 20.0) < 1e-9  # 2.4 aus 2.0 = +20 %, nicht +140 %
+
+
+def test_early_seller_share_and_gate(tmp_path):
+    from memetrader.curve import CurveState
+    from memetrader.strategy import MomentumStrategy, StrategyConfig
+    st = CurveState(mint="X", creator="dev", created_at=0.0)
+    for i in range(10):
+        st.apply_trade({"txType": "buy", "traderPublicKey": f"w{i}", "solAmount": 0.3,
+                        "vSolInBondingCurve": 35.0, "vTokensInBondingCurve": 1e9}, now=1.0 + i)
+    assert st.early_seller_share(10) == 0.0
+    # drei der frühesten zehn Käufer verkaufen -> 30 %
+    for w in ("w0", "w1", "w2"):
+        st.apply_trade({"txType": "sell", "traderPublicKey": w, "solAmount": 0.2,
+                        "vSolInBondingCurve": 34.0, "vTokensInBondingCurve": 1e9}, now=20.0)
+    assert abs(st.early_seller_share(10) - 0.3) < 1e-9
+    # Gate: gesunder Kandidat (besteht Vorabchecks), aber Insider-Exit -> Block
+    strat = MomentumStrategy(StrategyConfig(max_early_seller_share=0.25))
+    gs = good_state()
+    gs.early_buyers = [f"w{i}" for i in range(10)]
+    gs.sellers = {"w0", "w1", "w2"}   # 3/10 der frühesten verkaufen -> 30 % > 25 %
+    d = strat.evaluate(gs, now=100.0)
+    assert not d.enter and any("Insider-Exit" in r for r in d.reasons)
