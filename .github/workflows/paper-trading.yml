@@ -78,7 +78,11 @@ jobs:
             exit 1
           fi
 
-      - name: A/B-Replay (Referenz vs. Kappe vs. Leiter)
+      # Diagnose: Warum handelt der Bot (nicht)? Entry-Trichter sichtbar im Log.
+      - name: Entry-Funnel-Diagnose
+        run: python -m memetrader funnel recording.jsonl
+
+      - name: A/B-Replay (Referenz vs. Kappe vs. Leiter vs. Regime)
         run: |
           python -m memetrader abtest recording.jsonl --out-dir report
           echo "PAPER_TAG=paper-$(date -u +%Y%m%d-%H%M)" >> "$GITHUB_ENV"

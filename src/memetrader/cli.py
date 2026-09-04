@@ -38,6 +38,9 @@ def main(argv: list[str] | None = None) -> int:
                           help="auto: PumpPortal nur mit PUMPPORTAL_API_KEY, sonst "
                                "kostenlos direkt von der Solana-Blockchain (RPC-Logs)")
 
+    p_funnel = sub.add_parser("funnel", help="Diagnose: warum handelt der Bot (nicht)? Entry-Trichter einer Aufnahme")
+    p_funnel.add_argument("events_file")
+
     p_ab = sub.add_parser("abtest",
                           help="A/B auf Aufzeichnung: Referenz vs. Bot-Dichte-Kappe (Forward-Validierung)")
     p_ab.add_argument("events_file")
@@ -284,6 +287,12 @@ def main(argv: list[str] | None = None) -> int:
                 asyncio.run(run_recorder(args.out, args.minutes))
         except KeyboardInterrupt:
             print("\nAufnahme beendet")
+        return 0
+
+    if args.cmd == "funnel":
+        from .funnel import analyze_funnel
+
+        print(json.dumps(analyze_funnel(args.events_file), ensure_ascii=False, indent=2))
         return 0
 
     if args.cmd == "abtest":
