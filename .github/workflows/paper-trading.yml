@@ -85,6 +85,20 @@ jobs:
             --title "Paper-Trading $tag" \
             --notes-file report/report.md \
             $files
+          echo "PAPER_TAG=$tag" >> "$GITHUB_ENV"
+
+      - name: Bericht ins Repo committen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p reports
+          cp report/report.md "reports/${PAPER_TAG}.md"
+          cp report/report.json "reports/${PAPER_TAG}.json"
+          git add reports/
+          git commit -m "paper-trading: Bericht ${PAPER_TAG}"
+          # Falls parallel gepusht wurde: einmal nachziehen (Berichte kollidieren nie)
+          git pull --rebase origin "${{ github.ref_name }}" || true
+          git push origin "HEAD:${{ github.ref_name }}"
 
       - name: Telegram-Bericht (optional)
         if: success()
