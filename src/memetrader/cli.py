@@ -31,6 +31,17 @@ def main(argv: list[str] | None = None) -> int:
     p_replay = sub.add_parser("replay", help="Aufgezeichnete Events (JSONL) durch den Bot spielen")
     p_replay.add_argument("events_file")
 
+    p_record = sub.add_parser("record", help="Rohen PumpPortal-Strom als Replay-JSONL aufzeichnen")
+    p_record.add_argument("--minutes", type=float, default=50.0)
+    p_record.add_argument("--out", default="recording.jsonl")
+
+    p_ab = sub.add_parser("abtest",
+                          help="A/B auf Aufzeichnung: Referenz vs. Bot-Dichte-Kappe (Forward-Validierung)")
+    p_ab.add_argument("events_file")
+    p_ab.add_argument("--out-dir", default="abtest-report")
+    p_ab.add_argument("--budget-sol", type=float, default=1.0)
+    p_ab.add_argument("--max-smart-buyers", type=int, default=7)
+
     p_analyze = sub.add_parser("analyze", help="Entscheidungs-Log auswerten (PnL, Trefferquote, Exit-Gründe)")
     p_analyze.add_argument("log_file", nargs="?", default="memetrader.log.jsonl")
 
@@ -251,6 +262,24 @@ def main(argv: list[str] | None = None) -> int:
             print("Angewendet (innerhalb der Bounds) und in memetrader.tuning.json persistiert.")
         else:
             print("(--apply zum begrenzten Übernehmen)")
+        return 0
+
+    if args.cmd == "record":
+        from .recorder import run_recorder
+
+        try:
+            asyncio.run(run_recorder(args.out, args.minutes))
+        except KeyboardInterrupt:
+            print("\nAufnahme beendet")
+        return 0
+
+    if args.cmd == "abtest":
+        from .abtest import format_report, run_abtest
+
+        report = run_abtest(args.events_file, args.out_dir,
+                            budget_sol=args.budget_sol,
+                            max_smart_buyers=args.max_smart_buyers)
+        print(format_report(report))
         return 0
 
     if args.cmd == "replay":

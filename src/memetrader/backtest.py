@@ -115,11 +115,14 @@ def run_backtest(
     hardened_checks: bool = True,
     strategy_overrides: dict | None = None,
     risk_overrides: dict | None = None,
+    bot_overrides: dict | None = None,
 ) -> BacktestResult:
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
 
     config = BotConfig()
+    for key, val in (bot_overrides or {}).items():
+        setattr(config, key, val)
     config.risk = RiskConfig(budget_sol=budget_sol)
     config.strategy = StrategyConfig()
     for key, val in (strategy_overrides or {}).items():

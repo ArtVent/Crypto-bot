@@ -1,0 +1,92 @@
+# Paper-Trading-Lauf auf GitHub-Actions-Runnern (freier Netzzugang):
+# zeichnet den PumpPortal-Live-Strom auf, spielt ihn als A/B (Referenz vs.
+# Bot-Dichte-Kappe) lookahead-frei durch den Bot und veröffentlicht
+# Aufzeichnung + Bericht als GitHub-Release. Es fließt KEIN echtes Geld,
+# es werden KEINE Keys benötigt. Telegram-Bericht ist optional
+# (Repo-Secrets TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID).
+#
+# Hinweis Minuten-Budget: privates Repo = 2.000 kostenlose Minuten/Monat.
+# Ein täglicher 50-Minuten-Lauf braucht ~1.600/Monat. Öffentliches Repo
+# hätte keine Minutenbegrenzung auf Standard-Runnern.
+name: paper-trading
+
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: "Aufnahme-Dauer in Minuten"
+        required: false
+        default: "50"
+  schedule:
+    # Greift nur, wenn der Workflow auf dem Default-Branch liegt.
+    # 19:17 UTC = aktive US-Stunden auf pump.fun.
+    - cron: "17 19 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paper-trading
+  cancel-in-progress: false
+
+jobs:
+  record-and-abtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Installieren
+        run: pip install -e .
+
+      - name: Live-Strom aufzeichnen
+        run: |
+          python -m memetrader record \
+            --minutes "${{ github.event.inputs.minutes || '50' }}" \
+            --out recording.jsonl
+
+      - name: Aufnahme prüfen
+        run: |
+          n=$(wc -l < recording.jsonl)
+          echo "Events aufgezeichnet: $n"
+          test "$n" -ge 50   # leerer/toter Stream soll den Lauf rot machen
+
+      - name: A/B-Replay (Referenz vs. Dichte-Kappe)
+        run: python -m memetrader abtest recording.jsonl --out-dir report
+
+      - name: Release veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="paper-$(date -u +%Y%m%d-%H%M)"
+          gzip -9 recording.jsonl
+          files="recording.jsonl.gz report/report.json"
+          # Journale existieren nur, wenn Trades stattfanden
+          [ -f report/ref/bt_1.journal.jsonl ] && cp report/ref/bt_1.journal.jsonl referenz-journal.jsonl && files="$files referenz-journal.jsonl"
+          [ -f report/cap/bt_1.journal.jsonl ] && cp report/cap/bt_1.journal.jsonl kappe-journal.jsonl && files="$files kappe-journal.jsonl"
+          gh release create "$tag" \
+            --target "${{ github.sha }}" \
+            --title "Paper-Trading $tag" \
+            --notes-file report/report.md \
+            $files
+
+      - name: Telegram-Bericht (optional)
+        if: success()
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then
+            echo "Telegram nicht konfiguriert – übersprungen."
+            exit 0
+          fi
+          text=$(head -c 3500 report/report.md)
+          curl -fsS "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            --data-urlencode chat_id="$CHAT" \
+            --data-urlencode text="$text" >/dev/null
+          echo "Telegram-Bericht gesendet."
