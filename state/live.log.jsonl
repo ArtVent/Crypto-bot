@@ -1,0 +1,4 @@
+{"t": 1788544109.5663931, "event": "entry", "mint": "BR2ueHNCESqrTz2ts4PawbAYheWgCtqbe1mewtUapump", "symbol": "PONSIF", "sol": 0.05, "tokens": 633540.0159383225, "fill_pct": 23.3, "unique_buyers": 59}
+{"t": 1788545126.9750023, "event": "exit", "mint": "BR2ueHNCESqrTz2ts4PawbAYheWgCtqbe1mewtUapump", "symbol": "PONSIF", "reason": "creator_sold", "fraction": 1.0, "sol_received": 0.05746671910759728, "risk": {"open_positions": 0, "spent_sol": 0.05, "realized_pnl_sol": 0.0075, "halted": false}}
+{"t": 1788545629.6224043, "event": "entry", "mint": "9iKEYWM6VmJ6fTFqJhqtdS2yecN6PidrMv4n7YJwpump", "symbol": "homeless", "sol": 0.05, "tokens": 1056203.1218628574, "fill_pct": 10.1, "unique_buyers": 17}
+{"t": 1788545727.0786319, "event": "lesson", "mint": "BR2ueHNCESqrTz2ts4PawbAYheWgCtqbe1mewtUapump", "symbol": "PONSIF", "lesson": "overreacted_creator_exit", "pnl_sol": 0.007466719107597275, "post_peak_value_sol": 0.059372}
