@@ -37,7 +37,7 @@ concurrency:
 jobs:
   record-and-abtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 80
+    timeout-minutes: 120   # deckt Aufnahmen bis ~100 min + Replay/Release ab
     steps:
       - uses: actions/checkout@v4
 
