@@ -31,9 +31,12 @@ def main(argv: list[str] | None = None) -> int:
     p_replay = sub.add_parser("replay", help="Aufgezeichnete Events (JSONL) durch den Bot spielen")
     p_replay.add_argument("events_file")
 
-    p_record = sub.add_parser("record", help="Rohen PumpPortal-Strom als Replay-JSONL aufzeichnen")
+    p_record = sub.add_parser("record", help="Rohen Live-Strom als Replay-JSONL aufzeichnen")
     p_record.add_argument("--minutes", type=float, default=50.0)
     p_record.add_argument("--out", default="recording.jsonl")
+    p_record.add_argument("--source", choices=["auto", "pumpportal", "rpc"], default="auto",
+                          help="auto: PumpPortal nur mit PUMPPORTAL_API_KEY, sonst "
+                               "kostenlos direkt von der Solana-Blockchain (RPC-Logs)")
 
     p_ab = sub.add_parser("abtest",
                           help="A/B auf Aufzeichnung: Referenz vs. Bot-Dichte-Kappe (Forward-Validierung)")
@@ -265,10 +268,20 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.cmd == "record":
-        from .recorder import run_recorder
+        import os
 
+        source = args.source
+        if source == "auto":
+            source = "pumpportal" if os.environ.get("PUMPPORTAL_API_KEY") else "rpc"
         try:
-            asyncio.run(run_recorder(args.out, args.minutes))
+            if source == "rpc":
+                from .rpcrecorder import run_rpc_recorder
+
+                asyncio.run(run_rpc_recorder(args.out, args.minutes))
+            else:
+                from .recorder import run_recorder
+
+                asyncio.run(run_recorder(args.out, args.minutes))
         except KeyboardInterrupt:
             print("\nAufnahme beendet")
         return 0

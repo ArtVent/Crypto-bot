@@ -64,3 +64,69 @@ def test_ws_url_from_env(monkeypatch):
     assert ws_url_from_env() == PUMPPORTAL_WS
     monkeypatch.setenv("PUMPPORTAL_API_KEY", "k123")
     assert ws_url_from_env() == PUMPPORTAL_WS + "?api-key=k123"
+
+
+# --- RPC-Recorder: Anchor-Event-Dekodierung (netzfrei) ------------------------
+
+def _pack_trade(mint32, sol_lamports, is_buy, user32, v_sol, v_tok, real_sol=0):
+    import hashlib, struct
+    return (hashlib.sha256(b"event:TradeEvent").digest()[:8] + mint32
+            + struct.pack("<Q", sol_lamports) + struct.pack("<Q", 5_000_000)
+            + bytes([1 if is_buy else 0]) + user32 + struct.pack("<q", 1234)
+            + struct.pack("<Q", v_sol) + struct.pack("<Q", v_tok)
+            + struct.pack("<Q", real_sol) + struct.pack("<Q", 7)
+            + b"extra-future-fields")  # angehängte neue Felder stören nicht
+
+
+def _pack_create(name, symbol, mint32, user32):
+    import hashlib, struct
+
+    def s(x):
+        raw = x.encode()
+        return struct.pack("<I", len(raw)) + raw
+
+    return (hashlib.sha256(b"event:CreateEvent").digest()[:8]
+            + s(name) + s(symbol) + s("https://uri") + mint32 + b"\x02" * 32 + user32)
+
+
+def test_rpc_core_decodes_and_folds_dev_buy():
+    import base64
+
+    from memetrader.rpcrecorder import RpcCore, b58encode
+
+    mint, dev, buyer = b"\x03" * 32, b"\x04" * 32, b"\x05" * 32
+    logs = [
+        "Program 6EF8... invoke [1]",
+        "Program data: " + base64.b64encode(_pack_create("Coin", "AAA", mint, dev)).decode(),
+        "Program data: " + base64.b64encode(
+            _pack_trade(mint, 2_000_000_000, True, dev, 32_000_000_000, 10**15)).decode(),
+    ]
+    events = RpcCore().on_notification({"err": None, "logs": logs})
+    assert len(events) == 1  # Dev-Buy wurde ins Create gefaltet
+    c = events[0]
+    assert c["txType"] == "create" and c["symbol"] == "AAA"
+    assert c["mint"] == b58encode(mint) and c["traderPublicKey"] == b58encode(dev)
+    assert abs(c["solAmount"] - 2.0) < 1e-9 and abs(c["vSolInBondingCurve"] - 32.0) < 1e-9
+
+    # Normaler Kauf eines Fremd-Wallets -> buy-Event mit Reserven
+    logs2 = ["Program data: " + base64.b64encode(
+        _pack_trade(mint, 500_000_000, True, buyer, 33_000_000_000, 10**15)).decode()]
+    events2 = RpcCore().on_notification({"err": None, "logs": logs2})
+    assert events2[0]["txType"] == "buy" and abs(events2[0]["solAmount"] - 0.5) < 1e-9
+
+    # Fehlgeschlagene Tx wird ignoriert
+    assert RpcCore().on_notification({"err": {"x": 1}, "logs": logs2}) == []
+
+
+def test_rpc_core_complete_becomes_migrate():
+    import base64
+    import hashlib
+
+    from memetrader.rpcrecorder import RpcCore, b58encode
+
+    mint = b"\x06" * 32
+    payload = (hashlib.sha256(b"event:CompleteEvent").digest()[:8]
+               + b"\x07" * 32 + mint + b"\x08" * 32 + b"\x00" * 8)
+    logs = ["Program data: " + base64.b64encode(payload).decode()]
+    events = RpcCore().on_notification({"err": None, "logs": logs})
+    assert events == [{"txType": "migrate", "mint": b58encode(mint), "pool": "pump-amm"}]

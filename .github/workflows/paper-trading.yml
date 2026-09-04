@@ -49,21 +49,13 @@ jobs:
       - name: Installieren
         run: pip install -e .
 
-      # PumpPortal liefert Trade-Streams nur mit aufgeladenem API-Key
-      # (>=0,02 SOL, Stand Sept. 2026). Ohne Key früh und billig abbrechen
-      # statt 45 Minuten einen trade-losen Strom aufzuzeichnen.
-      - name: Voraussetzung prüfen (PUMPPORTAL_API_KEY)
-        env:
-          PUMPPORTAL_API_KEY: ${{ secrets.PUMPPORTAL_API_KEY }}
-        run: |
-          if [ -z "$PUMPPORTAL_API_KEY" ]; then
-            echo "::error::Repo-Secret PUMPPORTAL_API_KEY fehlt. PumpPortal liefert Trade-Events nur mit einem mit >=0,02 SOL aufgeladenen API-Key (Settings -> Secrets and variables -> Actions)."
-            exit 1
-          fi
-
+      # Quellenwahl (record --source auto): Mit PUMPPORTAL_API_KEY-Secret läuft
+      # der PumpPortal-Feed; ohne Key kostenlos direkt von der Solana-Blockchain
+      # (RPC-Logs, optional eigener Endpunkt via SOLANA_RPC_WS-Secret).
       - name: Live-Strom aufzeichnen
         env:
           PUMPPORTAL_API_KEY: ${{ secrets.PUMPPORTAL_API_KEY }}
+          SOLANA_RPC_WS: ${{ secrets.SOLANA_RPC_WS }}
         run: |
           minutes="${{ github.event.inputs.minutes || '' }}"
           if [ -z "$minutes" ] && [ -f .github/paper-trigger ]; then
