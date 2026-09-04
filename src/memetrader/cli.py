@@ -31,6 +31,14 @@ def main(argv: list[str] | None = None) -> int:
     p_replay = sub.add_parser("replay", help="Aufgezeichnete Events (JSONL) durch den Bot spielen")
     p_replay.add_argument("events_file")
 
+    p_live = sub.add_parser("live", help="Durchgehender Live-Paper-Bot (On-Chain-Strom, Telegram-Alerts, Zustands-Persistenz)")
+    p_live.add_argument("--minutes", type=float, default=330.0, help="Laufzeit dieser Session (Runner-Limit beachten)")
+    p_live.add_argument("--budget-sol", type=float, default=1.0)
+    p_live.add_argument("--state", default="state/live-state.json")
+    p_live.add_argument("--journal", default="state/live.journal.jsonl")
+    p_live.add_argument("--tuning", default="state/live.tuning.json")
+    p_live.add_argument("--no-ml", action="store_true", help="ML-Gate aus (Offline ohne Metadaten-Fetch)")
+
     p_record = sub.add_parser("record", help="Rohen Live-Strom als Replay-JSONL aufzeichnen")
     p_record.add_argument("--minutes", type=float, default=50.0)
     p_record.add_argument("--out", default="recording.jsonl")
@@ -268,6 +276,25 @@ def main(argv: list[str] | None = None) -> int:
             print("Angewendet (innerhalb der Bounds) und in memetrader.tuning.json persistiert.")
         else:
             print("(--apply zum begrenzten Übernehmen)")
+        return 0
+
+    if args.cmd == "live":
+        from pathlib import Path as _Path
+
+        from .live import run_live
+
+        config = BotConfig()
+        config.risk.budget_sol = args.budget_sol
+        config.journal_path = args.journal
+        config.tuning_path = args.tuning
+        config.log_path = "state/live.log.jsonl"
+        config.memory_path = "state/live.memory.md"
+        if args.no_ml or not _Path(config.ml_model_path).exists():
+            config.ml_model_path = ""
+        try:
+            asyncio.run(run_live(config, run_seconds=args.minutes * 60.0, state_path=args.state))
+        except KeyboardInterrupt:
+            print("\nLive-Bot beendet")
         return 0
 
     if args.cmd == "record":
