@@ -76,3 +76,29 @@ Insider (Insider-Exit ≤35 %).
 | 2026-09-04 09:09 | 4 min | 7.378 | +0,00 % | +0,00 % | +0,00 % | – | – | Diagnose On-Chain-Quelle (voller Strom, 0 Reconnects; zu kurz – zählt nicht) |
 | 2026-09-04 09:14 | 45 min | 97.941 | +0,00 % | +0,00 % | +0,00 % | – | – | Erstes volles 45-Min-Fenster. 0 Trades – kein Bug (Funnel + Regression 58 Trades). Selektiv ≈ 1–2/45 Min |
 | 2026-09-04 10:18 | 8 min | 16.944 | +0,00 % | +0,00 % | +0,00 % | +0,00 % | – | Anti-Bug-Diagnose; Telegram-Zustellung verifiziert (zu kurz – zählt nicht) |
+
+## Funnel-Befund: warum der Bot so selektiv ist (90-Min-Lauf, 04.09.2026)
+
+Ein 90-Minuten-On-Chain-Lauf (238.587 Events, 120k Käufe, 2.149 Coins im
+Fenster geboren) klärt die „warum so wenige Trades"-Frage endgültig – und
+widerlegt beide naheliegenden Vermutungen:
+
+- **Kein kalter Markt:** von den 2.149 im Fenster geborenen Coins erreichten
+  1.255 ≥5 Käufe, 944 ≥10, 789 ≥15 (min_buys), und **491 erfüllten BEIDE
+  Nachfrage-Gates** (≥15 Käufe UND ≥10 Unique-Buyer). Nachfrage ist reichlich da.
+- **Keine zu strengen Zahlen-Schwellen:** die Demand-Schwellen werden von
+  Hunderten Coins erfüllt.
+- **Der eigentliche Selektor ist das `creator_sold`-Gate:** häufigster echter
+  Block-Grund mit **49.792** Treffern (Referenz: Referenz macht 3 Trades). Auf
+  pump.fun verkauft der Creator/Dev fast immer früh etwas → jeder Verkauf setzt
+  `creator_sold=True` und sperrt den Coin dauerhaft. Von 491 nachfragestarken
+  Coins überleben so nur **3** die volle Strategie.
+
+**Ehrliche Einordnung:** Das ist kein Bug, sondern eine bewusste, sehr
+konservative Sicherheitsregel (Creator-Verkauf = Soft-Rug-Signal). Sie ist der
+mit Abstand stärkste Trade-Bremser. Sie zu lockern (z. B. erst ab einer
+Verkaufs-GRÖSSE blocken statt bei jedem Verkauf) würde mehr Trades bringen,
+aber potenziell mehr Rugs – ein echter Zielkonflikt. Deshalb: **nicht blind
+den Referenz-Default ändern**, sondern als eigenständigen A/B-Arm testen,
+falls gewünscht. Bis dahin bleibt die Regel als Schutz aktiv; lieber wenige
+saubere Trades als viele in Dev-Dumps.
