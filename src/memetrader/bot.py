@@ -25,6 +25,7 @@ from .curve import CurveState
 from .journal import EntryContext, Journal
 from .risk import PositionState, RiskConfig, RiskManager
 from .strategy import MomentumStrategy, StrategyConfig
+from .wallet_intel import CreatorBook, MarketRegime, WalletBook
 
 PUMPPORTAL_WS = "wss://pumpportal.fun/api/data"
 STATE_PRUNE_SECONDS = 90 * 60.0
@@ -48,6 +49,10 @@ class BotConfig:
     claude_enabled: bool = False
     claude_review_every_n_trades: int = 10
     memory_path: str = "memetrader.memory.md"
+    # Wallet-/Creator-Intelligence & Regime-Gate (wallet_intel.py)
+    block_serial_creators: bool = True    # Creator mit >=3 Launches, 0 Graduations
+    min_smart_wallets: int = 0            # >0: Konfluenz-Gate (Smart-Buyer unter den Käufern)
+    min_market_heat: float = 0.0          # >0: nur handeln bei >= X Graduationen/Stunde
 
 
 class Bot:
@@ -77,6 +82,10 @@ class Bot:
 
             self.claude = ClaudeWorker(ClaudeLink(Memory(self.config.memory_path)))
         self._vet_waiting: dict[str, float | None] = {}  # mint -> ml_risk zum Vet-Zeitpunkt
+        # Wallet-/Creator-Intelligence & Markt-Regime (alles rollierend & kausal)
+        self.wallets = WalletBook()
+        self.creators = CreatorBook()
+        self.regime = MarketRegime()
 
     # --- Event-Verarbeitung (synchron, damit ohne Netz testbar) --------------
     def on_event(self, event: dict, now: float | None = None) -> list[Fill]:
@@ -115,6 +124,7 @@ class Bot:
                 self.symbol_counts[symbol] = self.symbol_counts.get(symbol, 0) + 1
             if creator:
                 self.creator_counts[creator] = self.creator_counts.get(creator, 0) + 1
+                self.creators.record_launch(creator)
             self.curves[mint] = state
             return fills
 
@@ -124,8 +134,12 @@ class Bot:
 
         if tx in ("buy", "sell"):
             state.apply_trade(event, now)
-        elif tx == "migrate" or event.get("pool") == "pump-amm":
+        elif (tx == "migrate" or event.get("pool") == "pump-amm") and not state.migrated:
             state.migrated = True
+            # Kausale Credits ERST bei der Graduation: frühe Käufer, Creator, Regime
+            self.wallets.credit_graduation(list(state.buy_sol_by_wallet.keys()), now)
+            self.creators.record_graduation(state.creator)
+            self.regime.record_graduation(now)
 
         # Post-Exit-Beobachtung: Wert der ehemaligen Position weiterverfolgen
         watched = self.journal.watching.get(mint)
@@ -234,6 +248,21 @@ class Bot:
         decision = self.strategy.evaluate(state, now)
         if not decision.enter:
             return []
+        # Intelligence-Gates (rollierend, kausal – siehe wallet_intel.py)
+        if self.config.block_serial_creators and self.creators.is_serial_spammer(state.creator):
+            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
+                             "why": "serial_creator_live"})
+            return []
+        if self.config.min_market_heat > 0 and \
+                self.regime.graduations_per_hour(now) < self.config.min_market_heat:
+            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
+                             "why": f"market_cold ({self.regime.graduations_per_hour(now):.0f} grads/h)"})
+            return []
+        smart_buyers = self.wallets.smart_buyer_count(state.unique_buyers, now)
+        if self.config.min_smart_wallets > 0 and smart_buyers < self.config.min_smart_wallets:
+            self._write_log({"t": now, "event": "entry_blocked", "mint": state.mint,
+                             "why": f"no_smart_wallets ({smart_buyers})"})
+            return []
         risk_score = None
         if self.ml_gate is not None:
             risk_score = self.ml_gate.risk(
@@ -289,6 +318,7 @@ class Bot:
                 symbol_dupes_before=state.symbol_dupes_before,
                 creator_prior_launches=state.creator_prior_launches,
                 ml_risk=round(risk_score, 3) if risk_score is not None else None,
+                smart_buyers=self.wallets.smart_buyer_count(state.unique_buyers, now),
             ),
             now,
         )

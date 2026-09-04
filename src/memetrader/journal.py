@@ -36,6 +36,7 @@ class EntryContext:
     symbol_dupes_before: int = 0
     creator_prior_launches: int = 0
     ml_risk: float | None = None
+    smart_buyers: int | None = None
 
 
 @dataclass
