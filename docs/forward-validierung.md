@@ -36,6 +36,17 @@ Kostenrahmen: privates Repo = 2.000 kostenlose Actions-Minuten/Monat; der
 tägliche 45-Minuten-Lauf braucht ~1.500. Ein öffentliches Repo hätte keine
 Minutengrenze.
 
+**Voraussetzung (seit Sept. 2026):** PumpPortal liefert Trade-Streams
+(`subscribeTokenTrade`) nur noch mit einem **API-Key, der mit mindestens
+0,02 SOL aufgeladen ist** – der kostenlose Feed enthält nur Launches und
+Migrationen (Befund aus Diagnose-Lauf #4, Server-Statusmeldung im Log).
+Der Key gehört ausschließlich in das Repo-Secret `PUMPPORTAL_API_KEY`
+(Settings → Secrets and variables → Actions) bzw. lokal in die gleichnamige
+Umgebungsvariable – niemals ins Repo oder in einen Chat, denn er kann das
+aufgeladene Guthaben handeln. Nur mit dem Minimum aufladen. Ohne das Secret
+bricht der Workflow früh und billig ab statt 45 Minuten Leerlauf
+aufzuzeichnen.
+
 ## Entscheidungsregel (vorab festgelegt)
 
 Ein Kandidat (Dichte-Kappe, Recycle-Leiter) wird nur dann Default, wenn er

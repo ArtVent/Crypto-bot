@@ -17,11 +17,20 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import time
 from dataclasses import dataclass, field
 
 PUMPPORTAL_WS = "wss://pumpportal.fun/api/data"
 _UNSUB_BATCH = 50  # Keys je Unsubscribe-Nachricht
+
+
+def ws_url_from_env(base: str = PUMPPORTAL_WS) -> str:
+    """PumpPortal verlangt für Trade-Streams einen mit >=0,02 SOL aufgeladenen
+    API-Key (Stand Sept. 2026). Key NUR als Umgebungsvariable/Secret – nie im
+    Repo oder Chat; er kann das aufgeladene Guthaben handeln."""
+    key = os.environ.get("PUMPPORTAL_API_KEY", "").strip()
+    return f"{base}?api-key={key}" if key else base
 
 
 @dataclass
@@ -110,9 +119,13 @@ class RecorderCore:
         ]
 
 
-async def run_recorder(out_path: str, minutes: float, ws_url: str = PUMPPORTAL_WS) -> int:
+async def run_recorder(out_path: str, minutes: float, ws_url: str | None = None) -> int:
     import websockets
 
+    ws_url = ws_url or ws_url_from_env()
+    if "api-key" not in ws_url:
+        print("[record] WARNUNG: kein PUMPPORTAL_API_KEY gesetzt – der Server "
+              "liefert dann KEINE Trades (nur creates/migrations).", flush=True)
     deadline = time.time() + minutes * 60.0
     core = RecorderCore()
     with open(out_path, "a") as fh:

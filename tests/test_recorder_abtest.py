@@ -55,3 +55,12 @@ def test_abtest_writes_reports(tmp_path):
     md = format_report(report)
     assert "Referenz" in md and "Dichte-Kappe" in md and "Recycle-Leiter" in md
     assert (tmp_path / "out" / "report.md").read_text() == md
+
+
+def test_ws_url_from_env(monkeypatch):
+    from memetrader.recorder import PUMPPORTAL_WS, ws_url_from_env
+
+    monkeypatch.delenv("PUMPPORTAL_API_KEY", raising=False)
+    assert ws_url_from_env() == PUMPPORTAL_WS
+    monkeypatch.setenv("PUMPPORTAL_API_KEY", "k123")
+    assert ws_url_from_env() == PUMPPORTAL_WS + "?api-key=k123"

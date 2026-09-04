@@ -385,10 +385,17 @@ class Bot:
             f"Budget {self.risk.config.budget_sol} SOL, Position {self.risk.config.position_sol} SOL, "
             f"Kill-Switch bei -{self.risk.config.daily_loss_stop_sol} SOL."
         )
+        from .recorder import ws_url_from_env
+
+        ws_url = ws_url_from_env(PUMPPORTAL_WS)
+        if "api-key" not in ws_url:
+            print("WARNUNG: kein PUMPPORTAL_API_KEY gesetzt – PumpPortal liefert ohne "
+                  "aufgeladenen API-Key (>=0,02 SOL) KEINE Trade-Events; der Bot sieht "
+                  "dann nur Launches/Migrationen und kann nicht handeln.")
         backoff = 1.0
         while True:
             try:
-                async with websockets.connect(PUMPPORTAL_WS, ping_interval=20) as ws:
+                async with websockets.connect(ws_url, ping_interval=20) as ws:
                     await ws.send(json.dumps({"method": "subscribeNewToken"}))
                     await ws.send(json.dumps({"method": "subscribeMigration"}))
                     backoff = 1.0
