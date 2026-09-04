@@ -85,12 +85,30 @@ def analyze_funnel(events_file: str | Path) -> dict:
             elif tx == "migrate" or e.get("pool") == "pump-amm":
                 st.migrated = True
 
+    # Reifegrad der IM FENSTER geborenen Coins: wie weit kommen sie überhaupt?
+    # Zeigt "nahe an min_buys=15" (Schwelle zu streng) vs "sterben bei 3" (kalter Markt).
+    cfg = strategy.config
+    peak_buys = sorted((s.buys for s in curves.values()), reverse=True)
+    reached = lambda n: sum(1 for s in curves.values() if s.buys >= n)
+    reached_buyers = lambda n: sum(1 for s in curves.values() if len(s.unique_buyers) >= n)
+    maturity = {
+        "max_buys_any_coin": peak_buys[0] if peak_buys else 0,
+        "coins>=5_buys": reached(5),
+        "coins>=10_buys": reached(10),
+        f"coins>=min_buys({cfg.min_buys})": reached(cfg.min_buys),
+        f"coins>=min_unique_buyers({cfg.min_unique_buyers})": reached_buyers(cfg.min_unique_buyers),
+        "coins_meeting_both_demand_gates": sum(
+            1 for s in curves.values()
+            if s.buys >= cfg.min_buys and len(s.unique_buyers) >= cfg.min_unique_buyers),
+    }
+
     return {
         "note": ("misst NUR das Strategie-Gate (Curve/Momentum); die nachgelagerten "
                  "Bot-Gates serial_creator/market_heat/smart_wallets/ML/Claude/risk "
                  "sind hier NICHT enthalten – mints_would_enter ist eine Obergrenze"),
         "mints_seen": len(curves),
         "buy_events": n_buy_events,
+        "in_window_maturity": maturity,
         "mints_would_enter": len(would_enter_mints),
         "dev_buy_zero_mints": sum(1 for s in curves.values() if s.dev_buy_sol <= 0.0),
         "top_block_reasons": first_reason.most_common(12),
