@@ -71,3 +71,5 @@ wird er verworfen und das steht dann genauso hier.
 |---|---|---|---|---|---|---|---|
 | 2026-09-04 07:23 | 5 min | 56 | +0,00 % | +0,00 % | – | – | Validierungslauf der Pipeline (zu kurz für Trades; zudem lieferte PumpPortal keine Trades mehr – zählt nicht zur Serie) |
 | 2026-09-04 09:09 | 4 min | 7.378 | +0,00 % | +0,00 % | +0,00 % | – | Diagnoselauf der neuen On-Chain-Quelle (voller Trade-Strom, 0 Reconnects; zu kurz für Trades – zählt nicht zur Serie) |
+| 2026-09-04 09:14 | 45 min | 97.941 | +0,00 % | +0,00 % | +0,00 % | – | Erstes volles 45-Min-Fenster (On-Chain). 0 Trades – kein Bug: Funnel zeigt legitime Strategie-Ablehnungen, historischer Volltag macht weiter 58 Trades. Selektive Strategie ≈ 1–2 Entries/45 Min |
+| 2026-09-04 10:18 | 8 min | 16.944 | +0,00 % | +0,00 % | +0,00 % | +0,00 % | Anti-Bug-Diagnoselauf (Funnel bestätigt: Dev-Buy-Faltung ok, 5/99 ohne Dev-Buy; zu kurz – zählt nicht zur Serie). Telegram-Zustellung erstmals verifiziert |
