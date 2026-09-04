@@ -1,0 +1,45 @@
+{
+  "recorded_utc": "2026-09-04 10:54",
+  "span_hours": 0.08,
+  "n_events": 11292,
+  "budget_sol": 1.0,
+  "max_smart_buyers": 7,
+  "recycle_trigger_pct": 100.0,
+  "min_market_heat": 3.0,
+  "reference": {
+    "final_equity_sol": 1.0,
+    "return_pct": 0.0,
+    "entries": 0,
+    "closed": 0,
+    "win_rate": null,
+    "max_drawdown_pct": 0.0,
+    "lessons": {}
+  },
+  "density_cap": {
+    "final_equity_sol": 1.0,
+    "return_pct": 0.0,
+    "entries": 0,
+    "closed": 0,
+    "win_rate": null,
+    "max_drawdown_pct": 0.0,
+    "lessons": {}
+  },
+  "recycle_ladder": {
+    "final_equity_sol": 1.0,
+    "return_pct": 0.0,
+    "entries": 0,
+    "closed": 0,
+    "win_rate": null,
+    "max_drawdown_pct": 0.0,
+    "lessons": {}
+  },
+  "regime_gate": {
+    "final_equity_sol": 1.0,
+    "return_pct": 0.0,
+    "entries": 0,
+    "closed": 0,
+    "win_rate": null,
+    "max_drawdown_pct": 0.0,
+    "lessons": {}
+  }
+}
