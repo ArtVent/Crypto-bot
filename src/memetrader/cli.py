@@ -31,6 +31,13 @@ def main(argv: list[str] | None = None) -> int:
     p_replay = sub.add_parser("replay", help="Aufgezeichnete Events (JSONL) durch den Bot spielen")
     p_replay.add_argument("events_file")
 
+    p_review = sub.add_parser("review", help="Täglicher Strategie-Review: Konto + Journal + A/B-Serie, evidenzbasierte Empfehlung")
+    p_review.add_argument("--state", default="state/live-state.json")
+    p_review.add_argument("--journal", default="state/live.journal.jsonl")
+    p_review.add_argument("--reports", default="reports")
+    p_review.add_argument("--history", default="state/equity-history.jsonl")
+    p_review.add_argument("--json", action="store_true")
+
     p_live = sub.add_parser("live", help="Durchgehender Live-Paper-Bot (On-Chain-Strom, Telegram-Alerts, Zustands-Persistenz)")
     p_live.add_argument("--minutes", type=float, default=330.0, help="Laufzeit dieser Session (Runner-Limit beachten)")
     p_live.add_argument("--budget-sol", type=float, default=1.0)
@@ -276,6 +283,13 @@ def main(argv: list[str] | None = None) -> int:
             print("Angewendet (innerhalb der Bounds) und in memetrader.tuning.json persistiert.")
         else:
             print("(--apply zum begrenzten Übernehmen)")
+        return 0
+
+    if args.cmd == "review":
+        from .review import daily_review, format_review
+
+        r = daily_review(args.state, args.journal, args.reports, args.history)
+        print(json.dumps(r, ensure_ascii=False, indent=2) if args.json else format_review(r))
         return 0
 
     if args.cmd == "live":
