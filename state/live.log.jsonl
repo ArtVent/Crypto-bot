@@ -2,3 +2,36 @@
 {"t": 1788545126.9750023, "event": "exit", "mint": "BR2ueHNCESqrTz2ts4PawbAYheWgCtqbe1mewtUapump", "symbol": "PONSIF", "reason": "creator_sold", "fraction": 1.0, "sol_received": 0.05746671910759728, "risk": {"open_positions": 0, "spent_sol": 0.05, "realized_pnl_sol": 0.0075, "halted": false}}
 {"t": 1788545629.6224043, "event": "entry", "mint": "9iKEYWM6VmJ6fTFqJhqtdS2yecN6PidrMv4n7YJwpump", "symbol": "homeless", "sol": 0.05, "tokens": 1056203.1218628574, "fill_pct": 10.1, "unique_buyers": 17}
 {"t": 1788545727.0786319, "event": "lesson", "mint": "BR2ueHNCESqrTz2ts4PawbAYheWgCtqbe1mewtUapump", "symbol": "PONSIF", "lesson": "overreacted_creator_exit", "pnl_sol": 0.007466719107597275, "post_peak_value_sol": 0.059372}
+{"t": 1788547823.1101727, "event": "entry", "mint": "7NkruzXQdSJu2HX7fQbw9Xzfw1VhrK9SkkKBzs85pump", "symbol": "PEPE", "sol": 0.05, "tokens": 1015214.788673855, "fill_pct": 11.0, "unique_buyers": 46}
+{"t": 1788548686.6247718, "event": "entry", "mint": "Bxf9gKXKooAvgn7vg1f6VugHXQtGuoqzEjUS9VRapump", "symbol": "DUNAMI", "sol": 0.05, "tokens": 1042034.0457653654, "fill_pct": 10.4, "unique_buyers": 24}
+{"t": 1788548706.9689946, "event": "exit", "mint": "Bxf9gKXKooAvgn7vg1f6VugHXQtGuoqzEjUS9VRapump", "symbol": "DUNAMI", "reason": "stop_loss", "fraction": 1.0, "sol_received": 0.03159965324762857, "risk": {"open_positions": 1, "spent_sol": 0.1, "realized_pnl_sol": -0.022, "halted": false}}
+{"t": 1788549287.4028292, "event": "exit", "mint": "7NkruzXQdSJu2HX7fQbw9Xzfw1VhrK9SkkKBzs85pump", "symbol": "PEPE", "reason": "time_stop", "fraction": 1.0, "sol_received": 0.05037286282264404, "risk": {"open_positions": 0, "spent_sol": 0.1, "realized_pnl_sol": -0.0217, "halted": false}}
+{"t": 1788549307.0213494, "event": "lesson", "mint": "Bxf9gKXKooAvgn7vg1f6VugHXQtGuoqzEjUS9VRapump", "symbol": "DUNAMI", "lesson": "bad_entry", "pnl_sol": -0.018400346752371434, "post_peak_value_sol": 0.046503}
+{"t": 1788549887.422475, "event": "lesson", "mint": "7NkruzXQdSJu2HX7fQbw9Xzfw1VhrK9SkkKBzs85pump", "symbol": "PEPE", "lesson": "good_time_stop", "pnl_sol": 0.0003728628226440378, "post_peak_value_sol": 0.049925}
+{"t": 1788552209.8832083, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552212.5926409, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552214.1640224, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552214.1644254, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552214.1647193, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552214.1649885, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552214.165376, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552214.1655567, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552215.5655644, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552215.8898706, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552215.8901317, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552216.2174308, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552216.5289543, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552216.5294983, "event": "entry_blocked", "mint": "5bXdw5TFayM6m2DCyXYX9kXAvaKyVSiFX1nN8LYypump", "why": "serial_creator_live"}
+{"t": 1788552929.4041128, "event": "entry", "mint": "DDi8yKP8BBeS7hDMTfrFC38WTmgZrqZ3hjSZSYLspump", "symbol": "ROBERT", "sol": 0.05, "tokens": 1036078.7421145785, "fill_pct": 10.5, "unique_buyers": 35}
+{"t": 1788554138.6592596, "event": "exit", "mint": "DDi8yKP8BBeS7hDMTfrFC38WTmgZrqZ3hjSZSYLspump", "symbol": "ROBERT", "reason": "time_stop", "fraction": 1.0, "sol_received": 0.05032178428096731, "risk": {"open_positions": 0, "spent_sol": 0.15, "realized_pnl_sol": -0.0213, "halted": false}}
+{"t": 1788554233.7205884, "event": "entry", "mint": "8EdzHKSEGTp4cex8sTX55rGhVBiEoWWeih24VyeRpump", "symbol": "Rotabo", "sol": 0.05, "tokens": 827587.0637145281, "fill_pct": 16.0, "unique_buyers": 34}
+{"t": 1788554316.36863, "event": "entry", "mint": "2Vr799rVScYUR9RQZzDax1UiN5aTK9mkajsTVUXBpump", "symbol": "VRO", "sol": 0.05, "tokens": 985843.2142045855, "fill_pct": 11.7, "unique_buyers": 35}
+{"t": 1788554738.7053027, "event": "lesson", "mint": "DDi8yKP8BBeS7hDMTfrFC38WTmgZrqZ3hjSZSYLspump", "symbol": "ROBERT", "lesson": "good_time_stop", "pnl_sol": 0.0003217842809673105, "post_peak_value_sol": 0.06378}
+{"t": 1788554753.970334, "event": "exit", "mint": "2Vr799rVScYUR9RQZzDax1UiN5aTK9mkajsTVUXBpump", "symbol": "VRO", "reason": "take_profit", "fraction": 0.5, "sol_received": 0.05442435756791622, "risk": {"open_positions": 2, "spent_sol": 0.25, "realized_pnl_sol": -0.0213, "halted": false}}
+{"t": 1788555183.1465123, "event": "exit", "mint": "2Vr799rVScYUR9RQZzDax1UiN5aTK9mkajsTVUXBpump", "symbol": "VRO", "reason": "creator_sold", "fraction": 1.0, "sol_received": 0.018693798851271228, "risk": {"open_positions": 1, "spent_sol": 0.25, "realized_pnl_sol": 0.0018, "halted": false}}
+{"t": 1788555269.4779944, "event": "exit", "mint": "8EdzHKSEGTp4cex8sTX55rGhVBiEoWWeih24VyeRpump", "symbol": "Rotabo", "reason": "time_stop", "fraction": 1.0, "sol_received": 0.048344671216187046, "risk": {"open_positions": 0, "spent_sol": 0.25, "realized_pnl_sol": 0.0001, "halted": false}}
+{"t": 1788555783.28916, "event": "lesson", "mint": "2Vr799rVScYUR9RQZzDax1UiN5aTK9mkajsTVUXBpump", "symbol": "VRO", "lesson": "good_creator_exit", "pnl_sol": 0.02311815641918745, "post_peak_value_sol": 0.037161}
+{"t": 1788555869.550057, "event": "lesson", "mint": "8EdzHKSEGTp4cex8sTX55rGhVBiEoWWeih24VyeRpump", "symbol": "Rotabo", "lesson": "good_time_stop", "pnl_sol": -0.0016553287838129566, "post_peak_value_sol": 0.051844}
+{"t": 1788556558.7025099, "event": "entry", "mint": "ETSdqF9PNYEB2u7ERzNaKYMxK4CPwdTjKgJUpLtfpump", "symbol": "Nopps", "sol": 0.05, "tokens": 702135.8465691948, "fill_pct": 20.4, "unique_buyers": 39}
+{"t": 1788556894.1894426, "event": "exit", "mint": "ETSdqF9PNYEB2u7ERzNaKYMxK4CPwdTjKgJUpLtfpump", "symbol": "Nopps", "reason": "stop_loss", "fraction": 1.0, "sol_received": 0.03189996185080054, "risk": {"open_positions": 0, "spent_sol": 0.3, "realized_pnl_sol": -0.018, "halted": false}}
+{"t": 1788557494.3800573, "event": "lesson", "mint": "ETSdqF9PNYEB2u7ERzNaKYMxK4CPwdTjKgJUpLtfpump", "symbol": "Nopps", "lesson": "good_stop", "pnl_sol": -0.018100038149199464, "post_peak_value_sol": 0.02892}

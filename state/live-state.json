@@ -1,7 +1,10 @@
 {
-  "realized_pnl_sol": -0.003643,
-  "equity_sol": 0.996357,
-  "sessions": 1,
-  "total_entries": 2,
-  "updated_utc": "2026-09-04 18:17"
+  "realized_pnl_sol": -0.017986,
+  "equity_sol": 0.982014,
+  "sessions": 2,
+  "total_entries": 8,
+  "last_report_day": 2026247,
+  "day_start_realized": 0.0,
+  "day_entries": 6,
+  "updated_utc": "2026-09-05 00:02"
 }
